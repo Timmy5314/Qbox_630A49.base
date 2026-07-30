@@ -77,8 +77,16 @@ _external/        referentie-clones van GitHub (NIET geladen door FiveM, gitigno
 - Voertuigsleutels via `exports.qbx_vehiclekeys` (entity handles, geen plates).
 
 ### Let op bij syntax
-FiveM's Lua accepteert `?.` (safe navigation). Standaard `luac` niet. Wil je een
-bestand lokaal syntax-checken, vermijd `?.` of check met de FiveM runtime.
+FiveM's Lua (CfxLua) kent uitbreidingen die standaard `luac` niet parseert:
+
+- `?.` safe navigation — bv. `exports.qbx_vehicles:GetPlayerVehicle(id)?.citizenid`
+- `+=` `-=` `*=` `/=` compound assignment — bv. `notified += 1`
+
+Een `luac -p` fout op een regel met een van deze twee is **geen echte fout**.
+Controleer altijd of de gemelde regel er een van jou is voordat je hem "fixt".
+
+Bekende voorbeelden die altijd falen op luac: `ND_Ambulance/server/main.lua:78`,
+`ps-housing/server/sv_property.lua:790`, `qbx_vehiclekeys/server/keys.lua`.
 
 Syntaxcheck: `"/c/Users/timwi/AppData/Local/Programs/Lua/bin/luac" -p <bestand>`
 

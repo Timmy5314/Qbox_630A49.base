@@ -111,6 +111,12 @@ end)
 -- fired by Bridge.revivePlayer: defib, hospital treatment, EMS and /revive.
 AddEventHandler("ND_Ambulance:playerRevived", function(src)
     clearDeathTime(src)
+
+    -- Tell the anti-cheat this health jump is legitimate. Without it a revive
+    -- reads as healthRegen: 0 -> 200 with no source.
+    if GetResourceState("los_anticheat") == "started" then
+        exports.los_anticheat:ExpectHeal(src, 15)
+    end
 end)
 
 lib.callback.register("ND_Ambulance:respawnPlayer", function(src)

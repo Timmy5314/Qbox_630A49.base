@@ -23,16 +23,24 @@ local skipOwnershipCheck = {
 }
 
 ---Controleert of de speler het wapen daadwerkelijk in zijn ox_inventory heeft.
+---
+---LET OP bij het aanpassen van de naam die we doorgeven: Inventory.Search
+---normaliseert de zoekterm intern naar uppercase, maar leest het resultaat
+---daarna uit met `returnData[items[1]]` — de ONgenormaliseerde string. Geef je
+---'weapon_pistol' mee, dan mist die lookup en krijg je een tabel terug in plaats
+---van een getal. Altijd de uppercase naam doorgeven.
 ---@param source number
----@param weaponName string
+---@param weaponName string Uppercase, bijvoorbeeld WEAPON_PISTOL
 ---@return boolean
 local function hasWeaponItem(source, weaponName)
-    local ok, items = pcall(function()
-        return exports.ox_inventory:Search(source, 'count', weaponName:lower())
+    local ok, count = pcall(function()
+        return exports.ox_inventory:Search(source, 'count', weaponName)
     end)
 
-    if not ok then return true end -- inventory niet bereikbaar: geen conclusie trekken
-    return (items or 0) > 0
+    -- Inventory niet bereikbaar of speler onbekend: geen conclusie trekken.
+    if not ok or type(count) ~= 'number' then return true end
+
+    return count > 0
 end
 
 AddEventHandler('weaponDamageEvent', function(sender, data)
@@ -94,6 +102,9 @@ AddEventHandler('weaponDamageEvent', function(sender, data)
             ('schoot met %s zonder het item te bezitten'):format(weapon.name),
             { weapon = weaponHash })
     end
+
+    -- Schot registreren voor de ammo-sync check in inventory.lua.
+    AC_RecordShot(sender, weapon.name)
 
     -- Treffers registreren voor de godmode-check in heartbeat.lua. Alleen
     -- geldige schade telt mee; geannuleerde events hebben hierboven al returned.

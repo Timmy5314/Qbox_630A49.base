@@ -1,3 +1,12 @@
+-- Property interiors sit at fixed, far-away coordinates, so entering one reads
+-- as a teleport to the anti-cheat's movement check. Announce it instead.
+-- Safe to call when los_anticheat is not running.
+---@param src number
+function ExpectTeleport(src)
+    if GetResourceState("los_anticheat") ~= "started" then return end
+    exports.los_anticheat:ExpectTeleport(src)
+end
+
 Property = {
     property_id = nil,
     propertyData = nil,
@@ -559,6 +568,7 @@ RegisterNetEvent('ps-housing:server:enterGarden', function (property_id)
     end
 
     property.playersInGarden[tostring(src)] = true
+    ExpectTeleport(src)
 end)
 
 RegisterNetEvent('ps-housing:server:enterProperty', function (property_id, spawn,isanmlo)
@@ -570,6 +580,8 @@ RegisterNetEvent('ps-housing:server:enterProperty', function (property_id, spawn
         Debug("Properties returned", json.encode(PropertiesTable, {indent = true}))
         return
     end
+
+    ExpectTeleport(src)
 
     local citizenid = GetCitizenid(src)
 
@@ -601,10 +613,12 @@ RegisterNetEvent("ps-housing:server:showcaseProperty", function(property_id)
 
     local property = Property.Get(property_id)
 
-    if not property then 
+    if not property then
         Debug("Properties returned", json.encode(PropertiesTable, {indent = true}))
-        return 
+        return
     end
+
+    ExpectTeleport(src)
 
 
     local PlayerData = GetPlayerData(src)
@@ -719,6 +733,7 @@ RegisterNetEvent('ps-housing:server:leaveProperty', function (property_id)
 
     if not property then return end
 
+    ExpectTeleport(src)
     property:PlayerLeave(src)
 end)
 

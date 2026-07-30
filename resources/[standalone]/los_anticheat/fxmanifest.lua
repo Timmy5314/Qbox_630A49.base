@@ -22,6 +22,7 @@ server_scripts {
     'server/modules/damage.lua',
     'server/modules/entities.lua',
     'server/modules/heartbeat.lua',
+    'server/modules/inventory.lua',
     'server/modules/events.lua',
     'server/admin.lua',
 }

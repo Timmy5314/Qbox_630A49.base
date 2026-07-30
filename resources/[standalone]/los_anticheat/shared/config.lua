@@ -59,6 +59,9 @@ Config.weights = {
     blacklistedWeapon   = 80,   -- wapen dat op deze server niet bestaat
     explosionBlocked    = 50,   -- explosietype dat geen enkel script gebruikt
     illegalEntitySpawn  = 35,   -- client spawnde een voertuig zonder server-registratie
+    restrictedItem      = 55,   -- bezit van een item dat op deze server niet uitgegeven wordt
+    ammoSync            = 40,   -- bleef vuren zonder munitie te verbruiken
+    moneyJump           = 35,   -- geldsprong zonder aangemelde bron
 
     -- Sterke heuristiek: server meet zelf, maar sync kan liegen.
     teleport            = 25,

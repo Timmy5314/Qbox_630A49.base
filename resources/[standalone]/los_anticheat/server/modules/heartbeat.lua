@@ -27,6 +27,12 @@ local pedToSource = {}
 ---@type table<number, number> source -> timestamp tot wanneer healen verwacht wordt
 local expectedHeals = {}
 
+---@type table<number, number> source -> timestamp tot wanneer verplaatsen verwacht wordt
+---Bewust een aparte tabel en niet een veld op de sample: een speler kan
+---aangemeld worden voordat hij ooit bemonsterd is, en dan mag de grace niet
+---verloren gaan.
+local graceUntil = {}
+
 -- =========================================================================
 --  Exports voor andere resources
 -- =========================================================================
@@ -50,9 +56,12 @@ exports('ExpectHeal', AC_ExpectHeal)
 ---@param source number
 ---@param seconds number?
 function AC_ExpectTeleport(source, seconds)
+    graceUntil[source] = os.time() + (seconds or Config.movement.graceSeconds)
+
+    -- Vorige positie weggooien, anders wordt de sprong alsnog gemeten zodra de
+    -- grace verloopt maar de speler nog niet opnieuw bemonsterd is.
     local sample = samples[source]
-    if not sample then return end
-    sample.grace = os.time() + (seconds or Config.movement.graceSeconds)
+    if sample then sample.coords = nil end
 end
 
 exports('ExpectTeleport', AC_ExpectTeleport)
@@ -89,7 +98,7 @@ local function checkMovement(source, sample, ped)
     local coords = GetEntityCoords(ped)
     local now = os.time()
 
-    if sample.grace > now or inIgnoredZone(coords) then
+    if (graceUntil[source] or 0) > now or inIgnoredZone(coords) then
         sample.coords = coords
         return
     end
@@ -232,8 +241,15 @@ end)
 
 AddEventHandler('playerDropped', function()
     local src = source
+    local ped = GetPlayerPed(src)
+
     samples[src] = nil
     expectedHeals[src] = nil
+    graceUntil[src] = nil
+
+    -- Ped-handles worden hergebruikt; een oude entry zou treffers aan de
+    -- verkeerde speler toeschrijven.
+    if ped and ped ~= 0 then pedToSource[ped] = nil end
 end)
 
 CreateThread(function()
@@ -250,9 +266,12 @@ CreateThread(function()
 
                 local sample = samples[src]
                 if not sample then
+                    -- Nieuwe speler: grace op het spawnen, tenzij een script al
+                    -- een langere grace heeft aangemeld.
+                    graceUntil[src] = math.max(graceUntil[src] or 0, os.time() + Config.movement.graceSeconds)
+
                     sample = {
                         lastMove = os.time(),
-                        grace = os.time() + Config.movement.graceSeconds,
                         hits = 0,
                         noDamageSamples = 0,
                         missedBeats = 0,

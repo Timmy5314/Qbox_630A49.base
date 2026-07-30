@@ -28,7 +28,7 @@ end
 local function getSession(source)
     local session = sessions[source]
     if not session then
-        session = { score = 0, flags = {}, citizenid = getCitizenId(source) }
+        session = { score = 0, flags = {}, citizenid = getCitizenId(source), lastAction = 0 }
         sessions[source] = session
     end
     return session
@@ -191,7 +191,13 @@ function AC_Flag(source, check, detail, meta)
     for i = 1, #Config.score.thresholds do
         local threshold = Config.score.thresholds[i]
         if session.score >= threshold.points then
-            applyAction(source, session, threshold)
+            -- Alleen handelen als we een ZWAARDERE drempel raken dan de vorige keer.
+            -- Zonder deze check vuurt elke volgende flag boven de warn-drempel
+            -- opnieuw een webhook af en loop je Discord vol.
+            if threshold.points > session.lastAction then
+                session.lastAction = threshold.points
+                applyAction(source, session, threshold)
+            end
             return
         end
     end
@@ -261,6 +267,12 @@ CreateThread(function()
         for _, session in pairs(sessions) do
             if session.score > 0 then
                 session.score = math.max(0, session.score - Config.score.decayPerMinute)
+
+                -- Zakt de score onder de laatst geraakte drempel, dan mag die
+                -- drempel later opnieuw vuren.
+                if session.score < session.lastAction then
+                    session.lastAction = session.score
+                end
             end
         end
     end

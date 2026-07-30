@@ -24,6 +24,11 @@ RegisterNetEvent('police:server:JailPlayer', function(playerId, time)
 
     if not utils.isCop(src) then return end
 
+    -- Jail sits far from the city, so the move reads as a teleport server-side.
+    if GetResourceState('los_anticheat') == 'started' then
+        exports.los_anticheat:ExpectTeleport(playerId, 20)
+    end
+
     local jailed = lib.callback.await('xt-prison:client:enterJail', playerId, time)
     if jailed then
         lib.notify(src, { title = ('Sent to Jail for %s Months'):format(time), type = 'success' })
