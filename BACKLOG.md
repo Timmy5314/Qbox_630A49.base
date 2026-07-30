@@ -22,6 +22,9 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 | 11 | LOW | Geen versiebeheer op de server | git init + baseline commit (7937 bestanden) |
 | 14 | **HIGH** | Sleutel-exploit `qbx_vehiclekeys`. Oorzaak lag dieper dan gedacht: `GetVehiclesFromPlate()` in `bridge/qb/shared.lua` had `plate == vehPlate or GetVehicleNumberPlateText(vehicle)` — die tweede tak is een string en dus altijd waar, waardoor de functie élk voertuig op de server teruggaf | Kentekenvergelijking gefixt + genormaliseerd; afstandscheck op alle client-aanroepbare ingangen; ook `tookKeys` en `hotwiredVehicle` (upstream "TODO: secure this event") en `setVehLockState` |
 | 16 | HIGH | Dirty money bestond niet | `black_money` als tweede ox_inventory account + money type in qbx_core. Item bestond al |
+| 18 | **HIGH** | `renzu_jobs` interactiemenu volledig dood: alle 18 entries vuurden events af waar nul handlers voor bestonden in de hele server | `export`-ondersteuning in interaction.lua; Handcuff/Uncuff/Ziptie/Revive/Treat/Stretcher bedraad op ND_Police en ND_Ambulance exports; rest verborgen |
+| 25 | **HIGH** | `qbx_core` kende geen `marabunta` en geen `mafia` gang, terwijl de opdracht ze allebei vereist | Beide toegevoegd aan `shared/gangs.lua` met grades |
+| 26 | MED | Anti-cheat blacklistte `WEAPON_BZGAS` terwijl de PoliceArmoury het aan agenten verkoopt — elke inzet zou 80 punten opleveren | Van de blacklist gehaald |
 
 ---
 
@@ -35,7 +38,10 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 | 19 | **HIGH** | 1 | **`los_anticheat` staat in dry run.** Voordat `Config.dryRun` uit kan moeten renzu_garage, ps-housing, ND_Ambulance en xt-prison `ExpectTeleport`/`ExpectHeal` aanroepen. Zonder dat scoort elke legitieme garage-uithaling als teleport en elke revive als healthRegen. |
 | 20 | MED | 1 | `Config.entities.blockUnregisteredVehicles` staat uit. Aanzetten kan pas als renzu_garage, renzu_vehicleshop en md-drugs hun spawns via `RegisterSpawn` aanmelden. Nu spawnen die client-side. |
 | 21 | MED | 3 | Alle illegale inkomsten moeten nog op `black_money` worden aangesloten: md-drugs, chopshop, robnpcs, cayo crates, qbx-overvallen. Het account bestaat nu wel, maar niemand vult het. |
-| 17 | MED | 1 | `community_bridge` dead weight: uitzoeken wat `md-drugs` er écht van gebruikt, rest niet laden. |
+| 17 | ~~MED~~ | ~~1~~ | ~~`community_bridge` dead weight~~ — **ONJUIST GEBLEKEN.** md-drugs gebruikt het op ruim 800 aanroepen over 30 API-oppervlakken (Language, Notify, Inventory, Framework, Target, Callback, Menu, Anim, HelpText, Point, Input, VehicleKey). Eruit halen is een herschrijving van ~60 bestanden, geen opruimactie. **Advies: laten staan.** |
+| 22 | **HIGH** | 3 | **meth heeft geen server-event voor verwerking.** meth.lua kent alleen `get*`/`give*` events; de verwerking zit client-side achter een minigame. Daardoor is meth als enige drug niet gang-gebonden te maken zonder eerst een server-event te bouwen. |
+| 23 | MED | 3 | Drugverdeling per gang (crack→ballas, weed→families, meth→marabunta, heroin→vagos) is **mijn voorstel**, niet vastgelegd. Alleen cocaine→mafia lag vast. Staat in `md-drugs/shared/config.lua`, aanpasbaar zonder code. |
+| 24 | MED | 4 | Negen interactie-knoppen zijn verborgen tot ze gebouwd worden: Check ID, Search, Drag, Put/Pull vehicle, GSR, Drug Swab, Breathalyser, Check Vitals, Search Area. Unpaid Bills hoort bij billing (fase 6), Manage License bij cityhall. |
 | 18 | MED | 1 | `ensure [standalone]` start alles alfabetisch; `renzu_garage` verwacht dat `ox_inventory` eerder is (dependency staat in de manifest, dus dit klopt — maar controleren in de startup-log). |
 
 ---
