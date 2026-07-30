@@ -1,0 +1,14 @@
+{
+    "notification": {
+        "marked": "Voertuig gemarkeerd op de kaart",
+        "marked_garage": "Voertuig staat in %s — gemarkeerd op de kaart",
+        "marked_impound": "Voertuig is in beslag genomen bij %s — gemarkeerd op de kaart",
+        "marked_parked": "Voertuig staat op straat geparkeerd — gemarkeerd op de kaart",
+        "out_of_range": "Voertuig staat buiten de garage maar is te ver weg om te lokaliseren",
+        "cannot_locate": "Dit voertuig kan niet gevonden worden"
+    },
+    "states": {
+        "garage_unknown": "Onbekende garage",
+        "parked_street": "Op straat geparkeerd"
+    }
+}

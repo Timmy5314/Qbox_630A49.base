@@ -1,9 +1,17 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'Qbox Garages app for NPWD'
-version '1.1.0'
+description 'Garages app for NPWD — aangepast voor renzu_garage (Los Balos RP)'
+version '1.2.0-losbalos'
 repository 'https://github.com/Qbox-Project/npwd_qbx_garages'
+
+-- renzu_garage vervangt qbx_garages op deze server. Zonder deze dependency
+-- start de app voordat de garage-exports bestaan.
+dependencies {
+    'renzu_garage',
+    'ox_lib',
+    'qbx_core',
+}
 
 ox_lib 'locale'
 shared_scripts {

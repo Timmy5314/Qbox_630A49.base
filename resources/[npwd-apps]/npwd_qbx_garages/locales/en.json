@@ -1,9 +1,14 @@
 {
     "notification": {
         "marked": "Vehicle marked on the map",
+        "marked_garage": "Vehicle is stored at %s — marked on the map",
+        "marked_impound": "Vehicle is impounded at %s — marked on the map",
+        "marked_parked": "Vehicle is parked on the street — marked on the map",
+        "out_of_range": "Vehicle is out of the garage but too far away to locate",
         "cannot_locate": "This vehicle cannot be located"
     },
     "states": {
-        "garage_unknown": "Unknown garage"
+        "garage_unknown": "Unknown garage",
+        "parked_street": "Parked on the street"
     }
 }

@@ -62,6 +62,7 @@ local menus = {
 local vehicleKeys = {
     ['qb'] = 'bridge/vehiclekeys/qb/client/client.lua',
     ['mrnewb'] = 'bridge/vehiclekeys/mrnewb/client/client.lua',
+    ['qbx'] = 'bridge/vehiclekeys/qbx/client/client.lua',
 }
 
 
