@@ -20,6 +20,42 @@ local function getCitizenId(source)
     return player.PlayerData.citizenid
 end
 
+---Controleert of de speler daadwerkelijk bij het voertuig staat.
+---De client stuurt netId's en kentekens; die zijn niet te vertrouwen. Zonder deze
+---check kan elke speler sleutels van elk voertuig op de map opvragen.
+---@param source number ID of the player
+---@param vehicle number Entity handle of the vehicle
+---@return boolean
+function IsPlayerNearVehicle(source, vehicle)
+    if not vehicle or vehicle == 0 or not DoesEntityExist(vehicle) then return false end
+
+    local ped = GetPlayerPed(source)
+    if not ped or ped == 0 then return false end
+
+    -- In het voertuig zitten is altijd geldig, ongeacht afstand tot het middelpunt.
+    if GetVehiclePedIsIn(ped, false) == vehicle then return true end
+
+    return #(GetEntityCoords(ped) - GetEntityCoords(vehicle)) <= config.maxInteractionDistance
+end
+
+---Zoekt de voertuigen met dit kenteken die binnen bereik van de speler staan.
+---@param source number ID of the player
+---@param plate string?
+---@return number[] vehicles
+function GetNearbyVehiclesFromPlate(source, plate)
+    if type(plate) ~= 'string' then return {} end
+
+    local matches = GetVehiclesFromPlate(plate)
+    local nearby = {}
+    for i = 1, #matches do
+        if IsPlayerNearVehicle(source, matches[i]) then
+            nearby[#nearby + 1] = matches[i]
+        end
+    end
+
+    return nearby
+end
+
 RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
     local src = source
     local citizenId = getCitizenId(src)
@@ -129,7 +165,9 @@ end
 exports('HasKeys', HasKeys)
 
 lib.callback.register('qbx_vehiclekeys:server:giveKeys', function(source, netId)
-    GiveKeys(source, NetworkGetEntityFromNetworkId(netId))
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if not IsPlayerNearVehicle(source, vehicle) then return end
+    GiveKeys(source, vehicle)
 end)
 
 AddStateBagChangeHandler('vehicleid', '', function(bagName, _, vehicleId)

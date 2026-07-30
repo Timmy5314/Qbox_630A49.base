@@ -12,6 +12,7 @@ exports('SetLockState', setLockState)
 
 lib.callback.register('qbx_vehiclekeys:server:findKeys', function(source, netId)
     local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if not IsPlayerNearVehicle(source, vehicle) then return end
     if math.random() <= GetVehicleConfig(vehicle).findKeysChance then
         GiveKeys(source, vehicle)
         return true
@@ -19,9 +20,10 @@ lib.callback.register('qbx_vehiclekeys:server:findKeys', function(source, netId)
 end)
 
 lib.callback.register('qbx_vehiclekeys:server:carjack', function(source, netId, weaponTypeGroup)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if not IsPlayerNearVehicle(source, vehicle) then return end
     local chance = config.carjackChance[weaponTypeGroup] or 0.5
     if math.random() <= chance then
-        local vehicle = NetworkGetEntityFromNetworkId(netId)
         GiveKeys(source, vehicle)
         setLockState(vehicle, 'unlock')
         return true
@@ -31,18 +33,25 @@ end)
 RegisterNetEvent('qbx_vehiclekeys:server:playerEnteredVehicleWithEngineOn', function(netId)
     local src = source
     local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if not DoesEntityExist(vehicle) then return end
+    -- Naam van het event is de eis: de speler moet er echt in zitten.
+    if GetVehiclePedIsIn(GetPlayerPed(src), false) ~= vehicle then return end
     if not GetIsVehicleEngineRunning(vehicle) then return end
     GiveKeys(src, vehicle)
 end)
 
----TODO: secure this event
 RegisterNetEvent('qbx_vehiclekeys:server:tookKeys', function(netId)
-    GiveKeys(source, NetworkGetEntityFromNetworkId(netId))
+    local src = source
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if not IsPlayerNearVehicle(src, vehicle) then return end
+    GiveKeys(src, vehicle)
 end)
 
----TODO: secure this event
 RegisterNetEvent('qbx_vehiclekeys:server:hotwiredVehicle', function(netId)
-    GiveKeys(source, NetworkGetEntityFromNetworkId(netId))
+    local src = source
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if not IsPlayerNearVehicle(src, vehicle) then return end
+    GiveKeys(src, vehicle)
 end)
 
 RegisterNetEvent('qb-vehiclekeys:server:breakLockpick', function(itemName)
@@ -51,8 +60,12 @@ RegisterNetEvent('qb-vehiclekeys:server:breakLockpick', function(itemName)
 end)
 
 RegisterNetEvent('qb-vehiclekeys:server:setVehLockState', function(netId, state)
+    local src = source
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 	if type(state) ~= 'number' or not DoesEntityExist(vehicle) then return end
+    -- Zonder deze twee checks kan iedereen elk voertuig op de map open- en dichtdoen.
+    if not IsPlayerNearVehicle(src, vehicle) then return end
+    if not HasKeys(src, vehicle) then return end
     if state == 2 then state = 'lock' else state = 'unlock' end
 	setLockState(vehicle, state)
 end)

@@ -1,7 +1,17 @@
 if GetConvar('qbx_vehiclekeys:enableBridge', 'true') ~= 'true' then return end
 
-local function giveKeys(source, plate)
-    local vehicles = plate and GetVehiclesFromPlate(plate) or {GetVehiclePedIsIn(GetPlayerPed(source), false)}
+---@param source number
+---@param plate string?
+---@param trusted boolean? true wanneer een server-side resource dit aanroept via de export
+local function giveKeys(source, plate, trusted)
+    local vehicles
+    if plate then
+        -- Server-side aanroepers mogen elk kenteken opgeven; clients alleen voertuigen
+        -- die daadwerkelijk naast ze staan.
+        vehicles = trusted and GetVehiclesFromPlate(plate) or GetNearbyVehiclesFromPlate(source, plate)
+    else
+        vehicles = {GetVehiclePedIsIn(GetPlayerPed(source), false)}
+    end
     local success = false
     for i = 1, #vehicles do
         local vehicle = vehicles[i]
@@ -18,10 +28,15 @@ local function giveKeys(source, plate)
     return success
 end
 
-CreateQbExport('GiveKeys', giveKeys)
+CreateQbExport('GiveKeys', function(source, plate)
+    return giveKeys(source, plate, true)
+end)
 
-local function removeKeys(source, plate)
-    local vehicles = GetVehiclesFromPlate(plate)
+---@param source number
+---@param plate string?
+---@param trusted boolean? true wanneer een server-side resource dit aanroept via de export
+local function removeKeys(source, plate, trusted)
+    local vehicles = trusted and GetVehiclesFromPlate(plate) or GetNearbyVehiclesFromPlate(source, plate)
     local success = false
     for i = 1, #vehicles do
         local vehicle = vehicles[i]
@@ -38,14 +53,16 @@ local function removeKeys(source, plate)
     return success
 end
 
-CreateQbExport('RemoveKeys', removeKeys)
+CreateQbExport('RemoveKeys', function(source, plate)
+    return removeKeys(source, plate, true)
+end)
 
 RegisterNetEvent('qb-vehiclekeys:server:AcquireVehicleKeys', function(plate)
-    giveKeys(source, plate)
+    giveKeys(source, plate, false)
 end)
 
 RegisterNetEvent('qb-vehiclekeys:server:removeKeys', function(plate)
-    removeKeys(source, plate)
+    removeKeys(source, plate, false)
 end)
 
 CreateQbExport('HasKeys', function(source, plate)

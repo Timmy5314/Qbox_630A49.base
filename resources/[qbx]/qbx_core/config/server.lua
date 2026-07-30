@@ -2,11 +2,17 @@ return {
     updateInterval = 5, -- how often to update player data in minutes
 
     money = {
-        ---@alias MoneyType 'cash' | 'bank' | 'crypto'
-        ---@alias Money {cash: number, bank: number, crypto: number}
+        ---@alias MoneyType 'cash' | 'bank' | 'crypto' | 'black_money'
+        ---@alias Money {cash: number, bank: number, crypto: number, black_money: number}
         ---@type Money
-        moneyTypes = { cash = 500, bank = 5000, crypto = 0 }, -- type = startamount - Add or remove money types for your server (for ex. blackmoney = 0), remember once added it will not be removed from the database!
-        dontAllowMinus = { 'cash', 'crypto' }, -- Money that is not allowed going in minus
+        -- black_money = zwart geld. De naam MOET exact matchen met:
+        --   1. het ox_inventory item 'black_money' (data/items.lua)
+        --   2. de entry in inventory:accounts in ox.cfg
+        -- De ox_inventory qbx-bridge mapt accountnaam 1-op-1 op money type
+        -- (alleen 'money' wordt op 'cash' gemapt). Wijkt een van de drie af,
+        -- dan valt de sync stil zonder foutmelding.
+        moneyTypes = { cash = 500, bank = 5000, crypto = 0, black_money = 0 }, -- type = startamount - Add or remove money types for your server (for ex. blackmoney = 0), remember once added it will not be removed from the database!
+        dontAllowMinus = { 'cash', 'crypto', 'black_money' }, -- Money that is not allowed going in minus
         paycheckTimeout = 10, -- The time in minutes that it will give the paycheck
         paycheckSociety = false -- If true paycheck will come from the society account that the player is employed at
     },
