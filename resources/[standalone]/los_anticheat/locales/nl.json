@@ -1,0 +1,15 @@
+{
+    "kick_reason": "Je bent verwijderd door de anti-cheat. Neem contact op met staff via Discord als dit onterecht is.",
+    "ban_reason": "Verbannen door de anti-cheat.",
+    "ban_connect": "Je bent verbannen van Los Balos RP.\n\nReden: %s\nTot: %s\n\nBezwaar maken kan via onze Discord.",
+    "menu_title": "Anti-cheat - actieve flags",
+    "all_clear": "Geen geflagde spelers",
+    "no_flags": "Geen flags op deze speler",
+    "no_detail": "Geen verdere toelichting",
+    "no_access": "Je hebt geen toegang tot dit menu",
+    "score_flags": "Score %s - %s flags",
+    "time": "Tijd",
+    "fp_header": "Als false positive markeren?",
+    "fp_content": "Dit halveert het gewicht van check '%s', zodat hij voortaan minder zwaar telt. Gebruik dit als de check op deze server structureel misgaat.",
+    "fp_marked": "Check '%s' gemarkeerd als false positive. Nieuw gewicht: %s"
+}

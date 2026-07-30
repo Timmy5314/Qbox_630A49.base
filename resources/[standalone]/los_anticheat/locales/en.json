@@ -1,0 +1,15 @@
+{
+    "kick_reason": "You were removed by the anti-cheat. Contact staff on Discord if you believe this is a mistake.",
+    "ban_reason": "Banned by the anti-cheat.",
+    "ban_connect": "You are banned from Los Balos RP.\n\nReason: %s\nUntil: %s\n\nAppeal on our Discord.",
+    "menu_title": "Anti-cheat - active flags",
+    "all_clear": "No flagged players",
+    "no_flags": "No flags on this player",
+    "no_detail": "No further detail",
+    "no_access": "You do not have access to this menu",
+    "score_flags": "Score %s - %s flags",
+    "time": "Time",
+    "fp_header": "Mark as false positive?",
+    "fp_content": "This halves the weight of check '%s' so it counts for less from now on. Use this when the check is structurally wrong on this server.",
+    "fp_marked": "Check '%s' marked as false positive. New weight: %s"
+}
