@@ -122,5 +122,46 @@ return {
                 bankAuth = true
             },
         },
+    },
+    -- Marabunta Grande. Ontbrak, maar md-drugs verwerking en de gang-
+    -- interacties in renzu_jobs verwachten hem.
+    ['marabunta'] = {
+        label = 'Marabunta Grande',
+        grades = {
+            [0] = {
+                name = 'Recruit'
+            },
+            [1] = {
+                name = 'Enforcer'
+            },
+            [2] = {
+                name = 'Shot Caller'
+            },
+            [3] = {
+                name = 'Boss',
+                isboss = true,
+                bankAuth = true
+            },
+        },
+    },
+    -- Mafia. Verwerkt als enige cocaine (zie md-drugs Config.GangProcessing).
+    ['mafia'] = {
+        label = 'Mafia',
+        grades = {
+            [0] = {
+                name = 'Associate'
+            },
+            [1] = {
+                name = 'Soldier'
+            },
+            [2] = {
+                name = 'Capo'
+            },
+            [3] = {
+                name = 'Don',
+                isboss = true,
+                bankAuth = true
+            },
+        },
     }
 }

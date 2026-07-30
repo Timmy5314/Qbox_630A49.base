@@ -65,6 +65,85 @@ Config.Drugs = { -- want a drug turn on? keep it true, want it turned off, mark 
     xtc = true,
 }
 
+-- ==========================================================================
+--  GANG-VERWERKING
+-- ==========================================================================
+-- Plukken en oogsten mag IEDEREEN. Verwerken tot verkoopbaar product mag alleen
+-- de gang die die drug toegewezen heeft gekregen.
+--
+-- De gangnamen moeten exact overeenkomen met de sleutels in
+-- qbx_core/shared/gangs.lua. marabunta en mafia zijn daar toegevoegd; ballas,
+-- vagos en families bestonden al.
+--
+-- LET OP: de verdeling hieronder is een voorstel, geen opdracht. Alleen
+-- "cocaine exclusief voor de mafia" lag vast. Pas aan naar wat je wilt.
+Config.GangProcessing = {
+    enabled = true,
+
+    ---@type table<string, string[]> drug -> gangs die mogen verwerken
+    drugs = {
+        cocaine = { 'mafia' },       -- exclusief, expliciet zo gevraagd
+        crack   = { 'ballas' },
+        weed    = { 'families' },
+        meth    = { 'marabunta' },
+        heroin  = { 'vagos' },
+
+        -- Nog niet toegewezen. Elke erkende gang mag deze verwerken.
+        lsd     = { 'ballas', 'families', 'marabunta', 'vagos', 'mafia' },
+        xtc     = { 'ballas', 'families', 'marabunta', 'vagos', 'mafia' },
+        lean    = { 'ballas', 'families', 'marabunta', 'vagos', 'mafia' },
+    },
+
+    ---Welk server-event hoort bij welke drug. Alleen events die hier in staan
+    ---worden gegate; al het andere (plukken, oogsten, verkopen, consumeren)
+    ---blijft voor iedereen open.
+    ---Alle namen hieronder zijn geverifieerd tegen de daadwerkelijke
+    ---RegisterServerEvent/RegisterNetEvent declaraties in server/. Een naam die
+    ---niet bestaat gate stilzwijgend niets, dus wijzig ze niet op gevoel.
+    ---
+    ---Bewust NIET gegate (mag iedereen):
+    ---  get*/steal*/buy*     grondstoffen halen en kopen
+    ---  give*/fill*          uitgifte en toedienen
+    ---  fail*/*back/stop     mislukking en opruimen
+    ---  dryplant/dryoutweed  drogen valt onder oogsten
+    ---@type table<string, string>
+    events = {
+        -- cocaine (cocaine.lua)
+        ['md-drugs:server:makepowder']       = 'cocaine',
+        ['md-drugs:server:cutcokeone']       = 'cocaine',
+        ['md-drugs:server:bagcoke']          = 'cocaine',
+
+        -- crack (crack.lua)
+        ['md-drugs:server:makecrackone']     = 'crack',
+        ['md-drugs:server:bagcrack']         = 'crack',
+
+        -- weed (weed.lua)
+        ['md-drugs:server:MakeWeedItems']    = 'weed',
+        ['md-drugs:server:RollBlunt']        = 'weed',
+
+        -- heroin (heroin.lua)
+        ['md-drugs:server:cutheroin']        = 'heroin',
+        ['md-drugs:server:heatliquidheroin'] = 'heroin',
+
+        -- lsd (lsd.lua)
+        ['md-drugs:server:heatliquid']       = 'lsd',
+        ['md-drugs:server:refinequalityacid']= 'lsd',
+        ['md-drugs:server:maketabpaper']     = 'lsd',
+
+        -- xtc (xtc.lua)
+        ['md-drugs:server:makextc']          = 'xtc',
+        ['md-drugs:server:makingrawxtc']     = 'xtc',
+        ['md-drugs:server:stamp']            = 'xtc',
+
+        -- lean (lean.lua) - makeLean gate staat expliciet in server/lean.lua
+        ['md-drugs:server:makeLean']         = 'lean',
+
+        -- meth: meth.lua kent alleen get*/give* events. De verwerking zit
+        -- client-side achter een minigame en heeft geen eigen server-event.
+        -- Zonder server-event valt er niets te gaten. Zie BACKLOG.
+    },
+}
+
 Config.Bzz = { -- if you have BZZZ props for these turn it on if you want
     cocaine = false,
     heroin =false,

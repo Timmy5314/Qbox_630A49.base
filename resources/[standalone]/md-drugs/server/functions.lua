@@ -43,7 +43,43 @@ local function timeOutThread(src)
     end)
 end
 
+---Mag deze speler deze verwerkingsstap uitvoeren?
+---
+---Plukken en oogsten staat open voor iedereen; alleen de stappen die in
+---Config.GangProcessing.events staan zijn gang-gebonden. Een event dat daar
+---niet in staat wordt altijd toegestaan.
+---@param src number
+---@param event string
+---@return boolean
+function canProcess(src, event)
+    local gate = Config.GangProcessing
+    if not gate or not gate.enabled then return true end
+
+    local drug = gate.events[event]
+    if not drug then return true end
+
+    local allowed = gate.drugs[drug]
+    if not allowed or #allowed == 0 then return true end
+
+    local gang = exports.qbx_core:GetPlayer(src)?.PlayerData?.gang?.name
+    if gang then
+        for i = 1, #allowed do
+            if allowed[i] == gang then return true end
+        end
+    end
+
+    Bridge.Notify.SendNotify(src, Bridge.Language.Locale('Catches.notYourTurf') or
+        'Je weet niet hoe je dit verwerkt. Dit is werk voor een andere organisatie.', 'error')
+
+    return false
+end
+
 function timeOut(src, event)
+    -- De gang-check hangt hier omdat timeOut het enige punt is dat elke
+    -- verwerkingsstap als eerste aanroept en dat de eventnaam meekrijgt.
+    -- true teruggeven breekt de handler af, precies wat we willen.
+    if not canProcess(src, event) then return true end
+
     if timeOutPlayers[src] then
         Bridge.Prints.Warn(Bridge.Language.Locale('Catches.onCooldownWarn', Bridge.Framework.GetPlayerIdentifier(src), event))
         playerWarnings[src] = (playerWarnings[src] or 0) + 1

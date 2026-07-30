@@ -74,6 +74,11 @@ end)
 
 RegisterNetEvent('md-drugs:server:makeLean', function(recipe)
 	local src = source
+	-- Dit event roept geen timeOut aan, waar de gang-check normaal in hangt.
+	-- Daarom hier expliciet.
+	if not canProcess(src, 'md-drugs:server:makeLean') then
+		return
+	end
 	if not Config.Lean.Recipes[recipe] then
 		return
 	end
