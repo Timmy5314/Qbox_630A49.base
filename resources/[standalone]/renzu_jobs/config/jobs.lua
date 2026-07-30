@@ -183,6 +183,8 @@ Config.Jobs = {
                 { index = 10, grade = 0, type = 'citizen_interaction' },
                 { index = 11, grade = 0, type = 'citizen_interaction' },
                 { index = 12, grade = 0, type = 'citizen_interaction' },
+                -- Ziptie (index 19) koppelt aan de bestaande ND_Police export.
+                { index = 19, grade = 0, type = 'citizen_interaction' },
             },
             ['Vehicle Interaction'] = {
                 { index = 1, grade = 0, type = 'vehicle_interaction' },
@@ -553,29 +555,47 @@ Config.Jobs = {
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Interaction menu entries (used by the /interaction command)
--- These are only menu shortcuts, the events themselves live in your other scripts.
+--
+-- LET OP - gecontroleerd juli 2026: alle achttien entries hieronder vuurden
+-- events af waar NIETS in de hele server naar luisterde. Het complete menu was
+-- dood. Er was dus ook geen conflict met ND_Police of ND_Ambulance, er was
+-- domweg geen implementatie.
+--
+-- Wat wel bestaat zijn client exports:
+--   ND_Police    : cuff, uncuff, ziptie, deploySpikestrip, useShield, hasShield
+--   ND_Ambulance : useBag, useDefib, treatment, createStretcher, hasDefib
+--
+-- Entries die daarop aansluiten gebruiken nu `export`. De rest staat op
+-- `unimplemented = true` en wordt door client/interaction.lua verborgen, zodat
+-- je geen knop ziet die niets doet. Haal de vlag weg zodra je hem bouwt.
 -- ─────────────────────────────────────────────────────────────────────────────
 
 Config.Interactions = {
     citizen_interaction = {
-        [1]  = { label = 'Check ID',            event = 'police:identity_card',  icon = 'id-badge',                description = 'Check the nearest person their identification' },
-        [2]  = { label = 'Search',              event = 'police:search',         icon = 'magnifying-glass-dollar', description = 'Search the nearest person' },
-        [3]  = { label = 'Handcuff',            event = 'police:cuff',           icon = 'handcuffs',               description = 'Restrain the nearest person' },
-        [4]  = { label = 'Uncuff',              event = 'police:uncuff',         icon = 'handcuffs',               description = 'Release the nearest person' },
-        [5]  = { label = 'Drag',                event = 'police:drag',           icon = 'person-walking',          description = 'Escort the nearest person' },
-        [6]  = { label = 'Put in Vehicle',      event = 'police:put_in_vehicle', icon = 'car-side',                description = 'Put the nearest person in a vehicle' },
-        [7]  = { label = 'Pull from Vehicle',   event = 'police:out_the_vehicle',icon = 'car-burst',               description = 'Pull the nearest person out of a vehicle' },
-        [8]  = { label = 'Unpaid Bills',        event = 'police:unpaid_bills',   icon = 'money-bill-trend-up',     description = 'Check outstanding fines' },
-        [9]  = { label = 'Manage License',      event = 'police:managelicense',  icon = 'file-lines',              description = 'Manage licenses' },
-        [10] = { label = 'Gunshot Residue',     event = 'police:gsrtest',        icon = 'person-rifle',            description = 'Test for gunshot residue' },
-        [11] = { label = 'Drug Swab Test',      event = 'police:drugtest',       icon = 'capsules',                description = 'Run a drug swab test' },
-        [12] = { label = 'Breathalyser',        event = 'police:breathalizer',   icon = 'wind',                    description = 'Check the alcohol level' },
-        [13] = { label = 'Check Vitals',        event = 'ems:checkvitals',       icon = 'heart-pulse',             description = 'Check vital signs' },
-        [14] = { label = 'Revive',              event = 'ems:revive',            icon = 'kit-medical',             description = 'Revive the nearest person' },
-        [15] = { label = 'Drag Patient',        event = 'ems:drag',              icon = 'person-walking',          description = 'Drag the nearest patient' },
-        [16] = { label = 'Treat Small Wounds',  event = 'ems:small',             icon = 'bandage',                 description = 'Heal up to 50%' },
-        [17] = { label = 'Treat Serious Injury',event = 'ems:big',               icon = 'suitcase-medical',        description = 'Heal up to 100%' },
-        [18] = { label = 'Search Area',         event = 'ems:searchdeadinarea',  icon = 'magnifying-glass',        description = 'Scan the area for casualties' },
+        -- Werkend: gekoppeld aan bestaande ND_Police / ND_Ambulance exports.
+        [3]  = { label = 'Handcuff',            export = 'ND_Police:cuff',       icon = 'handcuffs',               description = 'Restrain the nearest person' },
+        [4]  = { label = 'Uncuff',              export = 'ND_Police:uncuff',     icon = 'handcuffs',               description = 'Release the nearest person' },
+        [19] = { label = 'Ziptie',              export = 'ND_Police:ziptie',     icon = 'link',                    description = 'Ziptie the nearest person' },
+        [14] = { label = 'Revive',              export = 'ND_Ambulance:useDefib',icon = 'kit-medical',             description = 'Revive the nearest person' },
+        [16] = { label = 'Treat Wounds',        export = 'ND_Ambulance:useBag',  icon = 'bandage',                 description = 'Treat the nearest patient' },
+        [15] = { label = 'Stretcher',           export = 'ND_Ambulance:createStretcher', icon = 'bed-pulse',       description = 'Deploy a stretcher' },
+
+        -- Nog niet gebouwd. Verborgen tot er een implementatie is.
+        -- Unpaid Bills hoort bij het billing-systeem, Manage License bij cityhall,
+        -- Vehicle Information en Search Plate bij ps-mdt.
+        [1]  = { label = 'Check ID',            event = 'police:identity_card',  icon = 'id-badge',                description = 'Check the nearest person their identification', unimplemented = true },
+        [2]  = { label = 'Search',              event = 'police:search',         icon = 'magnifying-glass-dollar', description = 'Search the nearest person', unimplemented = true },
+        [5]  = { label = 'Drag',                event = 'police:drag',           icon = 'person-walking',          description = 'Escort the nearest person', unimplemented = true },
+        [6]  = { label = 'Put in Vehicle',      event = 'police:put_in_vehicle', icon = 'car-side',                description = 'Put the nearest person in a vehicle', unimplemented = true },
+        [7]  = { label = 'Pull from Vehicle',   event = 'police:out_the_vehicle',icon = 'car-burst',               description = 'Pull the nearest person out of a vehicle', unimplemented = true },
+        [8]  = { label = 'Unpaid Bills',        event = 'police:unpaid_bills',   icon = 'money-bill-trend-up',     description = 'Check outstanding fines', unimplemented = true },
+        [9]  = { label = 'Manage License',      event = 'police:managelicense',  icon = 'file-lines',              description = 'Manage licenses', unimplemented = true },
+        [10] = { label = 'Gunshot Residue',     event = 'police:gsrtest',        icon = 'person-rifle',            description = 'Test for gunshot residue', unimplemented = true },
+        [11] = { label = 'Drug Swab Test',      event = 'police:drugtest',       icon = 'capsules',                description = 'Run a drug swab test', unimplemented = true },
+        [12] = { label = 'Breathalyser',        event = 'police:breathalizer',   icon = 'wind',                    description = 'Check the alcohol level', unimplemented = true },
+        [13] = { label = 'Check Vitals',        event = 'ems:checkvitals',       icon = 'heart-pulse',             description = 'Check vital signs', unimplemented = true },
+        [17] = { label = 'Treat Serious Injury',event = 'ems:big',               icon = 'suitcase-medical',        description = 'Heal up to 100%', unimplemented = true },
+        [18] = { label = 'Search Area',         event = 'ems:searchdeadinarea',  icon = 'magnifying-glass',        description = 'Scan the area for casualties', unimplemented = true },
     },
     vehicle_interaction = {
         [1]  = { label = 'Vehicle Information', event = 'police:vehicle_infos',  icon = 'file-invoice',      description = 'Look up the vehicle' },

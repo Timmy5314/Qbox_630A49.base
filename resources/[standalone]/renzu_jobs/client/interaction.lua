@@ -8,6 +8,55 @@
 
 Interaction = {}
 
+--[[
+    Een entry kan op twee manieren werk doen:
+
+      event  = 'police:cuff'          -> TriggerEvent
+      export = 'ND_Police:cuff'       -> exports.ND_Police:cuff()
+
+    Exports krijgen de voorkeur. Bij een event kunnen we niet controleren of er
+    iets luistert, bij een export wel: draait de resource niet, dan verbergen we
+    de knop. Dat is belangrijk, want tot juli 2026 vuurden alle achttien
+    entries hier events af waar NIETS in de hele server naar luisterde. Het hele
+    menu was dood zonder dat je het zag.
+
+    Entries zonder implementatie krijgen `unimplemented = true` en worden
+    overgeslagen. Een knop die niets doet is slechter dan geen knop.
+]]
+
+---@param definition table
+---@return boolean
+function isAvailable(definition)
+    if definition.unimplemented then return false end
+
+    if definition.export then
+        local resource = definition.export:match('^([^:]+)')
+        if not resource or GetResourceState(resource) ~= 'started' then
+            return false
+        end
+    end
+
+    return definition.event ~= nil or definition.export ~= nil
+end
+
+---@param definition table
+function runInteraction(definition)
+    if definition.export then
+        local resource, method = definition.export:match('^([^:]+):(.+)$')
+        if resource and method then
+            local ok, err = pcall(function()
+                return exports[resource][method](nil)
+            end)
+            if not ok then
+                Bridge.notify('error', 'Interactions', ('%s gaf een fout: %s'):format(definition.label, err))
+            end
+        end
+        return
+    end
+
+    TriggerEvent(definition.event)
+end
+
 --- Build the menu fresh each time so a promotion is reflected immediately.
 function Interaction.open()
     local job = Bridge.job
@@ -31,13 +80,13 @@ function Interaction.open()
                 local definition = Config.Interactions[entry.type]
                     and Config.Interactions[entry.type][entry.index]
 
-                if definition then
+                if definition and isAvailable(definition) then
                     options[#options + 1] = {
                         title       = definition.label,
                         description = definition.description,
                         icon        = definition.icon,
                         onSelect    = function()
-                            TriggerEvent(definition.event)
+                            runInteraction(definition)
                         end,
                     }
                 end
