@@ -159,7 +159,10 @@ Config.IA = {
 -- To switch systems you normally ONLY change `Config.Housing.system`.
 Config.Housing = {
     enabled = true,             -- false = hide the properties feature entirely (no housing DB queries are run)
-    system  = 'qbx_properties', -- which preset below to use, or 'custom'
+    -- Los Balos RP: qbx_properties draait NIET op deze server. Housing = ps-housing.
+    -- Het qbx_properties preset zou `owner`/`property_name` bevragen terwijl
+    -- ps-housing `owner_citizenid`/`street` gebruikt -> SQL error op elk profiel.
+    system  = 'ps_housing', -- which preset below to use, or 'custom'
 
     -- Presets: ready-made schema mappings for popular housing resources.
     -- `columns` maps the MDT's internal fields to your table's real columns:
