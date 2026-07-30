@@ -83,13 +83,16 @@ end
 ---@param plate string
 ---@param label string
 local function giveKey(src, plate, label)
-    if not Config.Garage.giveKeys or not Config.GarageResource then return end
+    if not Config.Garage.giveKeys then return end
 
     -- Preferred path: let the garage resource own the key format.
-    local ok = pcall(function()
-        return exports[Config.GarageResource]:GiveVehicleKey(plate, src)
-    end)
-    if ok then return end
+    local resource = Config.resolveResource(Config.GarageResource)
+    if resource then
+        local ok = pcall(function()
+            return exports[resource]:GiveVehicleKey(plate, src)
+        end)
+        if ok then return end
+    end
 
     -- Fallback: hand out the key item ourselves with matching metadata.
     if not Config.KeyItem then return end

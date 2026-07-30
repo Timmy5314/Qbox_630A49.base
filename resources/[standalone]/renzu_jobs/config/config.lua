@@ -14,14 +14,34 @@ Config = {}
 -- Integrations
 -- ─────────────────────────────────────────────────────────────────────────────
 
---- Resource name of the [ing script used for the wardrobe points.
---- Must export `openWardrobe`. Set to false to disable wardrobe points entirely.
-Config.ClothingResource = 'renzu_clothes'
+--- Clothing script used by the wardrobe points. Must export `openWardrobe`.
+--- Give it a list and the first one that is actually running wins.
+---
+--- NOTE: a folder like `[renzuzu]` is only a grouping folder in FiveM. The
+--- resource name is the INNER folder, so `[renzuzu]/renzu_garage` is a resource
+--- called `renzu_garage`, not `renzuzu_garage`. Both spellings are listed here
+--- so it works either way.
+--- Set to false to disable wardrobe points entirely.
+Config.ClothingResource = { 'renzuzu_clothes', 'renzu_clothes' }
 
---- Resource name of the garage script. Used only to hand out / take back vehicle
---- keys so job vehicles behave exactly like garage vehicles. Set to false to skip
---- the key system (vehicles then work without keys).
-Config.GarageResource = 'renzu_garage'
+--- Garage script. Used only to hand out / take back vehicle keys so job
+--- vehicles behave exactly like garage vehicles.
+--- Set to false to skip the key system (vehicles then work without keys).
+Config.GarageResource = { 'renzuzu_garage', 'renzu_garage' }
+
+--- Return the first candidate resource that is actually started.
+--- Works on both client and server.
+---@param candidates string|string[]|false
+---@return string? name
+function Config.resolveResource(candidates)
+    if not candidates then return nil end
+    if type(candidates) == 'string' then candidates = { candidates } end
+
+    for _, name in ipairs(candidates) do
+        if GetResourceState(name) == 'started' then return name end
+    end
+    return nil
+end
 
 --- Item name used as the vehicle key by the garage resource.
 Config.KeyItem = 'keys'

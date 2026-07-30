@@ -344,13 +344,13 @@ function TurfClient.openGarage(turfId, point)
         return
     end
 
-    local resource = Config.GarageResource
-    if resource and GetResourceState(resource) == 'started' then
+    local resource = Config.resolveResource(Config.GarageResource)
+    if resource then
         TriggerEvent('renzu_garage:property', ('%s_turf'):format(turfId), point.coord, point.spawn)
         return
     end
 
-    Bridge.notify('error', 'Turf Garage', ('The garage resource "%s" is not running.'):format(tostring(resource)))
+    Bridge.notify('error', 'Turf Garage', 'The garage resource is not running.')
 end
 
 -- ─────────────────────────────────────────────────────────────────────────────

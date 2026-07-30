@@ -178,10 +178,17 @@ qbx_core/shared/jobs.lua, so hiring and promoting will fail for them:
   %s]]):format(table.concat(missing, ', ')))
     end
 
-    if Config.ClothingResource and GetResourceState(Config.ClothingResource) ~= 'started' then
-        lib.print.warn(('clothing resource "%s" is not running - wardrobe points will not work'):format(Config.ClothingResource))
+    local clothing = Config.resolveResource(Config.ClothingResource)
+    if Config.ClothingResource and not clothing then
+        lib.print.warn('no clothing resource is running - wardrobe points will not work')
+    elseif clothing then
+        lib.print.info(('wardrobe points will use "%s"'):format(clothing))
     end
-    if Config.GarageResource and Config.Garage.giveKeys and GetResourceState(Config.GarageResource) ~= 'started' then
-        lib.print.warn(('garage resource "%s" is not running - falling back to the built in key item'):format(Config.GarageResource))
+
+    local garage = Config.resolveResource(Config.GarageResource)
+    if Config.Garage.giveKeys and not garage then
+        lib.print.warn('no garage resource is running - falling back to the built in key item')
+    elseif garage then
+        lib.print.info(('vehicle keys will be handed out by "%s"'):format(garage))
     end
 end)

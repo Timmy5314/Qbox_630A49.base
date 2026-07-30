@@ -3,8 +3,8 @@
     renzu_jobs - wardrobe (client)
 
     renzu_jobs no longer contains a clothing menu. The wardrobe point checks
-    access and then hands over to the clothing resource configured in
-    Config.ClothingResource (renzuzu_clothes by default).
+    access and then hands over to whichever clothing resource in
+    Config.ClothingResource is actually running.
 ]]
 
 Wardrobe = {}
@@ -31,14 +31,16 @@ end
 function Wardrobe.open()
     if busy then return end
 
-    local resource = Config.ClothingResource
-    if not resource then
+    if not Config.ClothingResource then
         Bridge.notify('error', 'Wardrobe', 'No clothing resource is configured.')
         return
     end
 
-    if GetResourceState(resource) ~= 'started' then
-        Bridge.notify('error', 'Wardrobe', ('The clothing resource "%s" is not running.'):format(resource))
+    local resource = Config.resolveResource(Config.ClothingResource)
+    if not resource then
+        Bridge.notify('error', 'Wardrobe', 'The clothing resource is not running.')
+        lib.print.error('no clothing resource started, tried: ' ..
+            table.concat(type(Config.ClothingResource) == 'table' and Config.ClothingResource or { Config.ClothingResource }, ', '))
         return
     end
 
