@@ -20,6 +20,8 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 | 9 | MED | Security-convars allemaal uit; `sv_scriptHookAllowed` ontbrak | scriptHook 0, filterRequestControl 1, phoneExplosions false, networkedSounds false, requestParanoia 1, onesync on |
 | 10 | MED | `sv_licenseKey` stond in de te committen config | Verplaatst naar gitignored `secrets.cfg` |
 | 11 | LOW | Geen versiebeheer op de server | git init + baseline commit (7937 bestanden) |
+| 14 | **HIGH** | Sleutel-exploit `qbx_vehiclekeys`. Oorzaak lag dieper dan gedacht: `GetVehiclesFromPlate()` in `bridge/qb/shared.lua` had `plate == vehPlate or GetVehicleNumberPlateText(vehicle)` — die tweede tak is een string en dus altijd waar, waardoor de functie élk voertuig op de server teruggaf | Kentekenvergelijking gefixt + genormaliseerd; afstandscheck op alle client-aanroepbare ingangen; ook `tookKeys` en `hotwiredVehicle` (upstream "TODO: secure this event") en `setVehLockState` |
+| 16 | HIGH | Dirty money bestond niet | `black_money` als tweede ox_inventory account + money type in qbx_core. Item bestond al |
 
 ---
 
@@ -27,11 +29,12 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 | # | Sev | Fase | Item |
 |---|---|---|---|
-| 12 | **BLOCKER** | 1 | **SQL niet geverifieerd.** Er is geen MySQL-client op deze machine, dus ik kon niet controleren of de tabellen van ps-housing en ps-mdt bestaan. Nu `[ps]` start, faalt housing/MDT hard als ze ontbreken. Zie *Te draaien SQL* hieronder. |
-| 13 | **BLOCKER** | 1 | **Server nog niet opgestart na de wijzigingen.** Alles is statisch geverifieerd (luac + JSON), niet runtime. Startup-log moet schoon zijn vóór verder wordt gebouwd. |
-| 14 | **HIGH** | 2 | **Security hole in `qbx_vehiclekeys`**: `RegisterNetEvent('qb-vehiclekeys:server:AcquireVehicleKeys', function(plate) ...)` in `bridge/qb/server.lua` accepteert een willekeurig kenteken van de client zonder eigendomscheck. Elke speler kan sleutels van elk voertuig opvragen. Zelfde patroon bij `qb-vehiclekeys:server:removeKeys`. |
+| 12 | **BLOCKER** | 1 | **SQL niet geverifieerd, en niet verifieerbaar vanaf deze machine.** Er draait hier geen MySQL en niets luistert op 3306 — de database staat op de host waar de server draait, niet hier. Runbook staat klaar in `install/README.md` met een controlequery die zelf meldt wat ontbreekt. Tim moet dit zelf draaien. |
+| 13 | **BLOCKER** | 1 | **Server niet opgestart, en niet op te starten vanaf deze machine.** Er staat geen FXServer-artifact op C:/D:/E: dat bij deze map hoort; `.replxx_history` en `txaEvent`-regels laten zien dat de server via txAdmin op een andere machine draait (txData-config wijst naar `/home/container/`). Deze map is een werkkopie. Alles is statisch geverifieerd (luac + JSON), niets runtime. **Startup-log van Tim nodig.** |
 | 15 | HIGH | 1 | `sv_enableNetworkedSounds false` kan legitieme geluidsscripts breken (o.a. `mana_audio`). Testen; zo niet werkend → terug naar `true`. |
-| 16 | HIGH | 3 | **Dirty money bestaat niet.** `ox.cfg` heeft `inventory:accounts ["money"]` — geen `black_money`. Model kiezen (advies: item `markedbills` met metadata) en alle illegale inkomsten erop aansluiten. |
+| 19 | **HIGH** | 1 | **`los_anticheat` staat in dry run.** Voordat `Config.dryRun` uit kan moeten renzu_garage, ps-housing, ND_Ambulance en xt-prison `ExpectTeleport`/`ExpectHeal` aanroepen. Zonder dat scoort elke legitieme garage-uithaling als teleport en elke revive als healthRegen. |
+| 20 | MED | 1 | `Config.entities.blockUnregisteredVehicles` staat uit. Aanzetten kan pas als renzu_garage, renzu_vehicleshop en md-drugs hun spawns via `RegisterSpawn` aanmelden. Nu spawnen die client-side. |
+| 21 | MED | 3 | Alle illegale inkomsten moeten nog op `black_money` worden aangesloten: md-drugs, chopshop, robnpcs, cayo crates, qbx-overvallen. Het account bestaat nu wel, maar niemand vult het. |
 | 17 | MED | 1 | `community_bridge` dead weight: uitzoeken wat `md-drugs` er écht van gebruikt, rest niet laden. |
 | 18 | MED | 1 | `ensure [standalone]` start alles alfabetisch; `renzu_garage` verwacht dat `ox_inventory` eerder is (dependency staat in de manifest, dus dit klopt — maar controleren in de startup-log). |
 
@@ -55,16 +58,13 @@ De 15 bronrepos staan geklooond in `_external/` en zijn klaar voor conversie.
 
 ## Te draaien SQL (na akkoord + backup)
 
-Volgorde:
+Volledig runbook staat nu in **`install/README.md`**, met:
 
-1. `resources/[ps]/ps-housing/README - INSTALL INSTRUCTIONS/QBOX/properties.sql`
-2. `resources/[ps]/ps-mdt/sql/qbx.sql`
-3. `resources/[ps]/ps_lib/modules/ORM/server/orm.sql`
-4. `resources/[standalone]/renzu_garage/QBCORE_garage.sql`
-   — bevat `ALTER TABLE player_vehicles ADD ...`. Draai die **alleen als de kolommen
-   nog niet bestaan**, anders faalt de query. Controleer eerst:
-   `SHOW COLUMNS FROM player_vehicles;` — verwacht `impound`, `type`, `job`,
-   `park_coord`, `isparked`.
+- `install/01_check_tables.sql` — wijzigt niets, meldt precies welke tabellen en
+  kolommen ontbreken. Draai deze eerst en draai daarna alleen wat in de lijst staat.
+- `install/02_renzu_garage_columns.sql` — idempotente vervanging van de vijf
+  `ALTER TABLE player_vehicles ADD ...` regels uit `QBCORE_garage.sql`. Het
+  origineel faalt hard als een kolom al bestaat.
 
 Maak eerst een dump:
 
