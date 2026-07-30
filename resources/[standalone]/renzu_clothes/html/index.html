@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renzu Clothes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" class="app" aria-hidden="true">
+
+        <!-- Top bar -->
+        <header class="topbar">
+            <div class="topbar__brand">
+                <span class="topbar__mark" aria-hidden="true"></span>
+                <div class="topbar__text">
+                    <h1 id="shop-name">Clothing Store</h1>
+                    <p class="topbar__sub">Pick at the racks, pay at the register</p>
+                </div>
+            </div>
+
+            <div class="topbar__actions">
+                <div class="wallet">
+                    <span class="wallet__item" title="Cash">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                        <b id="money-cash">0</b>
+                    </span>
+                    <span class="wallet__item" title="Bank">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18M5 10v8m6-8v8m8-8v8M2 19h20M12 3l9 5H3z"/></svg>
+                        <b id="money-bank">0</b>
+                    </span>
+                </div>
+
+                <button id="btn-wardrobe" class="btn" type="button" title="Wardrobe and outfits">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h16v18H4z"/><path d="M12 3v18M9.5 11v2M14.5 11v2"/></svg>
+                    <span class="btn__text">Wardrobe</span>
+                </button>
+
+                <button id="btn-cart" class="btn" type="button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.5 11h10L20 7H6"/><circle cx="9" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg>
+                    <span class="btn__text">Cart</span>
+                    <span id="cart-badge" class="badge" hidden>0</span>
+                </button>
+
+                <button id="btn-close" class="btn btn--icon" type="button" title="Close (ESC)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Categories -->
+        <nav class="sidebar" aria-label="Categories">
+            <p class="sidebar__title">Categories</p>
+            <ul id="category-list" class="category-list"></ul>
+        </nav>
+
+        <!-- Transparent middle: this is where you see your character -->
+        <div id="stage" class="stage" title="Drag to rotate, scroll to zoom">
+            <div class="stage__hint">
+                <kbd>drag</kbd> rotate &nbsp;·&nbsp; <kbd>scroll</kbd> zoom
+            </div>
+        </div>
+
+        <!-- Items in the selected category -->
+        <section class="panel" aria-label="Garments">
+            <div class="panel__head">
+                <h2 id="panel-title">Pick a category</h2>
+                <div class="panel__tools">
+                    <div class="search">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                        <input id="search" type="text" inputmode="numeric" placeholder="Jump to number…" autocomplete="off">
+                    </div>
+                    <button id="btn-revert" class="btn btn--icon" type="button" title="Back to what you are actually wearing">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h9a5 5 0 010 10H8"/><path d="M4 10l4-4M4 10l4 4"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="arms-row" class="arms" hidden>
+                <span class="arms__label">Sleeves / arms</span>
+                <div class="stepper">
+                    <button type="button" data-arms="-1" aria-label="Previous">−</button>
+                    <b id="arms-value">0</b>
+                    <button type="button" data-arms="1" aria-label="Next">+</button>
+                </div>
+            </div>
+
+            <div id="item-grid" class="item-grid"></div>
+
+            <div id="pager" class="pager" hidden>
+                <button type="button" class="pager__btn" data-page="prev" aria-label="Previous page">
+                    <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+                </button>
+                <span id="pager-label">1 / 1</span>
+                <button type="button" class="pager__btn" data-page="next" aria-label="Next page">
+                    <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+
+            <div id="detail" class="detail" hidden>
+                <div class="detail__head">
+                    <span id="detail-name" class="detail__name"></span>
+                    <span id="detail-price" class="detail__price"></span>
+                </div>
+                <div id="detail-swatches" class="swatches"></div>
+                <button id="btn-add" class="btn btn--primary" type="button">Add to cart</button>
+            </div>
+
+            <div id="panel-empty" class="panel__empty">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7l4-3 4 2 4-2 4 3-2.5 3V20H6.5V10z"/></svg>
+                <p>Pick a category on the left to get started.</p>
+            </div>
+        </section>
+
+        <!-- Camera controls -->
+        <div class="controls">
+            <div class="controls__group" role="group" aria-label="Camera">
+                <button type="button" class="zone-btn is-active" data-zone="full">Full</button>
+                <button type="button" class="zone-btn" data-zone="head">Head</button>
+                <button type="button" class="zone-btn" data-zone="torso">Torso</button>
+                <button type="button" class="zone-btn" data-zone="legs">Legs</button>
+                <button type="button" class="zone-btn" data-zone="feet">Feet</button>
+            </div>
+            <div class="controls__group" role="group" aria-label="Rotate">
+                <button type="button" class="btn btn--icon" data-rotate="-30" title="Rotate left">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+                </button>
+                <button type="button" class="btn btn--icon" data-rotate="30" title="Rotate right">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Cart -->
+        <aside id="cart" class="cart" aria-label="Cart">
+            <div class="cart__head">
+                <h2>Cart</h2>
+                <button id="cart-close" class="btn btn--icon" type="button" title="Close">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+            </div>
+
+            <p id="cart-note" class="cart__note" hidden>
+                You are at the register. Everything you picked up is listed below.
+            </p>
+
+            <div id="cart-items" class="cart__items"></div>
+
+            <div class="cart__foot">
+                <p class="cart__hint">Purchases go into your inventory. Use an item to put it on.</p>
+
+                <div id="pay-row" class="pay">
+                    <button type="button" class="pay__btn is-active" data-account="bank">Bank</button>
+                    <button type="button" class="pay__btn" data-account="cash">Cash</button>
+                </div>
+
+                <div class="cart__total">
+                    <span>Total</span>
+                    <b id="cart-total">$0</b>
+                </div>
+
+                <button id="btn-checkout" class="btn btn--primary" type="button" disabled>Checkout</button>
+            </div>
+        </aside>
+
+        <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

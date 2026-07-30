@@ -1,0 +1,71 @@
+# qbx_visuals - visualsettings overrides
+#
+# Formaat: sleutel <tab of spaties> waarde
+# Regels die met # of // beginnen worden overgeslagen.
+#
+# Alleen de sleutels die hier staan worden overschreven. Alles wat je weglaat
+# houdt zijn standaardwaarde, dus dit bestand hoeft niet compleet te zijn.
+#
+# Wil je meer sleutels? Haal het originele common/data/visualsettings.dat uit
+# je eigen GTA V met OpenIV (die heb je al staan) en kopieer de regels die je
+# wilt aanpassen hierheen. Verzonnen sleutels doen simpelweg niets.
+#
+# Wat hieronder staat is de emissive-sterkte van voertuiglampen. Dat is de
+# grootste winst die visualsettings je geeft: koplampen, remlichten en
+# knipperlichten worden 's nachts veel beter leesbaar en lopen mooi uit in de
+# bloom, zonder dat het de performance raakt.
+#
+# 'day' waardes zijn hoger dan 'night' omdat een lamp overdag meer moet
+# opbrengen om tegen het zonlicht op te vallen.
+
+# --- koplampen ---
+car.headlight.day.emissive.on               160.00
+car.headlight.night.emissive.on              90.00
+car.headlight.day.emissive.off                0.00
+car.headlight.night.emissive.off              0.00
+
+# --- achterlichten ---
+car.taillight.day.emissive.on               170.00
+car.taillight.night.emissive.on             120.00
+car.taillight.day.emissive.off                0.00
+car.taillight.night.emissive.off              0.00
+
+# --- remlichten ---
+car.brakelight.day.emissive.on              220.00
+car.brakelight.night.emissive.on            165.00
+car.brakelight.day.emissive.off               0.00
+car.brakelight.night.emissive.off             0.00
+
+# --- derde remlicht ---
+car.middlebrakelight.day.emissive.on        200.00
+car.middlebrakelight.night.emissive.on      150.00
+car.middlebrakelight.day.emissive.off         0.00
+car.middlebrakelight.night.emissive.off       0.00
+
+# --- knipperlichten ---
+car.indicator.day.emissive.on               220.00
+car.indicator.night.emissive.on             190.00
+car.indicator.day.emissive.off                0.00
+car.indicator.night.emissive.off              0.00
+
+# --- achteruitrijlichten ---
+car.reversinglight.day.emissive.on           40.00
+car.reversinglight.night.emissive.on         18.00
+car.reversinglight.day.emissive.off           0.00
+car.reversinglight.night.emissive.off         0.00
+
+# --- grootlicht / standaard lamp ---
+car.defaultlight.day.emissive.on           2000.00
+car.defaultlight.night.emissive.on         1300.00
+car.defaultlight.day.emissive.off             0.00
+car.defaultlight.night.emissive.off           0.00
+
+# --- extra lampen (lightbars, mistlampen) ---
+car.extralight.day.emissive.on              300.00
+car.extralight.night.emissive.on            150.00
+car.extralight.day.emissive.off               0.00
+car.extralight.night.emissive.off             0.00
+
+# --- algemene vermenigvuldiger over alle voertuiglampen ---
+# Voorzichtig mee zijn: dit werkt over alles hierboven heen.
+car.emissiveMultiplier                        1.60

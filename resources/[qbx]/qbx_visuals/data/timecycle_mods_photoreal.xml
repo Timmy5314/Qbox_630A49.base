@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    qbx_visuals - custom timecycle modifiers
+
+    Alle variabelen en waardes zijn gecontroleerd tegen het originele
+    timecycle_mods_1.xml van GTA V (262 modifiers, 5933 regels).
+
+    FORMAAT: <variabele>WAARDE 0.000</variabele>
+    De waarde staat IN het element, niet in een value="..." attribuut.
+
+    !! postfx_desaturation is een SATURATIE-VERMENIGVULDIGER, geen
+       ontzadigings-hoeveelheid. De naam liegt. Bewijs uit het spelbestand:
+       de zwart-witfilters 'blackNwhite' en 'CAMERA_BW' staan allebei op
+       0.000. Dus:
+
+           0.00 = volledig grijs
+           1.00 = normale kleur
+           1.30 = extra verzadigd  (VagosSPLASH)
+           4.15 = knalkleuren      (spectator10)
+
+       Blijf hier dus dicht bij 1.0. Alles onder 0.80 is al fors.
+
+    postfx_vignetting_intensity   0.00 = geen vignette, 1.00 = vol
+    postfx_vignetting_radius      LAGER = strakker/sterker. 3.0 is de
+                                  bewakingscamera-look, 10.0 is normaal,
+                                  12.5 is nauwelijks zichtbaar.
+    postfx_vignetting_contrast    0.00 = zachte rand, 1.00 = harde rand
+    postfx_intensity_bloom        0.00 - 5.00, normaal rond 0.70
+    postfx_bright_pass_thresh     lager = meer van het beeld bloomt
+    postfx_exposure              -2.00 - 2.00, 0.00 = ongewijzigd
+
+    BEWUST WEGGELATEN:
+      * postfx_correct_col_r/g/b + postfx_correct_cutoff (kleurtint). De
+        wisselwerking daartussen heb ik niet kunnen vaststellen, en kleur is
+        precies waar het eerder misging. Zie de README als je toch een warme
+        of koele tint wilt; daar staan de waardes van de vanilla-filters.
+      * postfx_noise en postfx_noise_size. Geldige namen, maar in alle 262
+        vanilla-modifiers 0.000, dus geen enkel bewijs dat ze werken.
+
+    numMods moet exact gelijk zijn aan het aantal regels in de modifier.
+-->
+<timecycle_modifier_data version="1.000000">
+
+    <!-- ================= HELDER WEER ================= -->
+
+    <!-- Dag: heel licht contrast, nauwelijks minder verzadigd. -->
+    <modifier name="pr_day" numMods="8" userFlags="0">
+        <postfx_exposure>0.020 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.700 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.500 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.550 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>0.970 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.220 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>10.500 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.050 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- Zonsopgang: zacht, iets vollere kleur. -->
+    <modifier name="pr_dawn" numMods="8" userFlags="0">
+        <postfx_exposure>0.040 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.620 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.520 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.650 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>1.020 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.240 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>10.500 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.050 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- Zonsondergang: gouden uur, meer bloom en wat vollere kleur. -->
+    <modifier name="pr_dusk" numMods="8" userFlags="0">
+        <postfx_exposure>0.050 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.600 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.540 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.700 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>1.050 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.260 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>10.000 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.060 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- Nacht: iets lichter zodat je wat ziet, sterkere bloom op
+         straatverlichting, heel licht ontzadigd. -->
+    <modifier name="pr_night" numMods="8" userFlags="0">
+        <postfx_exposure>0.080 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.650 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.520 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.650 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>0.930 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.300 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>9.500 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.080 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- ================= BEWOLKT / SLECHT WEER ================= -->
+
+    <modifier name="pr_overcast" numMods="8" userFlags="0">
+        <postfx_exposure>0.030 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.680 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.500 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.550 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>0.950 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.250 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>10.200 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.060 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- Regen overdag: koeler oogt vooral door minder verzadiging. -->
+    <modifier name="pr_rain_day" numMods="8" userFlags="0">
+        <postfx_exposure>0.040 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.650 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.520 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.600 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>0.880 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.260 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>10.000 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.060 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- Regen 's nachts: veel bloom zodat neon en koplampen uitlopen over
+         het natte wegdek. -->
+    <modifier name="pr_rain_night" numMods="8" userFlags="0">
+        <postfx_exposure>0.100 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.620 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.540 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.720 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>0.860 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.320 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>9.200 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.080 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- Mist en smog: het meest ontzadigd, maar nog steeds ruim boven grijs. -->
+    <modifier name="pr_fog" numMods="8" userFlags="0">
+        <postfx_exposure>0.060 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.720 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.480 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.500 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>0.840 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.160 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>11.000 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.030 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- Sneeuw: brandt snel uit, dus exposure omlaag en bloom-drempel omhoog. -->
+    <modifier name="pr_snow" numMods="8" userFlags="0">
+        <postfx_exposure>-0.080 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.800 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.450 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.450 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>0.940 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.220 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>10.500 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.050 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- ================= BIJZONDERE SITUATIES ================= -->
+
+    <!-- Hoog in de lucht: bijna geen vignette, helder zicht. -->
+    <modifier name="pr_aerial" numMods="8" userFlags="0">
+        <postfx_exposure>0.020 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.700 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.500 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.550 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>0.970 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.100 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>11.500 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.020 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- Binnen: bijna niets doen. Interieurs hebben hun eigen belichting. -->
+    <modifier name="pr_interior" numMods="8" userFlags="0">
+        <postfx_exposure>0.020 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.680 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.500 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.550 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>0.980 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.140 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>11.000 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.030 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- Preset 'neutraal': het allerlichtste zetje. -->
+    <modifier name="pr_neutral" numMods="8" userFlags="0">
+        <postfx_exposure>0.010 0.000</postfx_exposure>
+        <postfx_bright_pass_thresh>0.650 0.000</postfx_bright_pass_thresh>
+        <postfx_bright_pass_thresh_width>0.500 0.000</postfx_bright_pass_thresh_width>
+        <postfx_intensity_bloom>0.600 0.000</postfx_intensity_bloom>
+        <postfx_desaturation>0.990 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.120 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>11.000 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.020 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+    <!-- Optionele constante laag in de tweede timecycle-slot. Die slot heeft
+         geen sterkte-native, dus alles of niets. Staat standaard UIT in de
+         config, want een altijd-aan laag op volle sterkte was precies wat het
+         beeld eerder grijs trok. -->
+    <modifier name="pr_film" numMods="4" userFlags="0">
+        <postfx_desaturation>0.990 0.000</postfx_desaturation>
+        <postfx_vignetting_intensity>0.100 0.000</postfx_vignetting_intensity>
+        <postfx_vignetting_radius>11.500 0.000</postfx_vignetting_radius>
+        <postfx_vignetting_contrast>0.020 0.000</postfx_vignetting_contrast>
+    </modifier>
+
+</timecycle_modifier_data>

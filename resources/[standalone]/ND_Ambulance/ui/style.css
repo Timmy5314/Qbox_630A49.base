@@ -1,0 +1,125 @@
+:root {
+    --text-glow: rgba(255, 255, 255, 0.404);
+}
+
+@font-face {
+    font-family: "anton-regular";
+    src: url("Anton-Regular.ttf");
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+}
+
+.injured {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+}
+
+.injured.visible {
+    display: block;
+}
+
+/* the red damage overlay. Separate layer from the text so the text stays
+   readable while the tint pulses underneath it. */
+.vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(120, 0, 0, 0.18) 0%,
+        rgba(150, 0, 0, 0.48) 55%,
+        rgba(70, 0, 0, 0.82) 100%
+    );
+    animation: injured-pulse 2.4s ease-in-out infinite;
+}
+
+/* actually dead reads darker and heavier than bleeding out. */
+.injured.eliminated .vignette {
+    background: radial-gradient(
+        ellipse at center,
+        rgba(90, 0, 0, 0.34) 0%,
+        rgba(120, 0, 0, 0.66) 50%,
+        rgba(35, 0, 0, 0.94) 100%
+    );
+    animation-duration: 3.6s;
+}
+
+@keyframes injured-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.62; }
+}
+
+.content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 4%;
+    width: 100%;
+    text-align: center;
+    text-transform: uppercase;
+    font-family: "anton-regular";
+    letter-spacing: 1px;
+    color: #ffffff;
+    text-shadow:
+        #ffffff86 0px 0px 5px,
+        #ffffff86 0px 0px 10px,
+        #ffffff86 0px 0px 15px,
+        var(--text-glow) 0px 0px 20px,
+        var(--text-glow) 0px 0px 30px,
+        var(--text-glow) 0px 0px 40px,
+        var(--text-glow) 0px 0px 50px,
+        var(--text-glow) 0px 0px 75px;
+}
+
+.status {
+    margin: 0;
+    font-size: 2.6rem;
+    font-weight: normal;
+    line-height: 1.2;
+}
+
+.countdown {
+    display: none;
+    margin-top: 0.35em;
+}
+
+.countdown.visible {
+    display: block;
+}
+
+.countdown-label {
+    display: block;
+    font-size: 1.3rem;
+    opacity: 0.85;
+}
+
+.countdown-value {
+    display: block;
+    margin-top: 0.05em;
+    font-size: 4.4rem;
+    line-height: 1;
+    color: #ff6b6b;
+    text-shadow:
+        #ff2d2d99 0px 0px 12px,
+        #ff2d2d66 0px 0px 30px,
+        #ff2d2d44 0px 0px 60px;
+}
+
+.lines {
+    margin: 0.4em 0 0;
+    white-space: pre-line;
+    line-height: 1.45;
+    font-size: 1.5rem;
+}
+
+.lines:empty {
+    display: none;
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>renzu_jobs</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Turf war HUD. Focus-free overlay, shown while standing in a war zone. -->
+    <aside id="turf-hud" class="turf-hud" hidden>
+        <header class="turf-hud__head">
+            <span class="turf-hud__dot"></span>
+            <span id="turf-hud-label">Turf War</span>
+            <span id="turf-hud-timer" class="turf-hud__timer">00:00</span>
+        </header>
+        <div id="turf-hud-status" class="turf-hud__status"></div>
+        <ul id="turf-hud-scores" class="turf-hud__scores"></ul>
+    </aside>
+
+    <!-- Main panel. Every view renders into this shell. -->
+    <main id="panel" class="panel" hidden>
+        <header class="panel__head">
+            <img id="panel-logo" class="panel__logo" alt="">
+            <div class="panel__titles">
+                <h1 id="panel-title">Job</h1>
+                <p id="panel-subtitle"></p>
+            </div>
+
+            <div id="panel-meta" class="panel__meta"></div>
+
+            <button id="panel-close" class="icon-btn" type="button" aria-label="Close">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+
+        <nav id="panel-tabs" class="panel__tabs" hidden></nav>
+
+        <div id="panel-body" class="panel__body"></div>
+    </main>
+
+    <!-- Modal host -->
+    <div id="modal-root" class="modal-root" hidden></div>
+
+    <!-- Toast host for UI-side validation messages -->
+    <div id="toast-root" class="toast-root"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

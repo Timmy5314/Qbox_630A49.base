@@ -1,0 +1,23 @@
+# --- FiveM server runtime data (never commit) ---
+cache/
+db/
+logs/
+*.log
+*.log.*
+.replxx_history
+svadhesive/
+
+# --- Secrets ---
+secrets.cfg
+.env
+*.env
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+*.swp
+
+# --- Parked nested repos (see CLAUDE.md) ---
+**/.git.parked/

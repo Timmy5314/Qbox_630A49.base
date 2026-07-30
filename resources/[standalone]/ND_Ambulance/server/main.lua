@@ -1,0 +1,352 @@
+local data_death = require("data.death")
+local data_jobs = require("data.jobs")
+
+local function isNearHospitalPed(coords)
+    for i=1, #data_death.hospitalPeds do
+        local location = data_death.hospitalPeds[i]
+        if #(coords-location.xyz) < 5 then
+            return true
+        end
+    end
+end
+
+local function getEntityFromNetId(netId)
+    local entity = NetworkGetEntityFromNetworkId(netId)
+    local time = os.time()
+    while not DoesEntityExist(entity) and os.time()-time < 5 do Wait(100) end
+    return entity
+end
+
+local function allowCheck(src, targetPlayerSrc)
+    targetPlayerSrc = tonumber(targetPlayerSrc)
+    if not targetPlayerSrc then return end
+
+    local ped = GetPlayerPed(src)
+    local coords = GetEntityCoords(ped)
+    local targetPed = GetPlayerPed(targetPlayerSrc)
+    local targetCoords = GetEntityCoords(targetPed)
+    local state = Player(targetPlayerSrc).state
+    if src == targetPlayerSrc or #(coords-targetCoords) > 10 or state.isDead ~= "eliminated" then return end
+
+    return true
+end
+
+RegisterNetEvent("ND_Ambulance:sendSignal", function(location, coords)
+    local src = source
+
+    if not location or not coords or type(location) ~= "string" or type(coords) ~= "vector3" then
+        return
+    end
+
+    if not Player(src).state.isDead then return end
+
+    -- confirm to the sender, otherwise there is no way to tell it went through.
+    Bridge.notify(src, {
+        title = "Distress signal sent",
+        description = "EMS has been notified of your location.",
+        type = "inform",
+        icon = "kit-medical",
+        duration = 6000
+    })
+
+    if GetResourceState("ps-dispatch"):find("start") then
+        exports["ps-dispatch"]:CustomAlert({
+            coords = coords,
+            message = "Distress signal, EMS needed!",
+            dispatchCode = "10-13",
+            description = location,
+            radius = 0,
+            sprite = 153,
+            color = 6,
+            scale = 1.0,
+            length = 3,
+            jobs = { "ems" }
+        })
+        if data_death.debug then
+            print(("[ND_Ambulance] distress signal from %s (%s) at %s -> ps-dispatch"):format(src, GetPlayerName(src), location))
+        end
+        return
+    end
+
+    -- no dispatch resource installed, alert EMS players directly.
+    local players = GetPlayers()
+    local notified = 0
+    for i = 1, #players do
+        local target = tonumber(players[i])
+        if target and target ~= src and Bridge.hasJobs(target, data_jobs) then
+            TriggerClientEvent("ND_Ambulance:distressSignal", target, location, coords)
+            notified += 1
+        end
+    end
+
+    if data_death.debug then
+        print(("[ND_Ambulance] distress signal from %s (%s) at %s -> notified %d EMS player(s)"):format(src, GetPlayerName(src), location, notified))
+    end
+end)
+
+-- server-owned respawn clock, keyed by player source. The client used to write its
+-- death timestamp into its own statebag and the server compared that against
+-- os.time(); that trusted client data and broke outright whenever the game clock
+-- and the machine clock disagreed.
+local deathTimes = {}
+
+local function clearDeathTime(src)
+    deathTimes[src] = nil
+end
+
+RegisterNetEvent("ND_Ambulance:playerDown", function()
+    local src = source
+    if deathTimes[src] then return end
+
+    deathTimes[src] = os.time()
+    if data_death.debug then
+        print(("[ND_Ambulance] %s (%s) went down, respawn allowed in %ss"):format(src, GetPlayerName(src), data_death.timer))
+    end
+end)
+
+AddEventHandler("playerDropped", function()
+    clearDeathTime(source)
+end)
+
+-- fired by Bridge.revivePlayer: defib, hospital treatment, EMS and /revive.
+AddEventHandler("ND_Ambulance:playerRevived", function(src)
+    clearDeathTime(src)
+end)
+
+lib.callback.register("ND_Ambulance:respawnPlayer", function(src)
+    local downSince = deathTimes[src]
+    -- 2s grace so a frame of latency between the client's countdown and this
+    -- check can't reject a respawn the player legitimately waited out.
+    if not downSince or os.time()-downSince < data_death.timer-2 then
+        if data_death.debug then
+            print(("[ND_Ambulance] respawn rejected for %s: downSince=%s"):format(src, downSince))
+        end
+        return false
+    end
+
+    local price = data_death.prices.respawn
+    if price and price > 0 then
+        if Bridge.hasMoney(src, price) then
+            Bridge.deductMoney(src, price)
+            Bridge.notify(src, {
+                title = "Hospital bill",
+                description = ("You paid $%s for your treatment."):format(price),
+                type = "inform",
+                icon = "file-invoice-dollar",
+                duration = 8000
+            })
+        else
+            Bridge.notify(src, {
+                title = "Hospital bill",
+                description = ("You couldn't afford the $%s hospital bill."):format(price),
+                type = "error",
+                icon = "file-invoice-dollar",
+                duration = 8000
+            })
+        end
+    end
+
+    -- drop the inventory BEFORE the client teleports, so the items stay at the
+    -- spot where the player died.
+    if data_death.dropInventory then
+        exports.ox_inventory:CreateDropFromPlayer(src)
+        Bridge.notify(src, {
+            title = "Belongings lost",
+            description = "You left your belongings behind at the scene.",
+            type = "inform",
+            icon = "box-open",
+            duration = 8000
+        })
+    end
+
+    -- no TriggerClientEvent revive here: the client resets itself as soon as this
+    -- returns true, and doing both resurrected the ped twice.
+    Bridge.clearDeadMetadata(src)
+    clearDeathTime(src)
+
+    if data_death.debug then
+        print(("[ND_Ambulance] %s (%s) respawned at hospital, billed $%s"):format(src, GetPlayerName(src), price or 0))
+    end
+
+    return true
+end)
+
+RegisterNetEvent("ND_Ambulance:treatSelf", function()
+    local src = source
+    local ped = GetPlayerPed(src)
+    local coords = GetEntityCoords(ped)
+    local player = Bridge.getPlayer(src)
+    if not player or not isNearHospitalPed(coords) then return end
+
+    local price = data_death.prices.selfHeal
+
+    if not Bridge.hasMoney(src, price) then
+        return Bridge.notify(src, {
+            title = "Not enough money",
+            type = "error"
+        })
+    end
+
+    Bridge.deductMoney(src, price)
+
+    TriggerClientEvent("ND_Ambulance:respawnHospital", src)
+    Wait(1000)
+
+    Bridge.revivePlayer(src)
+    Bridge.notify(src, {
+        title = "Succesfully healed!",
+        type = "success"
+    })
+end)
+
+RegisterNetEvent("ND_Ambulance:treatPatient", function(targetSrc, stretcherNetId)
+    local src = source
+    targetSrc = tonumber(targetSrc)
+    if not targetSrc then return end
+    
+    local ped = GetPlayerPed(src)
+    local coords = GetEntityCoords(ped)
+    local player = Bridge.getPlayer(src)
+
+    local targetPed = GetPlayerPed(targetSrc)
+    local targetCoords = GetEntityCoords(targetPed)
+    local targetPlayer = Bridge.getPlayer(targetSrc)
+
+    if stretcherNetId then
+        local entity = getEntityFromNetId(stretcherNetId)
+        if not DoesEntityExist(entity) then return end
+        local state = Entity(entity).state
+        state:set("ambulanceStretcherPlayer", false, true)
+    end
+
+    if not player or not targetPlayer or not isNearHospitalPed(coords) or not isNearHospitalPed(targetCoords) then return end
+    
+    Bridge.notify(src, {
+        title = "Succesfully treated patient!",
+        type = "success"
+    })
+
+    local price = data_death.prices.selfHeal
+
+    Bridge.deductMoney(targetSrc, price)
+
+    TriggerClientEvent("ND_Ambulance:respawnHospital", targetSrc)
+    Wait(700)
+
+    Bridge.revivePlayer(targetSrc)
+    Bridge.notify(targetSrc, {
+        title = "Succesfully healed!",
+        type = "success"
+    })
+end)
+
+RegisterNetEvent("ND_Ambulance:startCpr", function(targetPlayerSrc)
+    local src = source
+    if not allowCheck(src, targetPlayerSrc) then return end
+    
+    local playerState = Player(src).state
+    playerState:set("performingCpr", targetPlayerSrc, false)
+
+    local state = Player(targetPlayerSrc).state
+    local cprData = state.cprData or {}
+    state:set("cprData", {
+        ongoing = true,
+        started = cprData.started or os.time(),
+        stopped = false
+    }, true)
+    
+    local changed = false
+    local injuries = state.injuries
+    for bone, limb in pairs(injuries) do
+        if limb and limb.suffocating and limb.severity and limb.severity > 0 then
+            limb.severity -= limb.suffocating
+            limb.suffocating = nil
+            changed = true
+        end
+    end
+
+    if changed then
+        state:set("injuries", injuries, true)
+    end
+end)
+
+RegisterNetEvent("ND_Ambulance:stopCpr", function(targetPlayerSrc)
+    local src = source
+    if not allowCheck(src, targetPlayerSrc) then return end
+    
+    local playerState = Player(src).state
+    playerState:set("performingCpr", nil, false)
+
+    local state = Player(targetPlayerSrc).state
+    local cprData = state.cprData or {}
+    local time = os.time()
+    state:set("cprData", {
+        ongoing = false,
+        started = cprData.started or time,
+        stopped = time
+    }, true)
+end)
+
+local function stopCprOnLogout(src)
+    if not src then return end
+    local playerState = Player(src).state
+    if not playerState.performingCpr then return end
+
+    local state = Player(playerState.performingCpr).state
+    if state.cprData then        
+        local cprData = state.cprData or {}
+        local time = os.time()
+        state:set("cprData", {
+            ongoing = false,
+            started = cprData.started or time,
+            stopped = time
+        }, true)
+    end
+
+    playerState:set("performingCpr", nil, false)
+end
+
+AddEventHandler("qbx_core:server:playerLoggedOut", function(src)
+    stopCprOnLogout(src)
+end)
+
+AddEventHandler("playerDropped", function()
+    stopCprOnLogout(source)
+end)
+
+RegisterNetEvent("ND_Ambulance:successDefib", function(targetPlayerSrc)
+    local src = source
+    local state = Player(targetPlayerSrc).state
+    if not allowCheck(src, targetPlayerSrc) then return end
+    TriggerClientEvent("ND_Ambulance:successDefib", targetPlayerSrc)
+end)
+
+RegisterNetEvent("ND_Ambulance:pickupDefib", function()
+    local src = source
+    local ped = GetPlayerPed(src)
+    local coords = GetEntityCoords(ped)
+    local objects = lib.getNearbyObjects(coords, 2.0)
+    for i=1, #objects do
+        local entity = objects[i].object
+        if DoesEntityExist(entity) and GetEntityModel(entity) == `lifepak15` then
+            DeleteEntity(entity)
+            return exports.ox_inventory:AddItem(src, "defib", 1)
+        end
+    end
+end)
+
+exports.ox_inventory:registerHook("swapItems", function(payload)
+    if payload.toType ~= "player" or payload.fromInventory == payload.toInventory then return end
+    return exports.ox_inventory:GetItemCount(payload.toInventory, "defib") == 0
+end, {
+    itemFilter = {
+        defib = true
+    }
+})
+
+if Bridge.setDeadMetadata then
+    RegisterNetEvent("ND_Ambulance:playerEliminated", function(info)
+        local src = source
+        Bridge.setDeadMetadata(src, info)
+    end)    
+end
