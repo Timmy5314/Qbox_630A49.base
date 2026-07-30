@@ -21,3 +21,7 @@ desktop.ini
 
 # --- Parked nested repos (see CLAUDE.md) ---
 **/.git.parked/
+
+# --- Referentie-clones van GitHub (bronmateriaal, geen server-resources) ---
+# Deze worden NIET door FiveM geladen. De Qbox-versies komen in resources/.
+_external/
