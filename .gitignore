@@ -25,3 +25,6 @@ desktop.ini
 # --- Referentie-clones van GitHub (bronmateriaal, geen server-resources) ---
 # Deze worden NIET door FiveM geladen. De Qbox-versies komen in resources/.
 _external/
+
+# Oude handmatige cfg-backup (git is nu de backup, bevat secrets)
+server.cfg.bkp
