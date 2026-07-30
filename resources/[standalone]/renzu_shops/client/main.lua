@@ -105,7 +105,9 @@ self.LoadShops = function()
 			if not storedata then
 				shop.shopName = name
 				shop.shopIndex = k
-				local target = ShopTargets.AddShopTarget(shop.coord,'Buy '..name..' #'..k,self.BuyStore,shop,{id = shop.label, npc = {model = ShopTargets.NpcModelFor(name)}})
+				-- Eigendomspunt: kale ox_target zone, geen ped. De winkelbediende
+				-- staat bij OpenShop/Cashier, niet bij het koopbord van het pand.
+				local target = ShopTargets.AddShopTarget(shop.coord,'Buy '..name..' #'..k,self.BuyStore,shop,{id = shop.label, npc = false})
 				target.coord = shop.coord
 				target.shop = shop
 				target.label = 'My Store '..shop.label
@@ -113,7 +115,9 @@ self.LoadShops = function()
 				self.temporalspheres[shop.label] = target
 			elseif storedata and storedata?.owner == self.PlayerData.identifier
 				or storedata and storedata.employee[self.PlayerData.identifier] or shop.groups and self.PlayerData?.job?.name and self.PlayerData?.job?.name == self.GetJobFromData(shop.groups) then
-				self.temporalspheres[shop.label] = ShopTargets.AddShopTarget(shop.coord,'My Store '..shop.label,self.StoreOwner,shop,{id = shop.label, npc = {model = ShopTargets.NpcModelFor(name)}})
+				-- Zelfde coord als het koopbord hierboven, dus ook zonder ped.
+				-- Anders verschijnt er een ped zodra iemand de winkel koopt.
+				self.temporalspheres[shop.label] = ShopTargets.AddShopTarget(shop.coord,'My Store '..shop.label,self.StoreOwner,shop,{id = shop.label, npc = false})
 				self.ShopBlip({id = name..'_'..k, coord = shop.coord, text = 'My Store '..shop.label, blip = {colour = 38, id = 374, scale = 0.6}})
 				if shop.crafting then
 					self.temporalspheres[shop.label..'_crafting'] = ShopTargets.AddShopTarget(shop.crafting.coord,shop.crafting.label,self.Crafting,shop,{id = shop.label..'_crafting', npc = false})
@@ -1447,7 +1451,9 @@ self.BuyStore = function(data)
 			})
 			if self.temporalspheres[data.label] then
 				local spheredata = self.temporalspheres[data.label]
-				self.temporalspheres[data.label] = ShopTargets.AddShopTarget(spheredata.coord,spheredata.label,self.StoreOwner,spheredata.shop,{id = data.label, npc = {model = ShopTargets.NpcModelFor(spheredata.shop and spheredata.shop.shopName)}})
+				-- Direct na aankoop het eigendomspunt opnieuw registreren. Ook
+				-- hier geen ped, anders verschijnt hij alsnog zodra je koopt.
+				self.temporalspheres[data.label] = ShopTargets.AddShopTarget(spheredata.coord,spheredata.label,self.StoreOwner,spheredata.shop,{id = data.label, npc = false})
 			end
 		end
 	end
@@ -1706,7 +1712,7 @@ self.Handlers = function()
 			ShopTargets.AddShopTarget(value.loc,value.label,self.OpenShop,data,{id = 'default_'..value.type..'_'..value.index, npc = {model = ShopTargets.NpcModelFor(value.type)}})
 			value.shop.shopName = value.type
 			value.shop.shopIndex = value.index
-			local target = ShopTargets.AddShopTarget(value.coord,'Buy '..value.type..' #'..value.index,self.BuyStore,value.shop,{id = value.label, npc = {model = ShopTargets.NpcModelFor(value.type)}})
+			local target = ShopTargets.AddShopTarget(value.coord,'Buy '..value.type..' #'..value.index,self.BuyStore,value.shop,{id = value.label, npc = false}) -- eigendomspunt: geen ped
 			target.coord = value.coord
 			target.shop = value.shop
 			target.label = 'My Store '..value.label
@@ -1727,7 +1733,7 @@ self.Handlers = function()
 					if v.label == value.store then
 						v.shopName = name
 						v.shopIndex = k
-						local target = ShopTargets.AddShopTarget(v.coord,'Buy '..name..' #'..k,self.BuyStore,v,{id = v.label, npc = {model = ShopTargets.NpcModelFor(name)}})
+						local target = ShopTargets.AddShopTarget(v.coord,'Buy '..name..' #'..k,self.BuyStore,v,{id = v.label, npc = false}) -- eigendomspunt: geen ped
 						target.coord = v.coord
 						target.shop = v
 						target.label = 'My Store '..v.label
@@ -1835,7 +1841,7 @@ self.Handlers = function()
 		for name,shop in pairs(shared.OwnedShops) do
 			for k,v in pairs(shop) do
 				if v.label == value.store then
-					self.temporalspheres[v.label] = ShopTargets.AddShopTarget(v.coord,'My Store '..v.label,self.StoreOwner,v,{id = v.label, npc = {model = ShopTargets.NpcModelFor(name)}})
+					self.temporalspheres[v.label] = ShopTargets.AddShopTarget(v.coord,'My Store '..v.label,self.StoreOwner,v,{id = v.label, npc = false}) -- eigendomspunt: geen ped
 					break
 				end
 			end
@@ -1869,7 +1875,7 @@ self.Handlers = function()
 				for name,shops in pairs(shared.OwnedShops) do
 					for k,shop in pairs(shops) do
 						if value.store == shop.label then
-							self.temporalspheres[shop.label] = ShopTargets.AddShopTarget(shop.coord,'Manage '..shop.label,self.StoreOwner,shop,{id = shop.label, npc = {model = ShopTargets.NpcModelFor(name)}})
+							self.temporalspheres[shop.label] = ShopTargets.AddShopTarget(shop.coord,'Manage '..shop.label,self.StoreOwner,shop,{id = shop.label, npc = false}) -- eigendomspunt: geen ped
 						end
 					end
 				end
