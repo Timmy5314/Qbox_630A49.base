@@ -200,8 +200,9 @@ Weapons.blacklist = {
     WEAPON_GRENADELAUNCHER = true,
     WEAPON_GRENADELAUNCHER_SMOKE = true,
     WEAPON_FIREWORK        = true,
-    WEAPON_BZGAS           = true,
     WEAPON_PROXMINE        = true,
+    -- WEAPON_BZGAS staat hier bewust NIET: de PoliceArmoury in renzu_shops
+    -- verkoopt traangas aan agenten. Blacklisten zou elke ME-inzet flaggen.
     WEAPON_AIRSTRIKE_ROCKET = true,
     WEAPON_PASSENGER_ROCKET = true,
     WEAPON_VEHICLE_ROCKET   = true,

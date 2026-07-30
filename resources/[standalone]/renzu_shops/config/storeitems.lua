@@ -95,15 +95,18 @@ return {
 
 
 	},
-	Ammunation = { -- non-lethal only: no firearms/ammo sold here. Knife + a lot of
-		-- weapon attachments (auto-appended below from data/weaponcomponents.lua)
-		-- is the actual product line - everything priced high on purpose.
-		{ lvl = 1, name = 'WEAPON_KNIFE', category = 'melee', price = 75000 },
-		{ lvl = 1, name = 'WEAPON_FLASHLIGHT', category = 'non-lethal', price = 5000 },
-		{ lvl = 1, name = 'WEAPON_NIGHTSTICK', category = 'non-lethal', price = 6000 },
-		{ lvl = 1, name = 'WEAPON_STUNGUN', category = 'non-lethal', price = 15000 },
-		{ lvl = 1, name = 'WEAPON_BZGAS', category = 'non-lethal', price = 12000 },
+	Ammunation = { -- non-lethal only: no firearms/ammo sold here. Weapon
+		-- attachments (auto-appended below from data/weaponcomponents.lua) are
+		-- the actual product line - everything priced high on purpose.
+		--
+		-- Bewust NIET in een civiele wapenwinkel:
+		--   WEAPON_KNIFE     - steekwapen over de toonbank, niet realistisch
+		--   WEAPON_STUNGUN   - taser is politie-uitrusting, staat in PoliceArmoury
+		--   WEAPON_NIGHTSTICK- wapenstok idem
+		--   WEAPON_BZGAS     - traangas is geen consumentenartikel
+		{ lvl = 1, name = 'WEAPON_FLASHLIGHT', category = 'tools', price = 3500 },
 		{ lvl = 1, name = 'armour', category = 'protection', price = 20000 },
+		{ lvl = 1, name = 'repairkit', category = 'tools', price = 8000 },
 	},
 
 	VehicleShop = MultiCategory(

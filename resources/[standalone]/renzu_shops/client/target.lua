@@ -46,7 +46,15 @@ local function spawnNpc(coords, npc)
 	local ped = CreatePed(4, model, coords.x, coords.y, coords.z - 1.0, heading, false, true)
 	SetEntityInvincible(ped, true)
 	SetBlockingOfNonTemporaryEvents(ped, true)
-	FreezeEntityPosition(ped, true)
+
+	-- Bewust GEEN FreezeEntityPosition. Dat bevriest ook de rotatie, en dat is
+	-- precies waarom deze shopkeepers nooit meedraaiden met de speler.
+	-- Config flag 17 houdt de ped op zijn plek zonder de rotatie te blokkeren.
+	-- Zelfde patroon als renzu_garage/framework/cl_wrapper.lua, dat wel werkt.
+	SetPedConfigFlag(ped, 17, true)
+	SetPedCanRagdoll(ped, false)
+	SetEntityCanBeDamaged(ped, false)
+
 	SetModelAsNoLongerNeeded(model)
 	TaskStartScenarioInPlace(ped, (npc and npc.scenario) or DEFAULT_SCENARIO, 0, true)
 	return ped
@@ -91,6 +99,7 @@ ShopTargets.AddShopTarget = function(coords, msg, callback, var, opts)
 
 	if not entity and opts.npc ~= false then
 		entry.ped = spawnNpc(coords, opts.npc)
+		entry.scenario = (opts.npc and opts.npc.scenario) or DEFAULT_SCENARIO
 		entity = entry.ped
 	end
 
@@ -132,6 +141,59 @@ ShopTargets.AddShopTarget = function(coords, msg, callback, var, opts)
 	ShopTargets.targets[id] = entry
 	return entry
 end
+
+--[[
+	Shopkeepers turn to face the player.
+
+	One shared thread for every shop ped rather than a thread per ped. It is
+	event-driven: a ped only gets a task when the player crosses into range, and
+	only gets reset when they leave. Standing next to a shop costs nothing extra.
+
+	The idle tick is deliberately slow (1s). Peds are static and the player
+	cannot cross 12m in a tick that matters here, so a faster poll would only
+	burn frames.
+]]
+local FACE_DISTANCE = 12.0
+local IDLE_TICK = 1000
+local NEAR_TICK = 500
+
+CreateThread(function()
+	local facing = {} -- id -> true zolang de ped naar de speler gedraaid staat
+
+	while true do
+		local anyNear = false
+		local playerPed = cache.ped
+		local playerCoords = playerPed and GetEntityCoords(playerPed)
+
+		if playerCoords then
+			for id, entry in pairs(ShopTargets.targets) do
+				local ped = entry.ped
+
+				if ped and DoesEntityExist(ped) then
+					local near = #(playerCoords - GetEntityCoords(ped)) < FACE_DISTANCE
+
+					if near then
+						anyNear = true
+						if not facing[id] then
+							facing[id] = true
+							ClearPedTasks(ped)
+							TaskTurnPedToFaceEntity(ped, playerPed, -1)
+						end
+					elseif facing[id] then
+						facing[id] = nil
+						-- Terug naar zijn eigen scenario zodra niemand kijkt.
+						ClearPedTasks(ped)
+						TaskStartScenarioInPlace(ped, entry.scenario or DEFAULT_SCENARIO, 0, true)
+					end
+				elseif facing[id] then
+					facing[id] = nil
+				end
+			end
+		end
+
+		Wait(anyNear and NEAR_TICK or IDLE_TICK)
+	end
+end)
 
 AddEventHandler('onResourceStop', function(resource)
 	if resource ~= GetCurrentResourceName() then return end
