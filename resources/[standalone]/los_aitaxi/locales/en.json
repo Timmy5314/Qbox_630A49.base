@@ -1,0 +1,15 @@
+{
+    "drivers_available": "There are cab drivers on shift right now. Give one of them a call — we don't send automated cars while our people are working.",
+    "already_on_the_way": "You already have a cab on the way.",
+    "on_the_way": "Thanks for calling Downtown Cab Co. A cab is on its way to you.",
+    "no_response": "Your cab could not reach you. You have not been charged.",
+    "receipt": "Thanks for riding with Downtown Cab Co. Fare: $%s.",
+    "unpaid": "We could not collect the fare. Consider this one on us — once.",
+    "taxi_dispatched": "A cab has been dispatched. Watch for it on your map.",
+    "taxi_arrived": "Your cab has arrived. Get in.",
+    "taxi_left": "You took too long. The cab has left.",
+    "set_waypoint": "Set a waypoint on the map and the driver will take you there.",
+    "no_destination": "No destination was set. The ride has been cancelled.",
+    "on_route": "On our way. Sit back.",
+    "arrived": "You have arrived. Fare: $%s."
+}

@@ -10,7 +10,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
-## STAND: 36 van de 40 punten
+## STAND: 37 van de 40 punten
 
 | Fase | Punten | Af | Openstaand |
 |---|---|---|---|
@@ -18,7 +18,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 | 2 Shops, kleding, economie | 7 | **6** | cw-crafting (geparkeerd door Tim), economie-rebalance |
 | 3 Gangs, drugs, illegaal | 7 | **7** | — |
 | 4 Hulpdiensten, medisch | 7 | **7** | — |
-| 5 Voertuigen, sleutels | 5 | **4** | mns-aitaxi |
+| 5 Voertuigen, sleutels | 5 | **5** | — |
 | 6 HUD, visuals, systemen | 6 | 0 | alles |
 | 7 Discord | 2 | 0 | alles |
 
@@ -27,13 +27,13 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 > verzekeringen, K9/pets en het wanted-systeem. Gecorrigeerd naar 7; het totaal
 > wordt daarmee 39 in plaats van 38.
 
-54 commits sinds `da40e53`. **Fase 4 is af; van fase 5 rest alleen de AI-taxi.**
+56 commits sinds `da40e53`. **Fase 4 en 5 zijn af.**
 
 ---
 
 ## ⛔ EERST DOEN — dit blokkeert alles
 
-**Niets van dit alles heeft ooit gedraaid.** Alle 36 punten zijn statisch
+**Niets van dit alles heeft ooit gedraaid.** Alle 37 punten zijn statisch
 geverifieerd (syntax, itembestaan, event-namen, API-signaturen tegen de bron),
 maar geen enkele regel is op een draaiende server geweest.
 
@@ -231,7 +231,7 @@ Breed gedraaid over `[standalone]`, `[qbx]`, `[ps]` en `[ox]`:
 |---|---|---|
 | — | Sleutels als echt ox_inventory-item | nieuwe resource `los_vehiclekeys`, gekoppeld aan renzu_vehicleshop (kopen) en renzu_garage (parkeren, uithalen, impound) |
 | **HIGH** | **Carjacking lukte wel maar je kon niet instappen.** Niet de schuld van qbx_vehiclekeys: die zet `doorslockstate` op 1 en geeft sleutels. Maar renzu_garage draait client-side een lus die elk voertuig zonder zijn **eigen** `unlock`-statebag continu weer op slot zet, en met `LockAllLocalVehicle` geldt dat voor al het verkeer. Die lus keek niet naar `doorslockstate` | renzu_garage respecteert die statebag nu |
-| **HIGH** | **Proefrit telde frames, geen tijd.** Teller van 30000, −1 per frame, gedeeld door 100 voor "seconden". Klopt alleen bij precies 100 fps; op 60 fps duurde een rit ~8 minuten en liep de klok op het scherm niet gelijk | `GetGameTimer`, `Config.TestDriveSeconds = 60` |
+| MED | **Proefrit stond op 5 minuten, gevraagd is 60 seconden.** De teller liep van 30000 met −1 per `Wait(1)` en werd gedeeld door 100 voor de weergave, dus het scherm toont netjes 05:00. Hoe lang dat in werkelijkheid duurt hangt van de framerate af, want `Wait(1)` levert in de praktijk één iteratie per frame. **Tim corrigeerde mij hier terecht: ik schreef "~8 minuten" op als feit terwijl dat een berekening bij 60 fps was, niet iets dat ik gemeten heb.** De duur is nu tijdgebaseerd en daarmee op elke framerate gelijk | `GetGameTimer`, `Config.TestDriveSeconds = 60` |
 | MED | Job- en drugsvoertuigen gaven geen sleutel-item | tijdelijke sleutel (4 uur) via het gedeelde `qb-vehiclekeys:server:AcquireVehicleKeys`, dat community_bridge en md-drugs al gebruiken |
 | **HIGH** | **`los_insurance` vroeg NPWD om een telefoonnummer met een getal**, terwijl `getPlayerData` een **locator-object** wil (`{source=...}`). Alle drie de takken werden overgeslagen → altijd `null` → geen nummer → **de waarschuwings-SMS is nooit verstuurd**. De code las bovendien `getPhoneNumber()`, een methode die niet bestaat; het is een platte tabel met `phoneNumber` | beide gefixt, met de bundle-definitie als comment erbij |
 
@@ -239,45 +239,14 @@ Breed gedraaid over `[standalone]`, `[qbx]`, `[ps]` en `[ox]`:
 > eventnaam). Die diagnose was fout, maar de conclusie toevallig wel juist: het
 > module werkte inderdaad niet — alleen door dit, één regel verderop.
 
-### Fase 5 — stand
+### Fase 5 — af
 
-**Open:**
+Sleutels als item, tijdelijke sleutels voor job- en drugsvoertuigen, carjacking,
+proefrit van 60 seconden en de AI-taxi. Zie de tabel hierboven.
 
-| # | Item | Waarom het niet triviaal is |
-|---|---|---|
-| 47 | **mns-aitaxi**: `/aitaxi` eruit, als NPWD-contact "Downtown Cab Co.", alleen bij 0 spelers met job `taxi` on duty. | Zie hieronder — het onderzoek is af, het bouwen niet. |
-
-#### 47 — wat er al uitgezocht is
-
-`_external/mns-aitaxi` is **niet bruikbaar als basis**. De map bevat naast elk
-bestand ook `_fixed`, `_new`, `_updated` en `standalone_` varianten van datzelfde
-bestand (`spawn.lua`, `spawn_fixed.lua`, `spawn_new.lua`, `spawn_new_fixed.lua`,
-…). Welke versie het origineel laadt is niet af te leiden. Conform standing rule
-10 moet dit hoe dan ook schoon opnieuw — hier is dat geen keuze maar noodzaak.
-
-**De NPWD-koppeling is wél uitgezocht**, en dat was het risicovolle deel. NPWD
-exporteert vanuit de JS-bundle een `onCall`, waarmee een resource zich abonneert
-op gesprekken naar één nummer:
-
-```lua
-exports.npwd:onCall('4040', function(data)
-    -- data.receiverNumber, data.incomingCaller
-    -- data.next()      laat het gesprek doorgaan
-    -- data.exit()      hangt op
-    -- data.reply(msg)  stuurt een SMS terug namens dit nummer
-    -- data.forward(nummer, anoniem)
-end)
-```
-
-Uit `npwd/dist/game/server/server.js`, `server/calls/middleware/index.ts` en
-`CallMiddleware`. Dat is precies het "vast contact dat je kunt bellen" uit de
-opdracht: `reply()` bevestigt de rit, `exit()` weigert als er wél taxichauffeurs
-on duty zijn.
-
-**Wat er dan nog moet:** de rit zelf (taxi spawnen, naar de speler rijden,
-oppikken, wegbrengen, ritprijs, opruimen). Qua vorm hetzelfde als
-`los_aidoctor`, die dat patroon al heeft. Plus de check op
-`GetDutyCountType('taxi')` en het contact in NPWD zetten.
+`los_aitaxi` is volledig nieuw geschreven; `_external/mns-aitaxi` was als basis
+onbruikbaar (overal `_fixed`/`_new`/`_updated` varianten van hetzelfde bestand,
+niet af te leiden welke telt). Alleen het concept is overgenomen.
 
 ### Nog te bouwen (Fase 6 en 7)
 - **Fase 5**: qbx_vehiclekeys item-based, NPC-carjacking, proefrit 60s, NPWD garage-app, mns-aitaxi

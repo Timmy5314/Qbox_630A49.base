@@ -1,0 +1,15 @@
+{
+    "drivers_available": "Er rijden op dit moment echte chauffeurs. Bel er een; we sturen geen automatische wagens zolang onze mensen aan het werk zijn.",
+    "already_on_the_way": "Er is al een taxi naar je onderweg.",
+    "on_the_way": "Bedankt voor je oproep aan Downtown Cab Co. Er komt een taxi naar je toe.",
+    "no_response": "De taxi kon je niet bereiken. Er is niets afgeschreven.",
+    "receipt": "Bedankt voor het rijden met Downtown Cab Co. Ritprijs: $%s.",
+    "unpaid": "We konden de ritprijs niet innen. Deze keer laten we het gaan.",
+    "taxi_dispatched": "Er is een taxi onderweg. Hou je kaart in de gaten.",
+    "taxi_arrived": "Je taxi staat er. Stap in.",
+    "taxi_left": "Je liet te lang op je wachten. De taxi is weggereden.",
+    "set_waypoint": "Zet een waypoint op de kaart, dan brengt de chauffeur je erheen.",
+    "no_destination": "Er is geen bestemming opgegeven. De rit is geannuleerd.",
+    "on_route": "We rijden. Leun maar achterover.",
+    "arrived": "Je bent er. Ritprijs: $%s."
+}

@@ -3,7 +3,7 @@
 ---
 ---Elk server-side RegisterNetEvent dat een client kan triggeren, met de
 ---resource waar het vandaan komt. Dit is de aanvalsoppervlakte van de server.
----Gegenereerd op 2026-07-31 uit 461 server-side bestanden.
+---Gegenereerd op 2026-07-31 uit 462 server-side bestanden.
 
 KnownServerEvents = {
     ['baseevents:enteredVehicle'] = 'ps_lib',
@@ -48,6 +48,7 @@ KnownServerEvents = {
     ['illenium-appearance:server:syncUniform'] = 'illenium-appearance',
     ['illenium-appearance:server:updateOutfit'] = 'illenium-appearance',
     ['los_aidoctor:callFailed'] = 'los_aidoctor',
+    ['los_aitaxi:rideFailed'] = 'los_aitaxi',
     ['los_anticheat:heartbeat'] = 'los_anticheat',
     ['los_anticheat:markFalsePositive'] = 'los_anticheat',
     ['los_vehiclekeys:requestKeys'] = 'los_vehiclekeys',
