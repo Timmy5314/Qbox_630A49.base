@@ -11,5 +11,8 @@
     "set_waypoint": "Set a waypoint on the map and the driver will take you there.",
     "no_destination": "No destination was set. The ride has been cancelled.",
     "on_route": "On our way. Sit back.",
-    "arrived": "You have arrived. Fare: $%s."
+    "arrived": "You have arrived. Fare: $%s.",
+    "meter_distance": "Distance",
+    "meter_start": "Start",
+    "meter_capped": "Maximum fare reached"
 }

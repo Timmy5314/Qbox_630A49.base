@@ -18,12 +18,16 @@ client_scripts {
 }
 
 server_scripts {
+    '@oxmysql/lib/MySQL.lua',
     'server/main.lua',
 }
+
+ui_page 'html/meter.html'
 
 files {
     'shared/config.lua',
     'locales/*.json',
+    'html/meter.html',
 }
 
 lua54 'yes'

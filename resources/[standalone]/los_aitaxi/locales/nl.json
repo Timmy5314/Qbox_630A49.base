@@ -11,5 +11,8 @@
     "set_waypoint": "Zet een waypoint op de kaart, dan brengt de chauffeur je erheen.",
     "no_destination": "Er is geen bestemming opgegeven. De rit is geannuleerd.",
     "on_route": "We rijden. Leun maar achterover.",
-    "arrived": "Je bent er. Ritprijs: $%s."
+    "arrived": "Je bent er. Ritprijs: $%s.",
+    "meter_distance": "Afstand",
+    "meter_start": "Starttarief",
+    "meter_capped": "Maximumtarief bereikt"
 }

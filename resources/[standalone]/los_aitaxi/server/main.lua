@@ -98,6 +98,42 @@ local function dispatch(src)
 end
 
 -- =========================================================================
+--  Het contact in de telefoon
+-- =========================================================================
+
+---NPWD heeft geen export om een contact toe te voegen; het is een rij in
+---`npwd_phone_contacts` met de citizenid als identifier - zo registreert
+---qbx_npwd de speler ook (zie qbx_npwd/server.lua).
+---@param citizenid string
+local function ensureContact(citizenid)
+    if not config.addContact or not citizenid then return end
+
+    local exists = MySQL.scalar.await(
+        'SELECT 1 FROM npwd_phone_contacts WHERE identifier = ? AND number = ? LIMIT 1',
+        { citizenid, config.phoneNumber })
+
+    if exists then return end
+
+    MySQL.insert.await(
+        'INSERT INTO npwd_phone_contacts (identifier, number, display, avatar) VALUES (?, ?, ?, ?)',
+        { citizenid, config.phoneNumber, config.companyName, config.contactAvatar or '' })
+
+    dbg(('contact toegevoegd voor %s'):format(citizenid))
+end
+
+AddEventHandler('QBCore:Server:PlayerLoaded', function(player)
+    local citizenid = player and player.PlayerData and player.PlayerData.citizenid
+    if not citizenid then return end
+
+    -- Even wachten: qbx_npwd hangt aan hetzelfde event en moet de speler eerst
+    -- bij NPWD aanmelden, anders staat het contact er voordat de telefoon bestaat.
+    SetTimeout(3000, function()
+        local ok, err = pcall(ensureContact, citizenid)
+        if not ok then lib.print.error(('contact toevoegen faalde: %s'):format(err)) end
+    end)
+end)
+
+-- =========================================================================
 --  NPWD
 -- =========================================================================
 

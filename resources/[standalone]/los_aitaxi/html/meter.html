@@ -1,0 +1,128 @@
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        background: transparent;
+        overflow: hidden;
+        font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        user-select: none;
+    }
+
+    #meter {
+        position: fixed;
+        right: 2vw;
+        bottom: 12vh;
+        width: 15rem;
+        padding: 0.9rem 1.1rem;
+        border-radius: 0.5rem;
+        background: rgba(14, 15, 17, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-left: 3px solid #f1c40f;
+        box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.45);
+        color: #e8e8ea;
+        opacity: 0;
+        transform: translateX(1.5rem);
+        transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+
+    #meter.visible { opacity: 1; transform: translateX(0); }
+
+    .head {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.66rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: #8b8d93;
+        margin-bottom: 0.55rem;
+    }
+
+    .lamp {
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 50%;
+        background: #f1c40f;
+        box-shadow: 0 0 0.4rem #f1c40f;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    .fare {
+        font-size: 2rem;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+        color: #f1c40f;
+    }
+
+    .rows { margin-top: 0.7rem; display: grid; gap: 0.3rem; }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.76rem;
+        color: #a9abb1;
+    }
+
+    .row span:last-child {
+        color: #e8e8ea;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .capped {
+        margin-top: 0.55rem;
+        font-size: 0.66rem;
+        color: #e67e22;
+        display: none;
+    }
+
+    #meter.capped .capped { display: block; }
+
+    @media (prefers-reduced-motion: reduce) {
+        #meter { transition: none; }
+        .lamp { animation: none; }
+    }
+</style>
+
+<div id="meter">
+    <div class="head"><span class="lamp"></span><span id="company">Downtown Cab Co.</span></div>
+    <div class="fare" id="fare">$0</div>
+    <div class="rows">
+        <div class="row"><span id="l-distance">Distance</span><span id="distance">0.0 km</span></div>
+        <div class="row"><span id="l-start">Start</span><span id="base">$0</span></div>
+    </div>
+    <div class="capped" id="cappedText">Maximum fare reached</div>
+</div>
+
+<script>
+    const meter = document.getElementById('meter');
+
+    window.addEventListener('message', (event) => {
+        const data = event.data || {};
+
+        if (data.action === 'show') {
+            document.getElementById('company').textContent = data.company || 'Taxi';
+            document.getElementById('base').textContent = '$' + (data.base || 0);
+            if (data.labels) {
+                document.getElementById('l-distance').textContent = data.labels.distance;
+                document.getElementById('l-start').textContent = data.labels.start;
+                document.getElementById('cappedText').textContent = data.labels.capped;
+            }
+            meter.classList.add('visible');
+            return;
+        }
+
+        if (data.action === 'update') {
+            document.getElementById('fare').textContent = '$' + data.fare;
+            document.getElementById('distance').textContent = data.distance.toFixed(1) + ' km';
+            meter.classList.toggle('capped', !!data.capped);
+            return;
+        }
+
+        if (data.action === 'hide') {
+            meter.classList.remove('visible', 'capped');
+        }
+    });
+</script>

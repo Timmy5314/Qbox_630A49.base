@@ -33,11 +33,32 @@ Config.debug = false
 Config.taxiJob = 'taxi'
 
 --- Het nummer van de centrale in NPWD. Bellen naar dit nummer start een rit.
---- Mag alles zijn zolang het geen echt spelernummer is.
-Config.phoneNumber = '4040'
+---
+--- LET OP: 4040 is al van de black market (md-drugs, shared/DrugData) en 1500
+--- van de overheidswaarschuwingen (los_insurance). Controleer bij het wijzigen
+--- dat het nummer nergens anders als senderNumber staat.
+Config.phoneNumber = '4747'
 
 --- Naam waarmee de centrale terugbericht.
 Config.companyName = 'Downtown Cab Co.'
+
+--[[
+    Het nummer als vast contact in de telefoon.
+
+    NPWD heeft hier geen export voor - de tien server-exports in de bundle zijn
+    emitMessage, generatePhoneNumber, getPhoneNumber, getPlayerData,
+    isPhoneNumberBusy, isPlayerBusy, newPlayer, onCall, onMessage en
+    unloadPlayer. Contacten zijn puur een rij in `npwd_phone_contacts`, met de
+    citizenid als identifier (zo registreert qbx_npwd de speler).
+
+    Daarom zet deze resource het contact er bij het inladen zelf in, één keer per
+    character. Zet op false als je liever hebt dat spelers het nummer moeten
+    horen van iemand anders.
+]]
+Config.addContact = true
+
+--- Avatar-URL voor het contact. Leeg laten mag; NPWD toont dan een letter.
+Config.contactAvatar = ''
 
 --- Seconden tussen het telefoontje en het uitrijden van de taxi.
 Config.responseDelay = 8

@@ -11,7 +11,58 @@ local config = require 'shared.config'
 local active = false
 local vehicle, driver
 
+-- =========================================================================
+--  De meter
+--
+--  Een NUI-overlay, geen dashboardmeter. De meter die je in het taxi-model ziet
+--  zitten is onderdeel van het model; GTA V heeft geen native om die cijfers aan
+--  te sturen (dat kon in IV wel). Een overlay is wat er overblijft, en die is
+--  bovendien leesbaar vanuit elke camerahoek.
+--
+--  Puur weergave. De server rekent zelf af en begrenst; wat hier staat is
+--  dezelfde som zodat het eindbedrag niet uit de lucht komt vallen.
+-- =========================================================================
+
+local meterOpen = false
+
+local function showMeter()
+    if meterOpen then return end
+    meterOpen = true
+
+    SendNUIMessage({
+        action = 'show',
+        company = config.companyName,
+        base = config.fare.base,
+        labels = {
+            distance = locale('meter_distance'),
+            start = locale('meter_start'),
+            capped = locale('meter_capped'),
+        },
+    })
+end
+
+---@param metres number
+local function updateMeter(metres)
+    if not meterOpen then return end
+
+    local km = metres / 1000
+    local fare = config.fare.base + math.floor(km * config.fare.perKm)
+    local capped = fare > config.fare.max
+
+    if capped then fare = config.fare.max end
+
+    SendNUIMessage({ action = 'update', fare = fare, distance = km, capped = capped })
+end
+
+local function hideMeter()
+    if not meterOpen then return end
+    meterOpen = false
+    SendNUIMessage({ action = 'hide' })
+end
+
 local function cleanup()
+    hideMeter()
+
     if driver and DoesEntityExist(driver) then DeleteEntity(driver) end
     if vehicle and DoesEntityExist(vehicle) then DeleteEntity(vehicle) end
 
@@ -190,6 +241,7 @@ RegisterNetEvent('los_aitaxi:startRide', function(data)
 
         local boardedAt = GetEntityCoords(cache.ped)
         lib.notify({ description = locale('on_route'), type = 'inform', duration = 8000 })
+        showMeter()
 
         -- ── Naar de bestemming ────────────────────────────────────────────
         local rideStart = GetGameTimer()
@@ -204,6 +256,9 @@ RegisterNetEvent('los_aitaxi:startRide', function(data)
                 TriggerServerEvent('los_aitaxi:rideFailed')
                 return cleanup()
             end
+
+            -- Zelfde som als de server hanteert: hemelsbreed vanaf het instappunt.
+            updateMeter(#(GetEntityCoords(cache.ped) - boardedAt))
 
             driveTo(destination)
 

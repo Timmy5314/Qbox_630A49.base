@@ -8,7 +8,7 @@ welke het origineel laadt is niet af te leiden.
 
 ## Hoe het loopt
 
-1. Je belt **4040** met NPWD.
+1. Je belt **4747** met NPWD — het staat als **Downtown Cab Co.** in je contacten.
 2. Rijdt er iemand met de job `taxi` on duty, dan krijg je een SMS dat er een
    echte chauffeur beschikbaar is. Er komt geen AI — spelers gaan voor.
 3. Anders komt er na acht seconden een taxi naar je toe.
@@ -35,9 +35,38 @@ aangekomen.
 > getal in stoppen levert stilzwijgend `null` op. Daar is `los_insurance` al
 > een keer in getrapt.
 
-Het nummer staat niet automatisch in de contactenlijst van spelers. Dat is een
-rij in NPWD's eigen contacten-tabel; zet hem er handmatig in of laat spelers het
-nummer intoetsen.
+## Het contact
+
+**4747**, en het staat er automatisch in. NPWD heeft geen export om een contact
+toe te voegen — de tien server-exports in de bundle zijn `emitMessage`,
+`generatePhoneNumber`, `getPhoneNumber`, `getPlayerData`, `isPhoneNumberBusy`,
+`isPlayerBusy`, `newPlayer`, `onCall`, `onMessage` en `unloadPlayer`. Contacten
+zijn puur een rij in `npwd_phone_contacts`, met de **citizenid** als identifier
+(zo registreert qbx_npwd de speler ook).
+
+Deze resource zet die rij er bij het inladen zelf in, één keer per character,
+drie seconden na `QBCore:Server:PlayerLoaded` — qbx_npwd hangt aan datzelfde
+event en moet de speler eerst bij NPWD aanmelden. Zet `Config.addContact` op
+`false` als je liever hebt dat spelers het nummer van iemand anders moeten horen.
+
+> **Nummers die al bezet zijn:** `4040` is de black market (md-drugs) en `1500`
+> zijn de overheidswaarschuwingen (los_insurance). Controleer bij het wijzigen
+> dat het nieuwe nummer nergens anders als `senderNumber` staat.
+
+## De meter
+
+Een NUI-overlay rechtsonder, zichtbaar zodra de rit naar de bestemming begint:
+lopend bedrag, afgelegde afstand en het starttarief, met een melding als het
+maximum is bereikt.
+
+**Niet de meter in het dashboard.** Die zit in het taxi-model zelf en GTA V heeft
+geen native om die cijfers aan te sturen — dat kon in GTA IV wel, in V is het
+decoratie geworden. Een overlay is wat er overblijft, en die is bovendien
+leesbaar vanuit elke camerahoek.
+
+De overlay rekent met exact dezelfde som als de server (starttarief plus
+kilometers hemelsbreed vanaf het instappunt, afgetopt), zodat het eindbedrag niet
+uit de lucht komt vallen. De server blijft de autoriteit; de meter is weergave.
 
 ## Waar de taxi vandaan komt
 
