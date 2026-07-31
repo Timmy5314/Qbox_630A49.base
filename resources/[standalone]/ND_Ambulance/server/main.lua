@@ -177,12 +177,51 @@ lib.callback.register("ND_Ambulance:respawnPlayer", function(src)
     return true
 end)
 
+---Counts players on duty across every job that counts as EMS.
+---@return number
+local function emsOnDuty()
+    local config = data_death.aiDoctor
+    if not config or not config.emsJobs then return 0 end
+
+    local total = 0
+
+    for i = 1, #config.emsJobs do
+        local ok, count = pcall(function()
+            return exports.qbx_core:GetDutyCountJob(config.emsJobs[i])
+        end)
+
+        if ok and type(count) == "number" then
+            total = total + count
+        end
+    end
+
+    return total
+end
+
 RegisterNetEvent("ND_Ambulance:treatSelf", function()
     local src = source
     local ped = GetPlayerPed(src)
     local coords = GetEntityCoords(ped)
     local player = Bridge.getPlayer(src)
     if not player or not isNearHospitalPed(coords) then return end
+
+    -- The AI doctor is a fallback, not a shortcut past the EMS job. Patching up
+    -- a player who is still on their feet stays allowed; reviving someone who
+    -- is down is only allowed when nobody is on duty to do it properly.
+    local config = data_death.aiDoctor
+    if config and config.requireNoEms and Player(src).state.isDead then
+        local onDuty = emsOnDuty()
+
+        if onDuty > 0 then
+            return Bridge.notify(src, {
+                title = "EMS is on duty",
+                description = ("%d medic%s available. Wait for them, or press your respawn key to give up.")
+                    :format(onDuty, onDuty == 1 and " is" or "s are"),
+                type = "error",
+                duration = 10000
+            })
+        end
+    end
 
     local price = data_death.prices.selfHeal
 

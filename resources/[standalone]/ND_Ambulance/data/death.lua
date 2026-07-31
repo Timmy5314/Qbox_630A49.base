@@ -17,6 +17,24 @@ return {
         -- EMS de goedkope.
         respawn = 5000
     },
+
+    --[[
+        AI-DOKTER
+
+        De dokter-peds in het ziekenhuis konden altijd al iemand oplappen en
+        zelfs reviven. Dat ondermijnt de EMS-job: waarom zou je op een
+        ambulance wachten als de NPC het ook doet?
+
+        Met aiDoctor.requireNoEms aan mag de NPC alleen nog REVIVEN als er nul
+        EMS on duty is. Levende spelers oplappen blijft gewoon mogelijk - dat is
+        een doktersbezoek, geen reanimatie.
+    ]]
+    aiDoctor = {
+        requireNoEms = true,
+
+        -- Jobs die als EMS tellen. Namen uit qbx_core/shared/jobs.lua.
+        emsJobs = {"ambulance"},
+    },
     
     -- locations player will respawn if they get respawned at mourge.
     mourgeRespawn = {
