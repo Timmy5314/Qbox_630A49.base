@@ -35,6 +35,7 @@ In deze volgorde. Alles met `IF NOT EXISTS` is veilig om nogmaals te draaien.
 | 6 | `resources/[standalone]/los_anticheat/install/anticheat.sql` | altijd (nieuwe resource) |
 | 7 | `resources/[standalone]/los_insurance/install/insurance.sql` | altijd (nieuwe resource) |
 | 8 | `resources/[standalone]/murderface-pets/sql/install.sql` | niet verplicht — zie hieronder |
+| 9 | `resources/[standalone]/los_billing/install/billing.sql` | altijd (nieuwe resource) |
 
 Let op bij stap 3: `ps-mdt/sql/qbx.sql` is 126 KB en bevat naast tabellen ook
 seed-data. Draai hem één keer.
