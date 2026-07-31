@@ -101,3 +101,42 @@ lib.onCache('ped', function()
     currentGroup = nil
     applyGang(currentGangName())
 end)
+
+--[[
+    Controlecommando.
+
+    De AMBIENT_GANG_*-namen zijn GTA-gamedata en niet uit de serverbestanden te
+    verifieren. Staat er een naam verkeerd, dan komt de speler in een groep die
+    niet bestaat: geen crash, maar ambient gangleden negeren hem gewoon. Dat is
+    stil falen, en daar is dit commando voor.
+
+    /gangped toont wat er is gezet en of het overeenkomt met wat er zou moeten
+    staan. Klopt de regel `ped groep` niet met `verwacht`, dan is de groepsnaam
+    in de config fout.
+]]
+RegisterCommand('gangped', function()
+    local gang = currentGangName()
+    local expectedName = gang and Config.groups[gang] or Config.defaultGroup
+    local expected = GetHashKey(expectedName)
+    local actual = GetPedRelationshipGroupHash(cache.ped)
+
+    local lines = {
+        ('gang: %s'):format(gang or 'geen'),
+        ('verwacht: %s (%s)'):format(expectedName, expected),
+        ('ped groep: %s'):format(actual),
+        ('match: %s'):format(actual == expected and 'JA' or 'NEE'),
+    }
+
+    if gang and not Config.groups[gang] then
+        lines[#lines + 1] = 'let op: deze gang staat niet in Config.groups'
+    end
+
+    lib.print.info(table.concat(lines, ' | '))
+
+    lib.notify({
+        title = 'Gang peds',
+        description = table.concat(lines, '\n'),
+        type = actual == expected and 'success' or 'error',
+        duration = 10000,
+    })
+end, false)
