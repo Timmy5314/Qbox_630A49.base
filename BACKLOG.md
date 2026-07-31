@@ -289,7 +289,7 @@ voor weinig winst, op een codebase die al veel te onderhouden heeft.
 | Sev | Item | Fix |
 |---|---|---|
 | **HIGH** | **Honger en dorst waren survival-grind.** −4.2 en −3.8 per tick van 5 minuten: ruim twee uur van vol naar leeg, dus meermaals eten per sessie | −1.4 en −1.3, rond de zes uur. Je moet nog steeds eten, maar het onderbreekt geen scene |
-| — | Drie statussen erbij: hygiëne (loopt af), blaas en darmen (lopen **op**, want "blaas 80%" leest als vol) | metadata via qbx_core, geen eigen tabel |
+| — | Drie statussen erbij: hygiëne (loopt af), blaas en darmen (lopen **op**, want "blaas 80%" leest als vol) | metadata via qbx_core, geen eigen tabel. Rates op verzoek van Tim gehalveerd: ~16,6 / ~9,2 / ~24 uur |
 | — | Drie extra ringen in qbx_hud | los_hygiene stuurt de waarden, qbx_hud tekent ze |
 | — | Alle vijf de rates op één plek gedocumenteerd | `los_hygiene/shared/config.lua`; honger en dorst blijven in qbx_core, want die resource wordt niet herschreven |
 

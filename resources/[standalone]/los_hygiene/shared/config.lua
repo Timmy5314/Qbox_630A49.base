@@ -34,12 +34,14 @@ Config.debug = false
     |---------|----------|---------|--------------|-----------------------------|
     | honger  | -1.4     | 5 min   | ~6 uur       | qbx_core/config/server.lua  |
     | dorst   | -1.3     | 5 min   | ~6,4 uur     | qbx_core/config/server.lua  |
-    | hygiene | -1.0     | 5 min   | ~8,3 uur     | hieronder                   |
-    | blaas   | +1.8     | 5 min   | ~4,6 uur vol | hieronder                   |
-    | darmen  | +0.7     | 5 min   | ~12 uur vol  | hieronder                   |
+    | hygiene | -0.5     | 5 min   | ~16,6 uur    | hieronder                   |
+    | blaas   | +0.9     | 5 min   | ~9,2 uur vol | hieronder                   |
+    | darmen  | +0.35    | 5 min   | ~24 uur vol  | hieronder                   |
 
-    Alle vijf zijn bewust traag. Je merkt ze een paar keer per lange sessie, niet
-    elk kwartier.
+    De onderste drie stonden eerst twee keer zo snel (-1.0 / +1.8 / +0.7). Op
+    verzoek van Tim gehalveerd: hygiëne, blaas en darmen horen achtergrondruis te
+    zijn, niet iets waar je je sessie omheen plant. Honger en dorst zijn de twee
+    die je nog wel regelmatig merkt.
 ]]
 
 --- Minuten tussen twee ticks. Gelijkgetrokken met qbx_core's updateInterval,
@@ -47,9 +49,9 @@ Config.debug = false
 Config.tickMinutes = 5
 
 Config.rates = {
-    hygiene = -1.0,
-    bladder = 1.8,
-    bowel = 0.7,
+    hygiene = -0.5,
+    bladder = 0.9,
+    bowel = 0.35,
 }
 
 --- Metadata-sleutels. Kleine letters, net als qbx_core's `hunger` en `thirst`.

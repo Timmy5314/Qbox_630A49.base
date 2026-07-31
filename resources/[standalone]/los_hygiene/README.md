@@ -8,9 +8,9 @@ is alleen als concept gebruikt: dat is ESX (`esx_status`, `mysql-async`,
 
 | Status | Richting | Vol → grens | Actie |
 |---|---|---|---|
-| hygiene | loopt af | ~8,3 uur | douchen zet hem op 100, handen wassen +15 |
-| bladder | loopt **op** | ~4,6 uur | plassen zet hem op 0 |
-| bowel | loopt **op** | ~12 uur | poepen zet hem op 0, én de blaas |
+| hygiene | loopt af | ~16,6 uur | douchen zet hem op 100, handen wassen +15 |
+| bladder | loopt **op** | ~9,2 uur | plassen zet hem op 0 |
+| bowel | loopt **op** | ~24 uur | poepen zet hem op 0, én de blaas |
 
 Blaas en darmen lopen omhoog in plaats van omlaag — "blaas 80%" leest als vol, en
 dat scheelt overal een omkering. In de HUD kleurt daarom **hoog** rood, terwijl
@@ -30,9 +30,13 @@ qbx_core en die resource wordt niet herschreven, dus die twee staan daar.
 |---|---|---|---|---|
 | honger | −1.4 | 5 min | ~6 uur | `qbx_core/config/server.lua` |
 | dorst | −1.3 | 5 min | ~6,4 uur | `qbx_core/config/server.lua` |
-| hygiene | −1.0 | 5 min | ~8,3 uur | `shared/config.lua` |
-| blaas | +1.8 | 5 min | ~4,6 uur | `shared/config.lua` |
-| darmen | +0.7 | 5 min | ~12 uur | `shared/config.lua` |
+| hygiene | −0.5 | 5 min | ~16,6 uur | `shared/config.lua` |
+| blaas | +0.9 | 5 min | ~9,2 uur | `shared/config.lua` |
+| darmen | +0.35 | 5 min | ~24 uur | `shared/config.lua` |
+
+De onderste drie zijn op verzoek van Tim gehalveerd ten opzichte van de
+eerste versie (−1.0 / +1.8 / +0.7): hygiëne, blaas en darmen horen
+achtergrondruis te zijn, niet iets waar je je sessie omheen plant.
 
 **Honger en dorst stonden op −4.2 en −3.8**, oftewel ruim twee uur van vol naar
 leeg. Je zat elke sessie meermaals te eten in plaats van te spelen. Ze zijn ruim
