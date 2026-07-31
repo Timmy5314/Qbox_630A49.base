@@ -1543,7 +1543,6 @@ RegisterNUICallback(
                 {
                     type = "cleanup"
                 })
-                local count = 30000
                 local function Draw2DText(x, y, text, scale)
                     -- Draw text on screen
                     SetTextFont(4)
@@ -1559,14 +1558,27 @@ RegisterNUICallback(
                     DrawText(x, y)
                 end
                 Wait(1000)
-                while count > 1 and IsPedInAnyVehicle(PlayerPedId()) do
-                    count = count - 1
-                    --ShowNotification("Seconds Left: "..count)
-                    local timeSeconds = count/100
-                    local timeMinutes = math.floor(timeSeconds/60.0)
-                    timeSeconds = timeSeconds - 60.0*timeMinutes
-                    Draw2DText(0.015, 0.725, ("~y~%02d:%06.3f"):format(timeMinutes, timeSeconds), 0.7)
-                    Wait(1)
+
+                -- Hier stond een teller die vanaf 30000 met 1 per frame afliep en
+                -- gedeeld werd door 100 om er seconden van te maken. Dat klopt
+                -- alleen bij precies 100 fps; op 60 fps duurde een proefrit
+                -- ongeveer acht minuten in plaats van vijf.
+                --
+                -- Nu een echte klok. GetGameTimer loopt in milliseconden en trekt
+                -- zich niets aan van de framerate.
+                local durationMs = (Config.TestDriveSeconds or 60) * 1000
+                local started = GetGameTimer()
+
+                while IsPedInAnyVehicle(PlayerPedId()) do
+                    local remaining = durationMs - (GetGameTimer() - started)
+                    if remaining <= 0 then break end
+
+                    local seconds = remaining / 1000
+                    local minutes = math.floor(seconds / 60.0)
+                    seconds = seconds - 60.0 * minutes
+
+                    Draw2DText(0.015, 0.725, ("~y~%02d:%06.3f"):format(minutes, seconds), 0.7)
+                    Wait(0)
                 end
                 while DoesEntityExist(veh) do
                     Wait(0)

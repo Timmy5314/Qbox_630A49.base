@@ -3,6 +3,10 @@ Config.Locale = "en"
 Config.Mysql = 'oxmysql' -- "ghmattisql", "mysql-async", "oxmysql"
 Config.Quickpick = false -- if false system will create a garage shell and spawn every vehicle you preview
 Config.EnableTestDrive = true
+-- Harde bovengrens voor een proefrit, in seconden. Loopt op GetGameTimer, dus
+-- onafhankelijk van de framerate. Daarna verdwijnt het voertuig en staat de
+-- speler weer bij de showroom. Stap je eerder uit, dan stopt de rit ook.
+Config.TestDriveSeconds = 60
 Config.PlateSpace = true -- enable / disable plate spaces (plate padding compatibility)
 Config.SaveJob = true -- this config is to save the value to the player_vehicles.job column
 Config.Licensed = false -- (verouderde rijbewijs-check, uitgeschakeld op Qbox)

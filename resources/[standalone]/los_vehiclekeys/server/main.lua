@@ -52,8 +52,17 @@ local function giveKeyItem(src, plate, model, temporary)
     plate = normalize(plate)
     if not plate then return false end
 
-    -- Geen tweede sleutel voor hetzelfde kenteken.
-    if findKey(src, plate) then return true end
+    local existing = findKey(src, plate)
+
+    if existing then
+        -- Geen tweede sleutel voor hetzelfde kenteken. Wel mag een tijdelijke
+        -- sleutel vervangen worden door een vaste - koop je het busje waarin je
+        -- reed, dan hou je geen sleutel over die na vier uur vervalt. Andersom
+        -- niet: een job-run degradeert je eigen sleutel niet.
+        if temporary or not existing.metadata.temporary then return true end
+
+        ox:RemoveItem(src, config.item, 1, nil, existing.slot)
+    end
 
     local metadata = {
         plate = plate,
@@ -122,4 +131,56 @@ RegisterNetEvent('los_vehiclekeys:requestKeys', function(netId)
     if config.debug then
         lib.print.info(('sleutel toegekend aan %s voor %s'):format(src, plate))
     end
+end)
+
+---Staat er een voertuig met dit kenteken naast de speler?
+---@param src number
+---@param plate string
+---@return boolean
+local function nearbyPlateMatches(src, plate)
+    local ped = GetPlayerPed(src)
+    if ped == 0 then return false end
+
+    local coords = GetEntityCoords(ped)
+    local vehicles = GetAllVehicles()
+
+    for i = 1, #vehicles do
+        local veh = vehicles[i]
+
+        if normalize(GetVehicleNumberPlateText(veh)) == plate
+            and #(coords - GetEntityCoords(veh)) <= config.maxDistance then
+            return true
+        end
+    end
+
+    return false
+end
+
+--[[
+    Job-, missie- en drugsvoertuigen.
+
+    md-drugs vraagt zijn sleutels aan via community_bridge, en die gebruikt
+    daarvoor het qb-event `qb-vehiclekeys:server:AcquireVehicleKeys`. Dat event
+    is de gemeenschappelijke ingang voor alles wat een voertuig uitdeelt zonder
+    dat het op iemands naam staat.
+
+    Hier hangt nu een TIJDELIJKE sleutel aan. Een drugsrun-busje legt dus net als
+    elke andere auto iets in je zak, alleen vervalt die vanzelf - anders houd je
+    na elke run een sleutel over van een voertuig dat allang weg is.
+
+    Bewust RegisterNetEvent en geen AddEventHandler: qbx_vehiclekeys registreert
+    dit event ook, maar een resource die zelf registreert krijgt het gegarandeerd
+    binnen. Beide handlers draaien naast elkaar; qbx_vehiclekeys regelt de
+    toegang, wij het item.
+]]
+RegisterNetEvent('qb-vehiclekeys:server:AcquireVehicleKeys', function(plate)
+    local src = source
+
+    plate = normalize(plate)
+    if not plate then return end
+
+    -- Zelfde eis als de bridge van qbx_vehiclekeys stelt aan een client-aanvraag.
+    if not nearbyPlateMatches(src, plate) then return end
+
+    giveKeyItem(src, plate, nil, true)
 end)

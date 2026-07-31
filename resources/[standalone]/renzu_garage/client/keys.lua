@@ -173,8 +173,23 @@ function isVehicleUnlocked()
                     SetVehicleNeedsToBeHotwired(veh,false)
                     Wait(100)
                 end
-                if not ent.unlock and Config.LockAllLocalVehicle 
-                or not ent.unlock and GetEntityPopulationType(veh) == 7 and not Config.LockAllLocalVehicle then 
+                -- qbx_vehiclekeys zet `doorslockstate` op 1 zodra iemand langs een
+                -- legitieme weg toegang krijgt: een geslaagde carjacking, hotwiren,
+                -- lockpicken of sleutels vinden. Deze lus keek daar niet naar en
+                -- zette de auto meteen weer op slot (Config.LockAllLocalVehicle
+                -- staat aan, dus dat gold voor al het verkeer).
+                --
+                -- Daardoor lukte een carjacking wel - de bestuurder vluchtte - maar
+                -- kon je niet instappen. Twee resources die dezelfde deuren
+                -- beheerden, en renzu_garage won omdat hij in een lus zit.
+                local qbxUnlocked = Entity(veh).state.doorslockstate == 1
+
+                local shouldLock = (not ent.unlock and Config.LockAllLocalVehicle)
+                    or (not ent.unlock and GetEntityPopulationType(veh) == 7 and not Config.LockAllLocalVehicle)
+
+                if qbxUnlocked then
+                    SetVehicleDoorsLocked(veh, 1)
+                elseif shouldLock then
                     SetVehicleDoorsLocked(veh, 2)
                 else
                     if not Config.LockAllLocalVehicle and GetEntityPopulationType(veh) ~= 7 then
