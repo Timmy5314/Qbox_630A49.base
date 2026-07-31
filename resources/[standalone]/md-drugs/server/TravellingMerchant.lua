@@ -79,11 +79,14 @@ if market.enabled then
         Wait(1000)
 
         local ok, err = pcall(function()
-            exports.npwd:onMessage(market.number, function(data)
-                -- data bevat het nummer van de afzender. Terugsturen naar dat
-                -- nummer, niet naar een source: de speler kan tussendoor
-                -- gedisconnect zijn.
-                local sender = data and (data.senderNumber or data.phoneNumber or data.number)
+            -- Signatuur uit de npwd-bundle (server/messages/messages.controller):
+            --     funcRef({ data = { ...reqObj.data, tgtPhoneNumber }, source })
+            -- Het afzendernummer heet sourcePhoneNumber en zit een niveau
+            -- dieper. Terugsturen op nummer en niet op source, want de speler
+            -- kan tussendoor gedisconnect zijn.
+            exports.npwd:onMessage(market.number, function(payload)
+                local inner = payload and payload.data
+                local sender = inner and inner.sourcePhoneNumber
                 if not sender then return end
 
                 exports.npwd:emitMessage({
