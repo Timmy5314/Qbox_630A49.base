@@ -21,25 +21,36 @@ Config.debug = false
 --- Rekening waarvan premies worden afgeschreven.
 Config.account = 'bank'
 
--- ── Polissen ─────────────────────────────────────────────────────────────
+--[[
+    Polissen.
+
+    LOOPTIJD IS IN ECHTE DAGEN, geen in-game dagen. De code rekent met
+    os.time() + days * 86400, dus dat is kloktijd. Een polis van 7 dagen loopt
+    een echte week, ongeacht hoe vaak de in-game zon opkomt.
+
+    PREMIE. Een verzekering hoort goedkoper te zijn dan waar hij tegen
+    beschermt, anders sluit niemand hem af. Ter vergelijking op deze server:
+        ziekenhuisbehandeling  $2000
+        AI-dokter onverzekerd  $750
+        respawnen              $1000
+    Een weekpremie van een paar honderd is dan logisch: je bent na een of twee
+    incidenten al uit de kosten.
+]]
 Config.policies = {
     medical = {
         label = 'Medical insurance',
-        premium = 2500,
-
-        -- Looptijd in dagen.
+        premium = 450,
         days = 7,
-
         description = 'Covers ambulance callouts and hospital treatment.',
     },
 
     vehicle = {
         label = 'Vehicle insurance',
-        premium = 1800,
+        premium = 300,
         days = 7,
         description = 'Covers recovery and repair costs for one vehicle.',
 
-        -- Percentage van de dagwaarde dat de verzekeraar dekt bij schade.
+        -- Deel van de schade dat de verzekeraar dekt.
         coverage = 0.75,
     },
 }
@@ -75,19 +86,21 @@ Config.police = {
 }
 
 -- ── Waarschuwingen van de overheid ───────────────────────────────────────
+-- Alle tijden hieronder zijn ECHTE tijd, geen in-game tijd.
 Config.warnings = {
     enabled = true,
 
     -- Nummer waarvandaan de SMS komt.
     senderNumber = '1500',
 
-    -- Minuten tussen twee controles. Iedere onverzekerde speler die online is
-    -- krijgt dan hooguit een bericht.
-    intervalMinutes = 45,
+    -- Minuten tussen twee rondes langs de online spelers.
+    intervalMinutes = 15,
 
-    -- Niet vaker dan dit per speler, in uren. Anders wordt het spam.
-    cooldownHours = 6,
+    -- Minimale tijd tussen twee berichten aan dezelfde speler, in uren.
+    -- Op 1 krijgt een onverzekerde speler dus elk echt uur een herinnering.
+    cooldownHours = 1,
 
-    -- Speler moet minstens zo lang online zijn voordat hij iets krijgt.
+    -- Speler moet minstens zo lang online zijn voordat hij iets krijgt, zodat
+    -- iemand die net inlogt niet meteen een boodschap krijgt.
     minMinutesOnline = 10,
 }
