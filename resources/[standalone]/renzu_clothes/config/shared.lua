@@ -37,12 +37,12 @@ Config.Slots = {
     mask = {
         order = 1, label = 'Mask', icon = 'mask',
         component = 1, isProp = false,
-        item = 'clothing_mask', price = 250, camera = 'head',
+        item = 'clothing_mask', price = 180, variance = 0.30, camera = 'head',
     },
     jacket = {
         order = 2, label = 'Jacket / Top', icon = 'shirt',
         component = 11, isProp = false,
-        item = 'clothing_jacket', price = 650, camera = 'torso',
+        item = 'clothing_jacket', price = 550, variance = 0.60, camera = 'torso',
         -- Component 11 is tied to the arms (component 3). The arms are stored
         -- in the item metadata so the sleeves always match the jacket.
         linkedArms = true,
@@ -50,62 +50,62 @@ Config.Slots = {
     shirt = {
         order = 3, label = 'Shirt / Undershirt', icon = 'shirt',
         component = 8, isProp = false,
-        item = 'clothing_shirt', price = 220, camera = 'torso',
+        item = 'clothing_shirt', price = 160, variance = 0.45, camera = 'torso',
     },
     vest = {
         order = 4, label = 'Vest / Body Armor', icon = 'shield',
         component = 9, isProp = false,
-        item = 'clothing_vest', price = 900, camera = 'torso',
+        item = 'clothing_vest', price = 1200, variance = 0.25, camera = 'torso',
     },
     decals = {
         order = 5, label = 'Decals', icon = 'sparkles',
         component = 10, isProp = false,
-        item = 'clothing_decals', price = 150, camera = 'torso',
+        item = 'clothing_decals', price = 120, variance = 0.25, camera = 'torso',
     },
     pants = {
         order = 6, label = 'Pants', icon = 'pants',
         component = 4, isProp = false,
-        item = 'clothing_pants', price = 480, camera = 'legs',
+        item = 'clothing_pants', price = 340, variance = 0.45, camera = 'legs',
     },
     shoes = {
         order = 7, label = 'Shoes', icon = 'shoe',
         component = 6, isProp = false,
-        item = 'clothing_shoes', price = 380, camera = 'feet',
+        item = 'clothing_shoes', price = 290, variance = 0.50, camera = 'feet',
     },
     bag = {
         order = 8, label = 'Bag / Backpack', icon = 'bag',
         component = 5, isProp = false,
-        item = 'clothing_bag', price = 300, camera = 'torso',
+        item = 'clothing_bag', price = 260, variance = 0.35, camera = 'torso',
     },
     chain = {
         order = 9, label = 'Chain', icon = 'chain',
         component = 7, isProp = false,
-        item = 'clothing_chain', price = 550, camera = 'torso',
+        item = 'clothing_chain', price = 900, variance = 0.55, camera = 'torso',
     },
     hat = {
         order = 10, label = 'Hat / Helmet', icon = 'hat',
         component = 0, isProp = true,
-        item = 'clothing_hat', price = 320, camera = 'head',
+        item = 'clothing_hat', price = 220, variance = 0.45, camera = 'head',
     },
     glasses = {
         order = 11, label = 'Glasses', icon = 'glasses',
         component = 1, isProp = true,
-        item = 'clothing_glasses', price = 200, camera = 'head',
+        item = 'clothing_glasses', price = 260, variance = 0.50, camera = 'head',
     },
     ears = {
         order = 12, label = 'Earrings', icon = 'gem',
         component = 2, isProp = true,
-        item = 'clothing_ears', price = 260, camera = 'head',
+        item = 'clothing_ears', price = 450, variance = 0.50, camera = 'head',
     },
     watch = {
         order = 13, label = 'Watch', icon = 'watch',
         component = 6, isProp = true,
-        item = 'clothing_watch', price = 800, camera = 'torso',
+        item = 'clothing_watch', price = 1400, variance = 0.65, camera = 'torso',
     },
     bracelet = {
         order = 14, label = 'Bracelet', icon = 'bracelet',
         component = 7, isProp = true,
-        item = 'clothing_bracelet', price = 420, camera = 'torso',
+        item = 'clothing_bracelet', price = 700, variance = 0.55, camera = 'torso',
     },
 }
 
@@ -120,6 +120,12 @@ Config.Pricing = {
     --- Deterministic spread around the base price (0.35 = +/- 35%).
     --- Deterministic means the same pair of pants always costs the same, and
     --- the server can recalculate the price independently (no exploits).
+    ---
+    --- Per slot te overschrijven met `variance` in Config.Slots. Dat is nodig
+    --- omdat de prijs per SLOT wordt bepaald, niet per kledingstuk: onder
+    --- `jacket` vallen zowel T-shirts als pakken. Een brede spreiding laat die
+    --- twee alsnog uit elkaar lopen. Categorieen die weinig varieren (decals,
+    --- maskers) houden juist een smalle spreiding.
     variance = 0.35,
     minimum = 25,
 }
@@ -140,7 +146,8 @@ function Config.GetPrice(slot, drawable, texture)
     local hash = (seed * 2654435761) % 4294967296
     local ratio = (hash % 1000) / 1000.0 -- 0.000 .. 0.999
 
-    local factor = 1.0 + ((ratio * 2.0) - 1.0) * Config.Pricing.variance
+    local variance = data.variance or Config.Pricing.variance
+    local factor = 1.0 + ((ratio * 2.0) - 1.0) * variance
     local price = math.floor(data.price * factor + 0.5)
 
     return price < Config.Pricing.minimum and Config.Pricing.minimum or price
