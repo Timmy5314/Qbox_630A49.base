@@ -1,0 +1,15 @@
+{
+    "use_toilet_pee": "Toilet gebruiken",
+    "use_toilet_poo": "Gaan zitten",
+    "use_shower": "Douchen",
+    "wash_hands": "Handen wassen",
+    "doing_pee": "Even opluchten...",
+    "doing_poo": "Rustig aan...",
+    "doing_shower": "Aan het douchen...",
+    "doing_wash": "Handen aan het wassen...",
+    "you_smell": "Een douche zou geen kwaad kunnen.",
+    "need_to_pee": "Je moet echt een toilet vinden.",
+    "need_to_poo": "Je maag is niet blij.",
+    "no_object": "Kijk eerst naar een object.",
+    "object_model": "Modelhash: %s"
+}

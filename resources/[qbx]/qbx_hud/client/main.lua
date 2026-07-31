@@ -113,6 +113,20 @@ end)
 RegisterNetEvent('QBCore:Client:OnJobUpdate', pushConstantHud)
 RegisterNetEvent('QBCore:Client:SetDuty', pushConstantHud)
 
+--- Hygiëne, blaas en darmen komen uit los_hygiene. Die resource bepaalt de
+--- waarden, deze HUD tekent alleen de ringen. Een gewone TriggerEvent, dus als
+--- los_hygiene niet draait gebeurt hier simpelweg niets.
+AddEventHandler('hud:client:UpdateHygiene', function(data)
+    if type(data) ~= 'table' then return end
+
+    SendNUIMessage({
+        action = 'hygiene',
+        hygiene = data.hygiene,
+        bladder = data.bladder,
+        bowel = data.bowel,
+    })
+end)
+
 AddEventHandler('onResourceStart', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end
     Wait(2000)

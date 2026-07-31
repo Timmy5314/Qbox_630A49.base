@@ -246,6 +246,31 @@
                         <q-icon style="top: -0.5px; left: -0.5px;" name="fas fa-tint" size="19.5px" color="white"/>
                     </div>
                     </transition>
+                    <!-- Hygiëne, blaas en darmen (los_hygiene). Zelfde opzet als
+                         de ringen hierboven; alleen de waarden komen uit een
+                         andere resource. Blaas en darmen lopen OMHOOG, dus daar
+                         kleurt hoog rood in plaats van laag. -->
+                    <transition name="fade">
+                    <div v-if="showHygiene">
+                        <q-circular-progress class="q-ml-xl" style="opacity: 40%;" :value="static" size="50px" :thickness="0.24" :style="{color: hygieneColor}" :min="0" :max="100"></q-circular-progress>
+                        <q-circular-progress class="q-ml-xl" style="left: -50%;" show-value :value="hygiene" size="50px" :thickness="0.24" :style="{color: hygieneColor}" :min="0" :max="100" center-color="grey-10">
+                        <q-icon style="top: -0.5px; left: -0.5px;" name="fas fa-shower" size="19.5px" color="white"/>
+                    </div>
+                    </transition>
+                    <transition name="fade">
+                    <div v-if="showBladder">
+                        <q-circular-progress class="q-ml-xl" style="opacity: 40%;" :value="static" size="50px" :thickness="0.24" :style="{color: bladderColor}" :min="0" :max="100"></q-circular-progress>
+                        <q-circular-progress class="q-ml-xl" style="left: -50%;" show-value :value="bladder" size="50px" :thickness="0.24" :style="{color: bladderColor}" :min="0" :max="100" center-color="grey-10">
+                        <q-icon style="top: -0.5px; left: -0.5px;" name="fas fa-toilet" size="19.5px" color="white"/>
+                    </div>
+                    </transition>
+                    <transition name="fade">
+                    <div v-if="showBowel">
+                        <q-circular-progress class="q-ml-xl" style="opacity: 40%;" :value="static" size="50px" :thickness="0.24" :style="{color: bowelColor}" :min="0" :max="100"></q-circular-progress>
+                        <q-circular-progress class="q-ml-xl" style="left: -50%;" show-value :value="bowel" size="50px" :thickness="0.24" :style="{color: bowelColor}" :min="0" :max="100" center-color="grey-10">
+                        <q-icon style="top: -0.5px; left: -0.5px;" name="fas fa-poo" size="19.5px" color="white"/>
+                    </div>
+                    </transition>
                     <transition name="fade">
                     <div v-if="showStress">
                         <q-circular-progress class="q-ml-xl" style="opacity: 40%;" :value="static" size="50px" :thickness="0.24" color="stress" :min="0" :max="100"></q-circular-progress>

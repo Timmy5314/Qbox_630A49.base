@@ -3,7 +3,7 @@
 ---
 ---Elk server-side RegisterNetEvent dat een client kan triggeren, met de
 ---resource waar het vandaan komt. Dit is de aanvalsoppervlakte van de server.
----Gegenereerd op 2026-07-31 uit 462 server-side bestanden.
+---Gegenereerd op 2026-08-01 uit 463 server-side bestanden.
 
 KnownServerEvents = {
     ['baseevents:enteredVehicle'] = 'ps_lib',

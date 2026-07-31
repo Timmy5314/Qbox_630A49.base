@@ -1,0 +1,15 @@
+{
+    "use_toilet_pee": "Use toilet",
+    "use_toilet_poo": "Sit down",
+    "use_shower": "Take a shower",
+    "wash_hands": "Wash hands",
+    "doing_pee": "Relieving yourself...",
+    "doing_poo": "Taking your time...",
+    "doing_shower": "Showering...",
+    "doing_wash": "Washing your hands...",
+    "you_smell": "You could use a shower.",
+    "need_to_pee": "You really need to find a toilet.",
+    "need_to_poo": "Your stomach is not happy.",
+    "no_object": "Look at an object first.",
+    "object_model": "Model hash: %s"
+}

@@ -18,8 +18,19 @@ return {
     },
 
     player = {
-        hungerRate = 4.2, -- Rate at which hunger goes down.
-        thirstRate = 3.8, -- Rate at which thirst goes down.
+        -- RP boven survival-grind. Deze twee liepen op 4.2 en 3.8 per tick, en
+        -- een tick is `updateInterval` = 5 minuten. Van vol naar leeg was dat
+        -- ongeveer twee uur voor honger en ruim twee uur voor dorst - je zat dus
+        -- elke sessie meermaals te eten in plaats van te spelen.
+        --
+        -- Nu ongeveer drie keer zo traag: rond de zes uur van vol naar leeg. Je
+        -- moet nog steeds eten, maar het onderbreekt geen scene meer.
+        --
+        -- De andere drie statussen (hygiëne, blaas, darmen) staan in
+        -- los_hygiene/shared/config.lua. Dat bestand houdt ook een overzicht van
+        -- alle vijf bij, zodat je ze op één plek kunt vergelijken.
+        hungerRate = 1.4, -- Rate at which hunger goes down.
+        thirstRate = 1.3, -- Rate at which thirst goes down.
 
         ---@enum BloodType
         bloodTypes = {

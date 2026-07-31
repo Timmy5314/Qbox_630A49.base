@@ -728,6 +728,16 @@ const playerHud = {
       hungerColor: "",
       healthColor: "",
       thirstColor: "",
+      // los_hygiene. Blaas en darmen lopen OMHOOG: 100 is vol, niet gezond.
+      hygiene: 100,
+      bladder: 0,
+      bowel: 0,
+      showHygiene: true,
+      showBladder: true,
+      showBowel: true,
+      hygieneColor: "#4aa3df",
+      bladderColor: "#e8c547",
+      bowelColor: "#a9714b",
     };
   },
   
@@ -738,6 +748,8 @@ const playerHud = {
     this.listener = window.addEventListener("message", (event) => {
       if (event.data.action === "hudtick") {
         this.hudTick(event.data);
+      } else if (event.data.action === "hygiene") {
+        this.hygieneTick(event.data);
       } 
       // else if(event.data.update) {
       //   eval(event.data.action + "(" + event.data.show + ')')
@@ -746,6 +758,22 @@ const playerHud = {
     Config = {};
   },
   methods: {
+    // los_hygiene stuurt dit door via de client. Blaas en darmen lopen omhoog,
+    // dus daar kleurt HOOG rood; hygiëne is andersom.
+    hygieneTick(data) {
+      if (data.hygiene !== undefined) {
+        this.hygiene = data.hygiene;
+        this.hygieneColor = data.hygiene < 30 ? "#ff0000" : "#4aa3df";
+      }
+      if (data.bladder !== undefined) {
+        this.bladder = data.bladder;
+        this.bladderColor = data.bladder > 80 ? "#ff0000" : "#e8c547";
+      }
+      if (data.bowel !== undefined) {
+        this.bowel = data.bowel;
+        this.bowelColor = data.bowel > 80 ? "#ff0000" : "#a9714b";
+      }
+    },
     hudTick(data) {
       this.show = data.show;
       this.health = data.health;

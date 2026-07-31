@@ -10,7 +10,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
-## STAND: 37 van de 40 punten
+## STAND: 39 van de 40 punten
 
 | Fase | Punten | Af | Openstaand |
 |---|---|---|---|
@@ -19,7 +19,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 | 3 Gangs, drugs, illegaal | 7 | **7** | — |
 | 4 Hulpdiensten, medisch | 7 | **7** | — |
 | 5 Voertuigen, sleutels | 5 | **5** | — |
-| 6 HUD, visuals, systemen | 6 | 0 | HUD deels (job + saldo af), hygiene, ps-scripts, billing, visuals, wipe |
+| 6 HUD, visuals, systemen | 6 | **2** | ps-scripts, billing, visuals, wipe |
 | 7 Discord | 2 | 0 | alles |
 
 > Fase 4 stond hier op 6 punten met 3 open — dat telde niet op. SERVER-OVERHAUL
@@ -27,13 +27,13 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 > verzekeringen, K9/pets en het wanted-systeem. Gecorrigeerd naar 7; het totaal
 > wordt daarmee 39 in plaats van 38.
 
-58 commits sinds `da40e53`. **Fase 4 en 5 zijn af, fase 6 loopt.**
+60 commits sinds `da40e53`. **Fase 4 en 5 af, fase 6 op 2 van de 6.**
 
 ---
 
 ## ⛔ EERST DOEN — dit blokkeert alles
 
-**Niets van dit alles heeft ooit gedraaid.** Alle 37 punten zijn statisch
+**Niets van dit alles heeft ooit gedraaid.** Alle 39 punten zijn statisch
 geverifieerd (syntax, itembestaan, event-namen, API-signaturen tegen de bron),
 maar geen enkele regel is op een draaiende server geweest.
 
@@ -222,6 +222,7 @@ Breed gedraaid over `[standalone]`, `[qbx]`, `[ps]` en `[ox]`:
 | 40 | MED | 4 | **`los_wanted` "schiet niet" is een heuristiek.** De AI-agenten worden client-side ontwapend zodra ze binnen 120 m komen; tussen spawnen en de scan van 1,5 s kan er een schot vallen. Wil je die kans nul: `Config.maxWantedLevel.passive = 0`. Staat zo in de README. |
 | 41 | LOW | — | **Twee agenten-tellers naast elkaar.** `xt-prison` houdt `GlobalState.copCount` bij op jobnaam (interval 120 s), `los_wanted` houdt `GlobalState.losWantedOfficers` bij op jobtype `leo` (interval 20 s). `xt-robnpcs` leest de eerste. Werkt, maar het is dubbel werk met twee definities van "agent". |
 | 43 | LOW | 4 | `murderface-pets` NUI-winkelscherm is **onbereikbaar**: `OpenPetShopNUI()` wordt nergens aangeroepen, en de `buyDirect`-callback erachter is nergens geregistreerd. Dode code van de auteur. De werkende route is de display-hond via ox_target. Niet gebouwd — dat is een feature die niemand gevraagd heeft. |
+| 48 | MED | 6 | **De modelnamen in `los_hygiene/shared/config.lua` zijn niet geverifieerd.** Toiletten, douches en wastafels hangen aan modelhashes die ik niet op deze server heb kunnen controleren. Werkt er een niet: `/hygienemodel` meldt het model van het object waar je naar kijkt. |
 | 42 | **HIGH** | — | **De `require`-valkuil is generiek.** Elk nieuw config-bestand dat via `require` wordt geladen moet eindigen op `return Config`, anders krijg je boolean `true` terug en crasht de eerste index. Dit heeft `los_aidoctor` en `los_insurance` allebei stukgemaakt. Controleer dit bij elke nieuwe resource. |
 | 17 | ~~MED~~ | — | ~~community_bridge dead weight~~ — **ONJUIST.** md-drugs gebruikt het op ruim 800 aanroepen over 30 API's. **Laten staan.** |
 
@@ -280,11 +281,24 @@ voor weinig winst, op een codebase die al veel te onderhouden heeft.
 | MED | **Het saldo bleef niet staan.** De NUI kán dat al — er zit een `showconstant`-actie in `app.js` die `showCash`/`showBank` vastzet — maar de client stuurde die **nooit**. Daardoor flitste het bedrag alleen 3,5 seconde op na een mutatie en verdween daarna | client stuurt `showconstant` bij inladen, en opnieuw na elke mutatie |
 | MED | **De job stond nergens in de HUD** | rechtsboven boven het saldo, met een stipje dat groen wordt zodra je on duty bent; ververst op `OnJobUpdate` en `SetDuty` (beide geverifieerd afgevuurd door qbx_core) |
 
+## FASE 6 — hygiëne en de decay-rates
+
+`los_hygiene`, volledig nieuw. `_external/renzu_hygiene` is ESX (`esx_status`,
+`mysql-async`, `fx_version 'adamant'`) en is alleen als concept gebruikt.
+
+| Sev | Item | Fix |
+|---|---|---|
+| **HIGH** | **Honger en dorst waren survival-grind.** −4.2 en −3.8 per tick van 5 minuten: ruim twee uur van vol naar leeg, dus meermaals eten per sessie | −1.4 en −1.3, rond de zes uur. Je moet nog steeds eten, maar het onderbreekt geen scene |
+| — | Drie statussen erbij: hygiëne (loopt af), blaas en darmen (lopen **op**, want "blaas 80%" leest als vol) | metadata via qbx_core, geen eigen tabel |
+| — | Drie extra ringen in qbx_hud | los_hygiene stuurt de waarden, qbx_hud tekent ze |
+| — | Alle vijf de rates op één plek gedocumenteerd | `los_hygiene/shared/config.lua`; honger en dorst blijven in qbx_core, want die resource wordt niet herschreven |
+
+Interacties hangen aan **modellen** via ox_target, niet aan coördinaten. Werkt
+overal waar zo'n object staat, ook in ps-housing appartementen.
+
 ### Nog open in fase 6
 
 - Minimap-styling
-- `renzu_hygiene` naar Qbox + statussen in de HUD, **alle** decay-rates omlaag
-  (ook honger en dorst) en centraal instelbaar
 - ps-housing / ps-dispatch / ps-mdt / ps-realtor nalopen
 - Billing-systeem
 - `qbx_visuals` lichtreflectie
