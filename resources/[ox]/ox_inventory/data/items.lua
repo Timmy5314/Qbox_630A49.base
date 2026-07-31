@@ -3410,6 +3410,14 @@ return {
             export = "ND_Police.uncuff"
         }
     },
+    -- stevo_cayocrates. Nodig om een kratdrop aan te vragen op de laptop.
+    ["crate_usb"] = {
+        label = "Crate USB",
+        description = "Someone's flight schedule. Worth more to the wrong people.",
+        weight = 100,
+        stack = false
+    },
+
     -- s4t4n667_moneywash
     ["moneywash_key"] = {
         label = "Laundromat Key",
