@@ -27,7 +27,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 > verzekeringen, K9/pets en het wanted-systeem. Gecorrigeerd naar 7; het totaal
 > wordt daarmee 39 in plaats van 38.
 
-48 commits sinds `da40e53`. **Fase 4 is af.**
+50 commits sinds `da40e53`. **Fase 4 is af.**
 
 ---
 
@@ -156,6 +156,32 @@ er wél mis was:
 | MED | Beide scripts zetten alleen `dispatchCode` en geen `code`. Dat is de valkuil uit CLAUDE.md: het scherm toonde "10-80" in plaats van 10-71 en 10-13 | gecorrigeerd |
 | **HIGH** | Er was **nooit** AI-politie. `qbx_disableservices` zette `SetMaxWantedLevel(0)` en alle politie-dispatchservices uit, ook bij nul agenten online | nieuwe resource `los_wanted` met drie standen |
 
+## AFGEROND — controlepas op verzoek van Tim
+
+Zes fouten, allemaal van het soort dat niets meldt. Daarna dezelfde vier controles
+breed over álle resources gedraaid — zie "Controles die nu schoon zijn" hieronder.
+
+| Sev | Resource | Item | Fix |
+|---|---|---|---|
+| **BLOCKER** | los_insurance | `warnings.lua` luisterde op `QBCore:Server:OnPlayerLoaded`. Dat event bestaat niet (het is `PlayerLoaded`, en het geeft het spelerobject mee, dus `source` klopte ook niet). `onlineSince` bleef leeg → **er is nooit een waarschuwing verstuurd** | juiste naam + `AddEventHandler` |
+| **HIGH** | los_insurance | `payroll.lua` gaf `Notify` een tabel met `title`/`description`. qbx_core leest bij een tabel `text`/`caption` → de speler zag letterlijk **"Placeholder"** zonder omschrijving | naar de `subTitle`-vorm |
+| **HIGH** | los_insurance | Kopen gebruikte `ON DUPLICATE KEY UPDATE` op een unique key met een NULLbare `plate`. MySQL ziet twee NULLs als verschillend → elke aankoop van een zorgpolis maakte een **nieuwe rij**, en payroll telt alle lopende polissen op. Drie keer kopen = drie keer premie | expliciet zoeken met `<=>` en bijwerken |
+| **HIGH** | los_aidoctor | Hing aan `AddEventHandler('ND_Ambulance:sendSignal')` — een **net event van een andere resource**. Of dat meevuurt hangt af van FiveM's routering; te riskant voor de enige trigger van de resource | ND_Ambulance vuurt nu een server-interne `signalSent` af |
+| MED | los_aidoctor | `completeTreatment` en `callFailed` gebruikten het door de client meegestuurde id in plaats van `source` → je kon de behandeling van een ander afronden en die de rekening bezorgen | `source` |
+| **HIGH** | murderface-pets | Vier opruimhandlers luisterden op `qbx_core:client:onLogout`. Bestaat niet (het is `playerLoggedOut`) → bij elke characterwissel bleven dieren, hondenhok en winkelhonden **in de wereld staan** | juiste naam |
+
+### Controles die nu schoon zijn
+
+Breed gedraaid over `[standalone]`, `[qbx]`, `[ps]` en `[ox]`:
+
+| Controle | Uitkomst |
+|---|---|
+| `local x = require 'y'` waar `y` geen top-level `return` heeft | geen |
+| Server-side aanroep van een export die alleen client-side bestaat | geen |
+| `AddEventHandler`/`RegisterNetEvent` op een naam die niemand afvuurt | geen |
+| `lib.callback.await` op een callback die nergens geregistreerd is | één, zie #43 |
+| Item-namen die onze resources gebruiken maar niet in ox_inventory staan | geen (op de bewust niet-geregistreerde riem na) |
+
 ### Nieuwe resources deze sessie
 
 `los_anticheat` · `los_aidoctor` · `los_insurance` · `los_gangpeds` · `los_wanted` ·
@@ -189,6 +215,7 @@ er wél mis was:
 | 39 | LOW | 4 | De riem is uit (`Config.leash.enabled = false`) omdat de props `leash_model*` uit een streaming-pack komen dat hier niet staat. Komt dat pack er, dan kunnen riem én de tien verwijderde rassen terug uit `_external/murderface-pets/config.lua`. |
 | 40 | MED | 4 | **`los_wanted` "schiet niet" is een heuristiek.** De AI-agenten worden client-side ontwapend zodra ze binnen 120 m komen; tussen spawnen en de scan van 1,5 s kan er een schot vallen. Wil je die kans nul: `Config.maxWantedLevel.passive = 0`. Staat zo in de README. |
 | 41 | LOW | — | **Twee agenten-tellers naast elkaar.** `xt-prison` houdt `GlobalState.copCount` bij op jobnaam (interval 120 s), `los_wanted` houdt `GlobalState.losWantedOfficers` bij op jobtype `leo` (interval 20 s). `xt-robnpcs` leest de eerste. Werkt, maar het is dubbel werk met twee definities van "agent". |
+| 43 | LOW | 4 | `murderface-pets` NUI-winkelscherm is **onbereikbaar**: `OpenPetShopNUI()` wordt nergens aangeroepen, en de `buyDirect`-callback erachter is nergens geregistreerd. Dode code van de auteur. De werkende route is de display-hond via ox_target. Niet gebouwd — dat is een feature die niemand gevraagd heeft. |
 | 42 | **HIGH** | — | **De `require`-valkuil is generiek.** Elk nieuw config-bestand dat via `require` wordt geladen moet eindigen op `return Config`, anders krijg je boolean `true` terug en crasht de eerste index. Dit heeft `los_aidoctor` en `los_insurance` allebei stukgemaakt. Controleer dit bij elke nieuwe resource. |
 | 17 | ~~MED~~ | — | ~~community_bridge dead weight~~ — **ONJUIST.** md-drugs gebruikt het op ruim 800 aanroepen over 30 API's. **Laten staan.** |
 
