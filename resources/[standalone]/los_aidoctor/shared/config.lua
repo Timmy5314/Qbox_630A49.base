@@ -88,3 +88,8 @@ Config.billing = {
         enabled = true,
     },
 }
+
+-- ox_lib require geeft de returnwaarde van dit bestand terug. Zonder deze
+-- regel krijgt `local config = require "shared.config"` de boolean true, en
+-- crasht de eerste `config.<iets>` met "attempt to index a boolean value".
+return Config
