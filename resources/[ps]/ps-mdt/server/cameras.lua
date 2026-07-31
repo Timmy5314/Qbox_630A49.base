@@ -1505,8 +1505,16 @@ local function onPlayerReady()
     SetTimeout(1500, SpawnPendingCameras)
 end
 
+-- `QBCore:Server:OnPlayerLoaded` wordt door de CLIENT afgevuurd
+-- (qbx_core/client/character.lua), vandaar de RegisterNetEvent. Dat is het pad
+-- dat hier werkt.
+--
+-- `qbx_core:server:onPlayerLoaded` bestaat NIET. qbx_core vuurt server-side
+-- alleen jobsconverted, onGangUpdate, onGroupUpdate, onJobUpdate, onPaycheck,
+-- onSetMetaData en playerLoggedOut af. Die regel hieronder is dood en blijft
+-- staan met deze uitleg, zodat niemand hem als "de kapotte" aanmerkt en de
+-- werkende regel eronder gaat verbouwen.
 AddEventHandler('QBCore:Server:OnPlayerLoaded', onPlayerReady)
-AddEventHandler('qbx_core:server:onPlayerLoaded', onPlayerReady)
 RegisterNetEvent('QBCore:Server:OnPlayerLoaded', onPlayerReady)
 
 -- Resource stop cleanup

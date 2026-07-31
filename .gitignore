@@ -28,3 +28,7 @@ _external/
 
 # Oude handmatige cfg-backup (git is nu de backup, bevat secrets)
 server.cfg.bkp
+
+# Discord-bot: afhankelijkheden en het token
+discord-bot/node_modules/
+discord-bot/.env
