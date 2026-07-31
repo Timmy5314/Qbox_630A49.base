@@ -32,20 +32,17 @@ if IsDuplicityVersion() then
     ---@param location string street/zone text
     ---@param coords vector3
     function Bridge.shotSpotter(src, location, coords)
-        if GetResourceState("ps-dispatch"):find("start") then
-            return exports["ps-dispatch"]:CustomAlert({
-                coords = coords,
-                message = locale("shot_spotter"),
-                dispatchCode = "10-71",
-                description = location,
-                radius = 0,
-                sprite = 110,
-                color = 1,
-                scale = 1.0,
-                length = 3,
-                jobs = { "leo" }
-            })
-        end
+        if not GetResourceState("ps-dispatch"):find("start") then return end
+
+        -- `CustomAlert` bestaat ALLEEN client-side (ps-dispatch/client/alerts.lua).
+        -- Server-side is er maar een export: GetDispatchCalls. Deze functie riep
+        -- hem hier dus vanaf de server aan en gooide "No such export CustomAlert"
+        -- - de shotspotter heeft nooit een melding gestuurd.
+        --
+        -- Het gaat nu via de client van de schutter. Dat is ook hoe ps-dispatch
+        -- zijn eigen meldingen doet: CustomAlert vult straat en zone zelf aan met
+        -- GetStreetAndZone, en dat kan alleen op een client.
+        TriggerClientEvent("ND_Police:sendShotSpotterAlert", src, location, coords)
     end
 
     return

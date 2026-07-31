@@ -79,6 +79,43 @@ AddEventHandler("ND_Police:playerJustShot", function(weaponData)
     triggerShotSpotter()
 end)
 
+-- De server heeft de melding goedgekeurd (cooldown, coordinaten getoetst) en
+-- stuurt hem hier terug, omdat ps-dispatch zijn CustomAlert alleen client-side
+-- heeft. Zie shared/bridge.lua.
+RegisterNetEvent("ND_Police:sendShotSpotterAlert", function(location, coords)
+    -- Twee dingen die het origineel fout had:
+    --
+    -- `description` bestaat niet in CustomAlert; dat veld werd stilzwijgend
+    -- weggegooid. De straat en zone vult ps-dispatch zelf in uit de coordinaten.
+    -- Alleen de postcode is extra, en die vraagt om nearest-postal of ModernHUD -
+    -- geen van beide draait hier, dus `location` is nu hetzelfde als wat
+    -- ps-dispatch al toont. Hij gaat mee in de titel zodra dat verandert.
+    --
+    -- En `dispatchCode` is de INTERNE naam, `code` is wat de agent op zijn scherm
+    -- ziet. Hier stond alleen dispatchCode = "10-71", dus het scherm toonde de
+    -- standaard "10-80".
+    local message = locale("shot_spotter")
+
+    if location and location ~= "" then
+        message = ("%s - %s"):format(message, location)
+    end
+
+    exports["ps-dispatch"]:CustomAlert({
+        coords = coords,
+        message = message,
+        dispatchCode = "shotspotter",
+        code = "10-71",
+        icon = "fas fa-volume-high",
+        priority = 1,
+        radius = 0,
+        sprite = 110,
+        color = 1,
+        scale = 1.0,
+        length = 3,
+        jobs = { "leo" }
+    })
+end)
+
 if data_shotspotter.debug then
     for i=1, #data_shotspotter.locations do
         local loc = data_shotspotter.locations[i]

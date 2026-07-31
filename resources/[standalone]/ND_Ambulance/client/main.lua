@@ -736,6 +736,37 @@ RegisterNetEvent("ND_Ambulance:successDefib", function()
     setDeathState("knocked")
 end)
 
+-- De server heeft het noodsignaal goedgekeurd en stuurt het hier terug, omdat
+-- ps-dispatch zijn CustomAlert alleen client-side heeft. Zie server/main.lua.
+RegisterNetEvent("ND_Ambulance:sendDispatchAlert", function(location, coords)
+    if type(coords) ~= "vector3" then return end
+
+    -- `description` bestaat niet in CustomAlert en werd stilzwijgend weggegooid;
+    -- straat en zone vult ps-dispatch zelf in. En `dispatchCode` is de interne
+    -- naam terwijl `code` op het scherm komt - hier stond alleen dispatchCode,
+    -- dus de melding toonde de standaard "10-80" in plaats van 10-13.
+    local message = "Distress signal, EMS needed!"
+
+    if location and location ~= "" then
+        message = ("%s - %s"):format(message, location)
+    end
+
+    exports["ps-dispatch"]:CustomAlert({
+        coords = coords,
+        message = message,
+        dispatchCode = "emsdistress",
+        code = "10-13",
+        icon = "fas fa-kit-medical",
+        priority = 1,
+        radius = 0,
+        sprite = 153,
+        color = 6,
+        scale = 1.0,
+        length = 3,
+        jobs = { "ems" }
+    })
+end)
+
 -- fallback for servers without ps-dispatch: EMS gets a notify plus a temporary blip.
 RegisterNetEvent("ND_Ambulance:distressSignal", function(location, coords)
     if source == "" or type(coords) ~= "vector3" then return end

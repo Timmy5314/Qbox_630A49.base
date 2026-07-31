@@ -50,18 +50,14 @@ RegisterNetEvent("ND_Ambulance:sendSignal", function(location, coords)
     })
 
     if GetResourceState("ps-dispatch"):find("start") then
-        exports["ps-dispatch"]:CustomAlert({
-            coords = coords,
-            message = "Distress signal, EMS needed!",
-            dispatchCode = "10-13",
-            description = location,
-            radius = 0,
-            sprite = 153,
-            color = 6,
-            scale = 1.0,
-            length = 3,
-            jobs = { "ems" }
-        })
+        -- `CustomAlert` bestaat alleen client-side (ps-dispatch/client/alerts.lua);
+        -- server-side heeft ps-dispatch maar een export, GetDispatchCalls. Deze
+        -- aanroep gooide dus "No such export CustomAlert" en de EMS-melding is
+        -- nooit aangekomen. Loopt nu via de client van de speler zelf, want
+        -- CustomAlert vult straat en zone aan met GetStreetAndZone en dat kan
+        -- alleen daar.
+        TriggerClientEvent("ND_Ambulance:sendDispatchAlert", src, location, coords)
+
         if data_death.debug then
             print(("[ND_Ambulance] distress signal from %s (%s) at %s -> ps-dispatch"):format(src, GetPlayerName(src), location))
         end
