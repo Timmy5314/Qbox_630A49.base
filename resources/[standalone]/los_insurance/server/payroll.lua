@@ -135,9 +135,14 @@ AddEventHandler('qbx_core:server:onPaycheck', function(src, payment)
             description = description .. '\n' .. locale('deduction_capped')
         end
 
-        exports.qbx_core:Notify(src, {
-            title = locale('deduction_title', total),
-            description = description,
-        }, 'inform', 12000)
+        -- qbx_core's Notify leest bij een tabel `text.text` en `text.caption`,
+        -- niet `title` en `description` (server/functions.lua regel 437). Met de
+        -- verkeerde sleutels viel hij terug op de letterlijke tekst
+        -- "Placeholder" en bleef de omschrijving leeg - de speler zag dus nooit
+        -- waar zijn geld heen ging.
+        --
+        -- De vorm Notify(src, titel, type, duur, ondertitel) doet hetzelfde
+        -- zonder die val.
+        exports.qbx_core:Notify(src, locale('deduction_title', total), 'inform', 12000, description)
     end)
 end)

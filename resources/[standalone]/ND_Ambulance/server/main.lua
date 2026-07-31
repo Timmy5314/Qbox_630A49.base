@@ -49,6 +49,15 @@ RegisterNetEvent("ND_Ambulance:sendSignal", function(location, coords)
         duration = 6000
     })
 
+    -- Server-intern haakje voor andere resources. los_aidoctor hangt hieraan:
+    -- die luisterde eerst rechtstreeks op dit net event, en of een
+    -- AddEventHandler in een andere resource dan meevuurt hangt af van hoe
+    -- FiveM binnenkomende net events routeert. Een gewone TriggerEvent bereikt
+    -- aantoonbaar alle resources.
+    --
+    -- Bewust hier, vóór de ps-dispatch-tak: die doet een `return`.
+    TriggerEvent("ND_Ambulance:signalSent", src, location, coords)
+
     if GetResourceState("ps-dispatch"):find("start") then
         -- `CustomAlert` bestaat alleen client-side (ps-dispatch/client/alerts.lua);
         -- server-side heeft ps-dispatch maar een export, GetDispatchCalls. Deze

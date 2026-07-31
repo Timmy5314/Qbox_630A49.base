@@ -45,7 +45,7 @@ RegisterNetEvent('los_aidoctor:startRide', function(data)
 
     if not loadModel(config.models.vehicle) or not loadModel(config.models.doctor) then
         active = false
-        return TriggerServerEvent('los_aidoctor:callFailed', data.target)
+        return TriggerServerEvent('los_aidoctor:callFailed')
     end
 
     local station = data.station
@@ -109,7 +109,7 @@ RegisterNetEvent('los_aidoctor:startRide', function(data)
                     TaskStartScenarioInPlace(doctor, 'CODE_HUMAN_MEDIC_TEND_TO_DEAD', 0, true)
                     Wait(8000)
 
-                    local revived = lib.callback.await('los_aidoctor:completeTreatment', false, data.target)
+                    local revived = lib.callback.await('los_aidoctor:completeTreatment', false)
 
                     if revived then
                         lib.notify({ description = locale('treated'), type = 'success', duration = 8000 })
@@ -126,7 +126,7 @@ RegisterNetEvent('los_aidoctor:startRide', function(data)
             end
 
             if GetGameTimer() - started > data.timeout * 1000 then
-                TriggerServerEvent('los_aidoctor:callFailed', data.target)
+                TriggerServerEvent('los_aidoctor:callFailed')
                 break
             end
         end

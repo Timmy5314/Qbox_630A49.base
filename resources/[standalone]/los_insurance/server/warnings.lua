@@ -62,8 +62,21 @@ AddEventHandler('playerDropped', function()
     onlineSince[source] = nil
 end)
 
-RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
-    onlineSince[source] = os.time()
+-- Het event heet `QBCore:Server:PlayerLoaded`, niet OnPlayerLoaded. qbx_core
+-- vuurt het af in server/player.lua regel 1064, met het spelerobject als enige
+-- argument - dus `source` klopt hier niet, die moet uit dat object komen.
+--
+-- Zoals het stond werd `onlineSince` nooit gevuld, was `longEnough` altijd
+-- onwaar en is er dus nooit een waarschuwing verstuurd.
+--
+-- Het is bovendien een server-intern TriggerEvent, geen net event: AddEventHandler,
+-- niet RegisterNetEvent. Met RegisterNetEvent kon een client hem ook nog zelf
+-- afvuren.
+AddEventHandler('QBCore:Server:PlayerLoaded', function(player)
+    local src = player and player.PlayerData and player.PlayerData.source
+    if not src then return end
+
+    onlineSince[src] = os.time()
 end)
 
 CreateThread(function()

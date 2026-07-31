@@ -408,7 +408,11 @@ RegisterCommand('petshop', function(_, args)
 end, false)
 
 -- Cleanup on logout
-RegisterNetEvent('qbx_core:client:onLogout', function()
+-- qbx_core vuurt 'qbx_core:client:playerLoggedOut' af (server/player.lua regel
+-- 756). Er bestaat geen qbx_core:client:onLogout, dus deze opruiming heeft
+-- nooit gedraaid: bij elke characterwissel bleven de dieren, het hondenhok en
+-- de winkelhonden gewoon in de wereld staan.
+RegisterNetEvent('qbx_core:client:playerLoggedOut', function()
     despawnAllDisplays()
     -- Clean up placement ghost if active
     if isPlacing and previewGhost and DoesEntityExist(previewGhost) then

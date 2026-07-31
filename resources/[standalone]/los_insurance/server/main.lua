@@ -201,13 +201,27 @@ lib.callback.register('los_insurance:buy', function(src, policyType, plate)
     -- loonstrook hoeft af te wachten voordat de polis iets waard is.
     local expires = os.time() + config.policyExtendHours * 3600
 
-    -- Bestaat er al een polis, dan verlengen we vanaf nu. ON DUPLICATE KEY
-    -- werkt op de unique key (citizenid, type, plate).
-    MySQL.query.await([[
-        INSERT INTO los_insurance_policies (citizenid, type, plate, premium, expires)
-        VALUES (?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE expires = VALUES(expires), premium = VALUES(premium)
-    ]], { citizenid, policyType, plate, settings.premium, expires })
+    -- Hier stond ON DUPLICATE KEY UPDATE op de unique key (citizenid, type,
+    -- plate). Dat werkt niet voor een zorgpolis: `plate` is dan NULL, en MySQL
+    -- ziet twee NULLs als verschillend. Elke aankoop maakte dus een NIEUWE rij.
+    -- payroll.lua telt alle lopende polissen op, dus na drie keer kopen werd de
+    -- premie drie keer van het loon ingehouden.
+    --
+    -- Expliciet zoeken en bijwerken heeft dat probleem niet, want `<=>` is wel
+    -- NULL-veilig.
+    local existing = MySQL.single.await(
+        'SELECT id FROM los_insurance_policies WHERE citizenid = ? AND type = ? AND (plate <=> ?) LIMIT 1',
+        { citizenid, policyType, plate })
+
+    if existing then
+        MySQL.query.await(
+            'UPDATE los_insurance_policies SET expires = ?, premium = ? WHERE id = ?',
+            { expires, settings.premium, existing.id })
+    else
+        MySQL.query.await(
+            'INSERT INTO los_insurance_policies (citizenid, type, plate, premium, expires) VALUES (?, ?, ?, ?, ?)',
+            { citizenid, policyType, plate, settings.premium, expires })
+    end
 
     dbg(('%s sloot %s%s af'):format(citizenid, policyType, plate and (' ' .. plate) or ''))
 

@@ -128,8 +128,12 @@ local function finish(src)
 end
 
 ---Wordt door de client gemeld zodra de dokter bij de speler staat.
-lib.callback.register('los_aidoctor:completeTreatment', function(_, targetSrc)
-    targetSrc = tonumber(targetSrc)
+---
+---De rit draait op de client van de patiënt zelf, dus de bron ís het doelwit.
+---Het meegestuurde id werd hier eerst gebruikt; daarmee kon iedereen de
+---behandeling van een ander afronden en die de rekening bezorgen.
+lib.callback.register('los_aidoctor:completeTreatment', function(source)
+    local targetSrc = source
     if not targetSrc or not pending[targetSrc] then return false end
 
     -- Nog steeds dood? Zo niet, dan is hij intussen door iemand anders geholpen.
@@ -160,9 +164,10 @@ lib.callback.register('los_aidoctor:completeTreatment', function(_, targetSrc)
     return true
 end)
 
-RegisterNetEvent('los_aidoctor:callFailed', function(targetSrc)
-    targetSrc = tonumber(targetSrc)
-    if not targetSrc or not pending[targetSrc] then return end
+RegisterNetEvent('los_aidoctor:callFailed', function()
+    -- Zelfde reden als hierboven: bron, niet het meegestuurde id.
+    local targetSrc = source
+    if not pending[targetSrc] then return end
 
     exports.qbx_core:Notify(targetSrc, locale('no_response'), 'error', 10000)
     finish(targetSrc)
@@ -171,13 +176,19 @@ end)
 --[[
     Haakje in ND_Ambulance.
 
-    sendSignal is een RegisterNetEvent daar; een AddEventHandler hier op dezelfde
-    naam vuurt mee zonder dat ND_Ambulance aangepast hoeft te worden. Het gaat
-    dus mee met de bestaande "druk op G"-flow en het ps-dispatch bericht dat daar
-    al uitgaat.
+    Dit hing eerst aan `ND_Ambulance:sendSignal` - een net event dat in
+    ND_Ambulance is geregistreerd. Of een AddEventHandler in een ANDERE resource
+    dan meevuurt hangt af van hoe FiveM binnenkomende net events routeert, en
+    daar wilde ik niet op gokken voor de enige trigger van deze resource.
+
+    ND_Ambulance vuurt nu na zijn eigen controles een gewone server-interne
+    `ND_Ambulance:signalSent` af. Dat is een TriggerEvent en die bereikt
+    aantoonbaar alle resources. Het gaat nog steeds mee met de bestaande
+    "druk op G"-flow.
 ]]
-AddEventHandler('ND_Ambulance:sendSignal', function(location, coords)
-    local src = source
+AddEventHandler('ND_Ambulance:signalSent', function(src, location, coords)
+    src = tonumber(src)
+    if not src then return end
 
     if type(coords) ~= 'vector3' then return end
     if not Player(src).state.isDead then return end
