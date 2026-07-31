@@ -110,6 +110,43 @@ zijn genegeerd.
 een eigen `.git`. Die zijn hernoemd naar `.git.parked` zodat de root-repo ze kan tracken.
 Terugzetten kan door de map weer `.git` te noemen.
 
+## Valkuilen die deze codebase echt heeft opgeleverd
+
+Dit zijn geen algemeenheden maar fouten die hier daadwerkelijk zijn gevonden.
+Ze delen één patroon: **een aanname over een naam of veld die stilzwijgend faalt.**
+De code crasht niet, hij doet gewoon niets, en dat merk je pas op een draaiende server.
+
+1. **Controleer altijd de ontvangende kant van een koppeling.**
+   - `ps-dispatch` matcht `jobs` op job **type** (`leo`), niet op jobnaam.
+     `{'police','bcso','sasp'}` bereikt dus niemand.
+   - `CustomAlert` gebruikt `dispatchCode` als interne naam en `code` als de
+     weergegeven code. Verwisseld = altijd "10-80".
+   - NPWD's `onMessage`-callback geeft `{ data = { sourcePhoneNumber, ... } }`.
+     Niet `senderNumber`.
+
+2. **Wapens staan in `ox_inventory/data/weapons.lua`, niet in `items.lua`.**
+   Een grep op alleen items.lua meldt bestaande wapens als ontbrekend.
+
+3. **`Inventory.Search` wil de UPPERCASE wapennaam.** Hij normaliseert de
+   zoekterm intern maar leest het resultaat uit met de ongenormaliseerde string.
+   Geef je `weapon_pistol` mee, dan krijg je een tabel terug in plaats van een getal.
+
+4. **Een ontbrekende tabel geeft bij oxmysql een exception, geen nil.**
+   `if not result then` wordt dus nooit bereikt. Gebruik `pcall`.
+
+5. **Config-waarden die nergens gebruikt worden.** Gevonden: `prices.respawn`
+   (bestond niet maar werd 5x aangeroepen), `prices.otherHeal` (bestond maar
+   werd nergens gebruikt), `config.policeRequirement` (typefout voor
+   `policeRequired`). Grep bij twijfel beide kanten op.
+
+6. **Getallen in een config zijn niet vanzelf wat je denkt.** In
+   `md-drugs` `Config.Merchant.stores` zijn het **prijzen**, geen voorraad.
+
+7. **Externe resources doen soms iets wat er al is.** Drie van de vijftien in
+   `_external/` bleken overbodig: gtzombies naast `cornerselling`,
+   siro_aidoctor naast de hospital-peds, en muhaddil_insurance dat minder deed
+   dan nodig. Kijk eerst wat er staat.
+
 ## Werkwijze
 
 1. Lees het bestand echt voordat je het aanpast. Deze server wijkt fors af van standaard Qbox.

@@ -3,77 +3,132 @@
 Status per item. Fasen verwijzen naar [SERVER-OVERHAUL.md](SERVER-OVERHAUL.md).
 Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
+> **Let op bij de fasenummers.** Tims opdracht telt Fase 1 t/m 7,
+> SERVER-OVERHAUL.md telt Fase 0 t/m 8. Ze lopen één uit de pas:
+> opdracht-fase 1 (anti-cheat) = SERVER-OVERHAUL fase 2. Hieronder wordt
+> **Tims nummering** aangehouden.
+
 ---
 
-## AFGEROND
+## STAND: 29 van de 38 punten
+
+| Fase | Punten | Af | Openstaand |
+|---|---|---|---|
+| 1 Anti-cheat | 6 | **6** | — |
+| 2 Shops, kleding, economie | 7 | **6** | cw-crafting (geparkeerd door Tim), economie-rebalance |
+| 3 Gangs, drugs, illegaal | 7 | **7** | — |
+| 4 Hulpdiensten, medisch | 6 | **4** | ND_Police doorlopen, K9/pets, wanted-systeem |
+| 5 Voertuigen, sleutels | 4 | 0 | alles |
+| 6 HUD, visuals, systemen | 6 | 0 | alles |
+| 7 Discord | 2 | 0 | alles |
+
+40 commits sinds `da40e53`.
+
+---
+
+## ⛔ EERST DOEN — dit blokkeert alles
+
+**Niets van dit alles heeft ooit gedraaid.** Alle 29 punten zijn statisch
+geverifieerd (syntax, itembestaan, event-namen, API-signaturen tegen de bron),
+maar geen enkele regel is op een draaiende server geweest.
+
+1. **Draai de SQL.** Zie [install/README.md](install/README.md). Begin met
+   `install/01_check_tables.sql` — die wijzigt niets en meldt wat ontbreekt.
+2. **Start de server en bewaar de volledige startup-log.**
+
+Zonder die log blijft elke volgende fase bouwen op ongeteste grond.
+
+**De server draait niet op deze machine.** Geen FXServer-artifact, geen MySQL,
+niets op poort 3306. Deze map is een werkkopie; de echte server draait elders
+(txAdmin-config wees naar `/home/container/`). Claude kan dus niet zelf booten
+of de database bereiken.
+
+---
+
+## AFGEROND — eerdere sessies
 
 | # | Sev | Item | Fix |
 |---|---|---|---|
-| 1 | BLOCKER | `ensure [ps]` ontbrak volledig in server.cfg — ps-dispatch, ps-mdt, ps-housing, ps-realtor en ps_lib draaiden nooit | server.cfg: expliciete ensure-volgorde toegevoegd |
-| 2 | BLOCKER | `npwd_qbx_garages` crashte bij startup op `assert(GetResourceState('qbx_garages') == 'started')` | Volledig omgebouwd naar renzu_garage |
-| 3 | HIGH | NPWD garage locatie-knop deed niets: scande alleen de lokale game pool, dus auto's in de garage werden nooit gevonden | Server bepaalt nu het doel (garage/impound/geparkeerd); client valt alleen terug op wereldscan voor rijdende auto's |
-| 4 | HIGH | `ps-mdt` stond op housing-preset `qbx_properties` (bestaat niet) → SQL-error op elk burgerprofiel | Preset → `ps_housing` |
-| 5 | HIGH | `ps_lib` VehicleKeys-bridge riep `QBCore.Functions.GetPlate()` aan; QBCore is nil op deze server | Nieuwe `qbx` bridge geschreven op qbx_vehiclekeys |
-| 6 | MED | `ps_lib` Banking stond op `qb`, server draait Renewed-Banking | Config → `Renewed` |
-| 7 | MED | Laadvolgorde: `[npwd-apps]` startte vóór `npwd`/`qbx_npwd` | Volgorde omgedraaid |
-| 8 | MED | Dubbele `ensure ND_Police` / `ND_Ambulance` (zaten al in `[standalone]`) | Losse ensures verwijderd |
-| 9 | MED | Security-convars allemaal uit; `sv_scriptHookAllowed` ontbrak | scriptHook 0, filterRequestControl 1, phoneExplosions false, networkedSounds false, requestParanoia 1, onesync on |
-| 10 | MED | `sv_licenseKey` stond in de te committen config | Verplaatst naar gitignored `secrets.cfg` |
-| 11 | LOW | Geen versiebeheer op de server | git init + baseline commit (7937 bestanden) |
-| 14 | **HIGH** | Sleutel-exploit `qbx_vehiclekeys`. Oorzaak lag dieper dan gedacht: `GetVehiclesFromPlate()` in `bridge/qb/shared.lua` had `plate == vehPlate or GetVehicleNumberPlateText(vehicle)` — die tweede tak is een string en dus altijd waar, waardoor de functie élk voertuig op de server teruggaf | Kentekenvergelijking gefixt + genormaliseerd; afstandscheck op alle client-aanroepbare ingangen; ook `tookKeys` en `hotwiredVehicle` (upstream "TODO: secure this event") en `setVehLockState` |
-| 16 | HIGH | Dirty money bestond niet | `black_money` als tweede ox_inventory account + money type in qbx_core. Item bestond al |
-| 18 | **HIGH** | `renzu_jobs` interactiemenu volledig dood: alle 18 entries vuurden events af waar nul handlers voor bestonden in de hele server | `export`-ondersteuning in interaction.lua; Handcuff/Uncuff/Ziptie/Revive/Treat/Stretcher bedraad op ND_Police en ND_Ambulance exports; rest verborgen |
-| 25 | **HIGH** | `qbx_core` kende geen `marabunta` en geen `mafia` gang, terwijl de opdracht ze allebei vereist | Beide toegevoegd aan `shared/gangs.lua` met grades |
-| 26 | MED | Anti-cheat blacklistte `WEAPON_BZGAS` terwijl de PoliceArmoury het aan agenten verkoopt — elke inzet zou 80 punten opleveren | Van de blacklist gehaald |
+| 1 | BLOCKER | `ensure [ps]` ontbrak in server.cfg | expliciete ensure-volgorde toegevoegd |
+| 2 | BLOCKER | `npwd_qbx_garages` crashte op `qbx_garages` | omgebouwd naar renzu_garage |
+| 3 | HIGH | NPWD garage locatie-knop deed niets | server bepaalt nu het doel |
+| 4 | HIGH | `ps-mdt` op housing-preset `qbx_properties` | preset → `ps_housing` |
+| 5 | HIGH | `ps_lib` VehicleKeys-bridge riep QBCore aan | qbx-bridge geschreven |
+| 6 | MED | `ps_lib` Banking op `qb` | → `Renewed` |
+| 7 | MED | `[npwd-apps]` startte vóór npwd | volgorde omgedraaid |
+| 8 | MED | Dubbele `ensure ND_Police` / `ND_Ambulance` | opgeruimd |
+| 9 | MED | Security-convars uit | scriptHook 0, onesync, e.a. |
+| 10 | MED | `sv_licenseKey` in gecommitte config | → `secrets.cfg` |
+| 11 | LOW | Geen versiebeheer | git init + baseline |
+
+## AFGEROND — deze sessie
+
+| Sev | Item | Fix |
+|---|---|---|
+| **HIGH** | Sleutel-exploit `qbx_vehiclekeys`. `GetVehiclesFromPlate()` had `plate == vehPlate or GetVehicleNumberPlateText(vehicle)` — die tweede tak is een string en dus altijd waar, waardoor **elk voertuig op de server** werd teruggegeven | kentekenvergelijking gefixt, afstandscheck op alle zeven client-ingangen |
+| **HIGH** | `renzu_jobs` interactiemenu volledig dood: alle 18 entries vuurden events af waar **nul** handlers voor bestonden | `export`-ondersteuning; restraints teruggebracht naar items |
+| **HIGH** | ps-housing crashte bij startup. `MySQL.query.await('SELECT * FROM properties')` gooit een **exception** bij een ontbrekende tabel, geen nil — de vriendelijke melding werd nooit bereikt | pcall + melding die naar install/README.md wijst |
+| **HIGH** | ND_Police uitrusting (cuffs, zipties, shield, spikestrip) stond **nergens** te koop | naar de job-supply van renzu_jobs |
+| **HIGH** | ND_Ambulance had geen enkele winkel: geen medbag of defib te krijgen | naar de job-supply van renzu_jobs |
+| **HIGH** | `zipties` alleen in de politie-supply; gangs konden er nergens aan komen | toegevoegd aan de md-drugs dealer |
+| **HIGH** | `data_death.prices.respawn` bestond niet, maar werd op 5 plekken gebruikt → scherm toonde "$nil" en respawnen was gratis | toegevoegd |
+| **HIGH** | Meth-wholesale stil kapot: item `methbaggy` bestaat niet (heet `methbags`) én `methburner` ontbrak | beide gefixt |
+| **HIGH** | Dirty money bestond niet | `black_money` als account in ox.cfg + qbx_core money type |
+| **HIGH** | `qbx_core` kende geen `marabunta` en geen `mafia` | beide toegevoegd |
+| MED | 14 kleding-iconen ontbraken in ox_inventory | zelf gegenereerd, `tools/gen_clothing_icons.py` |
+| MED | `renzu_clothes` afrekenen kon overal in de winkel | server-side kassa-check + knop gated |
+| MED | `['handcuffs']` stond dubbel in items.lua; `['lockpick']` riep dode export `ars_policejob` aan | beide opgeruimd |
+| MED | `stevo_chopshop` `AddItem` schaduwde zijn parameter en gaf een ongedefinieerde `count` door | herschreven |
+| MED | `stevo_chopshop` las `config.policeRequirement` (bestaat niet, heet `policeRequired`) | gefixt |
+| MED | `ND_Ambulance` `prices.otherHeal` werd nergens gebruikt; afschrijven zonder saldocheck | beide gefixt |
+| MED | md-drugs dealer-locatie stond vast bij resource-start | verhuist elke 45 min + black market SMS |
+| MED | `xt-robnpcs` `requiredCops` las `GlobalState.copCount` van Renewed-Lib (bestaat hier niet) → deed stilzwijgend niets; dispatch stond uitgecommentarieerd | beide gefixt |
+
+### Nieuwe resources deze sessie
+
+`los_anticheat` · `los_aidoctor` · `los_insurance` · `los_gangpeds` ·
+`s4t4n667_moneywash` · `s4t4n667_elevators` · `s4t4n667_lawmenu` ·
+`xt-robnpcs` · `stevo_chopshop` · `stevo_cayocrates`
 
 ---
 
-## OPEN — eerst doen
+## OPEN
 
 | # | Sev | Fase | Item |
 |---|---|---|---|
-| 12 | **BLOCKER** | 1 | **SQL niet geverifieerd, en niet verifieerbaar vanaf deze machine.** Er draait hier geen MySQL en niets luistert op 3306 — de database staat op de host waar de server draait, niet hier. Runbook staat klaar in `install/README.md` met een controlequery die zelf meldt wat ontbreekt. Tim moet dit zelf draaien. |
-| 13 | **BLOCKER** | 1 | **Server niet opgestart, en niet op te starten vanaf deze machine.** Er staat geen FXServer-artifact op C:/D:/E: dat bij deze map hoort; `.replxx_history` en `txaEvent`-regels laten zien dat de server via txAdmin op een andere machine draait (txData-config wijst naar `/home/container/`). Deze map is een werkkopie. Alles is statisch geverifieerd (luac + JSON), niets runtime. **Startup-log van Tim nodig.** |
-| 15 | HIGH | 1 | `sv_enableNetworkedSounds false` kan legitieme geluidsscripts breken (o.a. `mana_audio`). Testen; zo niet werkend → terug naar `true`. |
-| 19 | **HIGH** | 1 | **`los_anticheat` staat in dry run.** Voordat `Config.dryRun` uit kan moeten renzu_garage, ps-housing, ND_Ambulance en xt-prison `ExpectTeleport`/`ExpectHeal` aanroepen. Zonder dat scoort elke legitieme garage-uithaling als teleport en elke revive als healthRegen. |
-| 20 | MED | 1 | `Config.entities.blockUnregisteredVehicles` staat uit. Aanzetten kan pas als renzu_garage, renzu_vehicleshop en md-drugs hun spawns via `RegisterSpawn` aanmelden. Nu spawnen die client-side. |
-| 21 | MED | 3 | Alle illegale inkomsten moeten nog op `black_money` worden aangesloten: md-drugs, chopshop, robnpcs, cayo crates, qbx-overvallen. Het account bestaat nu wel, maar niemand vult het. |
-| 17 | ~~MED~~ | ~~1~~ | ~~`community_bridge` dead weight~~ — **ONJUIST GEBLEKEN.** md-drugs gebruikt het op ruim 800 aanroepen over 30 API-oppervlakken (Language, Notify, Inventory, Framework, Target, Callback, Menu, Anim, HelpText, Point, Input, VehicleKey). Eruit halen is een herschrijving van ~60 bestanden, geen opruimactie. **Advies: laten staan.** |
-| 22 | **HIGH** | 3 | **meth heeft geen server-event voor verwerking.** meth.lua kent alleen `get*`/`give*` events; de verwerking zit client-side achter een minigame. Daardoor is meth als enige drug niet gang-gebonden te maken zonder eerst een server-event te bouwen. |
-| 23 | MED | 3 | Drugverdeling per gang (crack→ballas, weed→families, meth→marabunta, heroin→vagos) is **mijn voorstel**, niet vastgelegd. Alleen cocaine→mafia lag vast. Staat in `md-drugs/shared/config.lua`, aanpasbaar zonder code. |
-| 24 | MED | 4 | Negen interactie-knoppen zijn verborgen tot ze gebouwd worden: Check ID, Search, Drag, Put/Pull vehicle, GSR, Drug Swab, Breathalyser, Check Vitals, Search Area. Unpaid Bills hoort bij billing (fase 6), Manage License bij cityhall. |
-| 18 | MED | 1 | `ensure [standalone]` start alles alfabetisch; `renzu_garage` verwacht dat `ox_inventory` eerder is (dependency staat in de manifest, dus dit klopt — maar controleren in de startup-log). |
+| 12 | **BLOCKER** | — | **SQL niet gedraaid.** Zie install/README.md. Niet verifieerbaar vanaf deze machine. |
+| 13 | **BLOCKER** | — | **Server nooit gestart.** Startup-log nodig. |
+| 19 | **HIGH** | 1 | `los_anticheat` staat in **dry run**. Voor `Config.dryRun = false` moeten renzu_garage, ps-housing, ND_Ambulance en xt-prison `ExpectTeleport`/`ExpectHeal` aanroepen — deels gedaan (ND_Ambulance, ps-housing, xt-prison), renzu_garage bewust niet (blijft onder de 600m-drempel). |
+| 20 | MED | 1 | `Config.entities.blockUnregisteredVehicles` staat uit; kan pas aan als renzu_garage/vehicleshop/md-drugs hun spawns via `RegisterSpawn` aanmelden. |
+| 22 | **HIGH** | 3 | **meth heeft geen server-event voor verwerking.** meth.lua kent alleen `get*`/`give*`; verwerking zit client-side achter een minigame. Daardoor als enige drug niet gang-gebonden te maken. |
+| 23 | MED | 3 | Drugverdeling per gang (crack→ballas, weed→families, meth→marabunta, heroin→vagos) is een **voorstel**; alleen cocaine→mafia lag vast. |
+| 27 | MED | 3 | Turfs bestaan alleen voor ballas, triads en lostmc. Voor families, vagos, marabunta en mafia zijn 5-7 **opgemeten coördinaten per gang** nodig (zone, capture, vault, stash, wardrobe, garage+spawn). Alleen in-game vast te stellen. |
+| 28 | MED | 3 | `los_gangpeds`: de `AMBIENT_GANG_*`-namen zijn GTA-gamedata en niet uit de serverbestanden te verifiëren. Controleer in-game met `/gangped`. |
+| 29 | MED | 4 | `los_aidoctor` / `los_insurance` / elevators: coördinaten niet in-game gecontroleerd. |
+| 30 | MED | 2 | **cw-crafting geparkeerd op verzoek van Tim** — hij wil er eerst RP voor bedenken. |
+| 31 | MED | 2 | **Economie-rebalance server-breed** nog niet gedaan (job-payouts, drugsprijzen). Vraagt eerst een model. |
+| 17 | ~~MED~~ | — | ~~community_bridge dead weight~~ — **ONJUIST.** md-drugs gebruikt het op ruim 800 aanroepen over 30 API's. **Laten staan.** |
+
+### Nog te bouwen (Fase 4 t/m 7)
+
+- **Fase 4**: ND_Police doorlopen, K9/pets (`murderface-pets`), wanted-systeem
+- **Fase 5**: qbx_vehiclekeys item-based, NPC-carjacking, proefrit 60s, NPWD garage-app, mns-aitaxi
+- **Fase 6**: HUD (job + geld rechtsboven), renzu_hygiene, ps-dispatch/mdt nalopen, billing, qbx_visuals, monthly wipe
+- **Fase 7**: Discord-koppeling (server-ID `1067817202578890802`)
 
 ---
 
-## OPEN — nog niet aangeraakt (volledige opdracht)
+## Gereedschap
 
-Alle overige fasen uit SERVER-OVERHAUL.md staan nog volledig open:
+`bash tools/luacheck.sh <bestanden>` — syntaxcheck die CfxLua-uitbreidingen
+saneert (backtick-hashes, `?.`, `?:`, compound assignment) voordat luac draait.
+Zonder saneren stopt luac bij de eerste extensie en blijft de rest van een groot
+bestand ongecontroleerd.
 
-- **Fase 2** Anti-cheat (event firewall, geld-/inventory-/vehicle-autoriteit, scoring, auto-ban)
-- **Fase 3** renzu_shops, renzu_clothes, juwelier, economie, moneywash, elevators, cw-crafting
-- **Fase 4** md-drugs, gangs, junkies, robnpcs, chopshop, cayocrates, scenario peds
-- **Fase 5** ND_Ambulance UI, AI-dokter, ND_Police, lawmenu, verzekeringen, K9/pets, wanted
-- **Fase 6** qbx_vehiclekeys item-based, carjacking, proefrit 60s, mns-aitaxi
-- **Fase 7** HUD, hygiene, ps-dispatch/mdt/housing integratie, billing, qbx_visuals, monthly wipe
-- **Fase 8** Discord-integratie
-
-De 15 bronrepos staan geklooond in `_external/` en zijn klaar voor conversie.
+`python tools/gen_clothing_icons.py <map>` — genereert de kleding-iconen.
 
 ---
 
-## Te draaien SQL (na akkoord + backup)
+## Te draaien SQL
 
-Volledig runbook staat nu in **`install/README.md`**, met:
-
-- `install/01_check_tables.sql` — wijzigt niets, meldt precies welke tabellen en
-  kolommen ontbreken. Draai deze eerst en draai daarna alleen wat in de lijst staat.
-- `install/02_renzu_garage_columns.sql` — idempotente vervanging van de vijf
-  `ALTER TABLE player_vehicles ADD ...` regels uit `QBCORE_garage.sql`. Het
-  origineel faalt hard als een kolom al bestaat.
-
-Maak eerst een dump:
-
-```bash
-mysqldump -u qboxuser -p qbox > backup_voor_overhaul.sql
-```
+Volledig runbook in **[install/README.md](install/README.md)**. Maak eerst een dump.
