@@ -144,6 +144,53 @@ Config.GangProcessing = {
     },
 }
 
+-- ==========================================================================
+--  JUNKIES
+-- ==========================================================================
+-- Verlengstuk van cornerselling, geen aparte resource. Cornerselling regelt al
+-- het verkopen aan wereld-peds; dit voegt gedrag en een drop toe.
+--
+-- Er wordt NIETS gespawnd: bestaande ambient peds krijgen een scenario. Ze
+-- vallen niemand aan - dat is bewust, een NPC die willekeurig agressief wordt
+-- verpest de RP.
+Config.Junkies = {
+    enabled = true,
+
+    -- Percentage van de geschikte peds in de buurt dat junkie-gedrag krijgt.
+    chance = 12,
+
+    scanInterval = 5000,    -- ms tussen scans
+    scanRadius = 80.0,      -- alleen peds binnen deze straal bekijken
+    maxPerScan = 6,         -- nooit meer dan dit per scan behandelen
+
+    lootScanInterval = 2000,
+    lootDistance = 3.0,     -- ook server-side afgedwongen
+
+    playerCooldown = 30,    -- seconden tussen twee loots door dezelfde speler
+    pedCooldown = 900,      -- seconden voordat hetzelfde lijk weer iets geeft
+
+    -- Onrustig, niet gevaarlijk.
+    scenarios = {
+        'WORLD_HUMAN_DRUG_DEALER',
+        'WORLD_HUMAN_SMOKING',
+        'WORLD_HUMAN_STAND_IMPATIENT',
+        'WORLD_HUMAN_BUM_STANDING',
+        'WORLD_HUMAN_SMOKING_POT',
+    },
+
+    clipset = 'move_m@drunk@slightlydrunk',
+
+    -- Kleine drop. Gewogen: geld vaak, drugs zelden. Bewust laag - een junkie
+    -- neerschieten hoort geen verdienmodel te worden.
+    drops = {
+        { item = 'black_money',  min = 15, max = 60,  weight = 55 },
+        { item = 'joint',        min = 1,  max = 2,   weight = 15 },
+        { item = 'crack_baggy',  min = 1,  max = 1,   weight = 10 },
+        { item = 'cokebaggy',    min = 1,  max = 1,   weight = 10 },
+        { item = 'methbags',     min = 1,  max = 1,   weight = 10 },
+    },
+}
+
 Config.Bzz = { -- if you have BZZZ props for these turn it on if you want
     cocaine = false,
     heroin =false,
