@@ -24,6 +24,8 @@ FROM (
     SELECT 'garagekeys',                        'renzu_garage'      UNION ALL
     SELECT 'vehiclekeys',                       'renzu_garage'      UNION ALL
     SELECT 'los_anticheat_flags',               'los_anticheat'     UNION ALL
+    SELECT 'los_insurance_policies',            'los_insurance'     UNION ALL
+    SELECT 'los_insurance_claims',              'los_insurance'     UNION ALL
     SELECT 'los_anticheat_bans',                'los_anticheat'
 ) AS expected
 LEFT JOIN information_schema.TABLES actual
