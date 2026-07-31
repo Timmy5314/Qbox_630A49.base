@@ -1,0 +1,8 @@
+{
+    "call_elevator": "Lift oproepen",
+    "travelling": "Onderweg...",
+    "arrived": "Aangekomen op %s.",
+    "no_access": "Daar kun je niet heen.",
+    "no_access_job": "Je pasje opent die verdieping niet.",
+    "no_access_item": "Je hebt iets nodig om die verdieping te openen."
+}

@@ -1,0 +1,8 @@
+{
+    "call_elevator": "Call elevator",
+    "travelling": "Travelling...",
+    "arrived": "Arrived at %s.",
+    "no_access": "You cannot go there.",
+    "no_access_job": "Your keycard does not open that floor.",
+    "no_access_item": "You need something to open that floor."
+}
