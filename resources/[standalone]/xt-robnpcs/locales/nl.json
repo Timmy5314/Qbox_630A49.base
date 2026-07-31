@@ -1,0 +1,18 @@
+{
+    "rob_citizen": "Beroven",
+    "running_pockets": "Zakken doorzoeken...",
+
+    "no_cash": "Geen geld",
+    "no_cash_description": "Deze had niets op zak.",
+
+    "fight_back": "Verzet",
+    "fight_back_description": "Daar was hij het niet mee eens.",
+
+    "ran_away": "Hij is ervandoor.",
+
+    "slow_down": "Rustig aan",
+    "slow_down_description": "Wacht even voordat je dat nog eens probeert.",
+
+    "pockets_full": "Zakken vol",
+    "pockets_full_description": "Je kon niet dragen wat hij bij zich had."
+}
