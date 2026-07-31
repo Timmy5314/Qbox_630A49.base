@@ -10,19 +10,24 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
-## STAND: 30 van de 38 punten
+## STAND: 31 van de 39 punten
 
 | Fase | Punten | Af | Openstaand |
 |---|---|---|---|
 | 1 Anti-cheat | 6 | **6** | — |
 | 2 Shops, kleding, economie | 7 | **6** | cw-crafting (geparkeerd door Tim), economie-rebalance |
 | 3 Gangs, drugs, illegaal | 7 | **7** | — |
-| 4 Hulpdiensten, medisch | 6 | **5** | K9/pets, wanted-systeem |
+| 4 Hulpdiensten, medisch | 7 | **6** | wanted-systeem |
 | 5 Voertuigen, sleutels | 4 | 0 | alles |
 | 6 HUD, visuals, systemen | 6 | 0 | alles |
 | 7 Discord | 2 | 0 | alles |
 
-43 commits sinds `da40e53`.
+> Fase 4 stond hier op 6 punten met 3 open — dat telde niet op. SERVER-OVERHAUL
+> fase 5 heeft er zeven: ND_Ambulance, AI-dokter, ND_Police, lawmenu,
+> verzekeringen, K9/pets en het wanted-systeem. Gecorrigeerd naar 7; het totaal
+> wordt daarmee 39 in plaats van 38.
+
+45 commits sinds `da40e53`.
 
 ---
 
@@ -123,6 +128,24 @@ betreffende bestanden, maar een nieuwe sessie kan ze anders "verbeteren".
 | MED | ps-dispatch `OfficerBackup` (10-32) en `OfficerInDistress` (10-99) werden **nergens** aangeroepen | toets `F6` + commando `/distress`, server autoriseert |
 | LOW | Geen `nl.json`; `en.json` had een typefout ("otufit") | beide opgelost |
 
+## AFGEROND — murderface-pets / K9 (fase 4)
+
+De resource was al Qbox-native, dus er viel geen framework-tak te strippen. Wat
+er wél mis was:
+
+| Sev | Item | Fix |
+|---|---|---|
+| **HIGH** | `Config.k9.illegalItems` had 40 namen waarvan er **vier** op deze server bestaan (`weed_brick`, `coke_small_brick`, `coke_brick`, `heroin`). De rest kwam van een andere server. De K9 vond dus vrijwel nooit iets, zonder foutmelding | nieuwe lijst van 71 items, stuk voor stuk gecontroleerd tegen items.lua |
+| **HIGH** | Voertuig doorzoeken zocht in `gloveV`/`trunkV` + kenteken. ox_inventory noemt die opslag `glove`/`trunk` + kenteken. Het script zocht dus een voertuig met kenteken `V<kenteken>` → **altijd** "niets gevonden" | prefix gecorrigeerd |
+| **HIGH** | De jobcontrole op beide K9-callbacks zat **alleen client-side**. Iedereen kon `searchInventory` rechtstreeks aanroepen en uitlezen of een speler drugs bij zich had | server-side check op job, on duty en afstand |
+| **HIGH** | `buyPet` controleerde `jobRestricted` niet, terwijl `server/petshop.lua` dat wel deed. Iedereen kon rechtstreeks de politiehond kopen — prijs 0 | check toegevoegd; `buyPet`/`buySupply` bovendien achter de `enabled`-vlag van hun (uitgeschakelde) winkel |
+| **HIGH** | Tien rassen gebruikten modellen uit `dusa_addonpets` / een pdk9-pack die hier **niet** staan. Zo'n hond spawnt niet: je koopt hem en er gebeurt niets | rassen verwijderd, riem uitgezet (zelfde pack) |
+| MED | Politiehond was `pdk9` (ontbrekend model) | German Shepherd op base-game model, enige ras met `isK9`, `jobRestricted` op police/bcso/sasp |
+| MED | De zwerfhond in Sandy Shores gaf het item `murderface_shepherd` — na bovenstaande is dat de **politiehond**. Een burger die hem temde kreeg een K9 | zwerver is nu een Golden Retriever |
+| MED | `SearchLogic` controleerde niet of het dier wel een K9 is; de voertuigvariant deed dat wel | check toegevoegd |
+| MED | renzu_shops had een `Petshop` geconfigureerd die naar `shared.Storeitems.Petshop` wees — die bestond niet, en de winkel stond daarom uitgecommentarieerd | itemlijst aangemaakt, winkel aan |
+| LOW | `los_anticheat` kende de 14 nieuwe server-events niet | whitelist opnieuw gegenereerd |
+
 ### Nieuwe resources deze sessie
 
 `los_anticheat` · `los_aidoctor` · `los_insurance` · `los_gangpeds` ·
@@ -150,11 +173,15 @@ betreffende bestanden, maar een nieuwe sessie kan ze anders "verbeteren".
 | 33 | LOW | 4 | ND_Police impound kiest altijd `impoundcoord[1]` (MRPD). Boten en vliegtuigen belanden dus in de auto-impound. De export accepteert al een `garage`-parameter; alleen de keuze ontbreekt nog. |
 | 34 | LOW | 4 | `ND_Police/data/locker_rooms.lua` "opgeslagen outfits" hangt aan `ND_AppearanceShops` + `fivem-appearance`, die hier niet draaien. De knop verschijnt dus nooit. De vaste outfits werken wel. Koppelen aan illenium-appearance kan, maar is een keuze. |
 | 35 | LOW | 4 | `ND_Police/locales/sv.json` mist de nieuwe sleutels. Valt terug op `en`, dus onschadelijk. |
+| 36 | MED | 4 | **murderface-pets: de drie zwerfdier-coördinaten komen uit de originele repo** en zijn niet in-game gecontroleerd. Staat er een hond in een muur of in de lucht, dan is dat de reden. Zelfde categorie als #29. |
+| 37 | MED | 4 | **De dierenwinkel moet nog neergezet worden.** `/petshop` als admin, bij een van de renzu_shops Petshop-locaties. Zolang dat niet gebeurd is, kan niemand een huisdier kopen — de politiehond wél, die loopt via de job-supply. |
+| 38 | LOW | 4 | murderface-pets gebruikt een eigen `locales/en.lua` (Lua-tabel met `Lang:t`), niet ox_lib locales met en/nl zoals de rest. Omzetten raakt honderden strings verspreid over ~300 KB code; niet gedaan. |
+| 39 | LOW | 4 | De riem is uit (`Config.leash.enabled = false`) omdat de props `leash_model*` uit een streaming-pack komen dat hier niet staat. Komt dat pack er, dan kunnen riem én de tien verwijderde rassen terug uit `_external/murderface-pets/config.lua`. |
 | 17 | ~~MED~~ | — | ~~community_bridge dead weight~~ — **ONJUIST.** md-drugs gebruikt het op ruim 800 aanroepen over 30 API's. **Laten staan.** |
 
 ### Nog te bouwen (Fase 4 t/m 7)
 
-- **Fase 4**: K9/pets (`murderface-pets`), wanted-systeem
+- **Fase 4**: wanted-systeem
 - **Fase 5**: qbx_vehiclekeys item-based, NPC-carjacking, proefrit 60s, NPWD garage-app, mns-aitaxi
 - **Fase 6**: HUD (job + geld rechtsboven), renzu_hygiene, ps-dispatch/mdt nalopen, billing, qbx_visuals, monthly wipe
 - **Fase 7**: Discord-koppeling (server-ID `1067817202578890802`)
@@ -184,6 +211,28 @@ Doe eerst de twee blockers bovenaan dit bestand.
 | 14 | Typ als agent `/distress`. | 10-99 in ps-dispatch. |
 | 15 | Typ `/distress` als burger. | Gebeurt niets. |
 | 16 | `resmon 1` bij ND_Police. | Idle ≈ 0.00 ms. Piek tijdens schieten of geboeid zijn is verwacht (dat zijn `Wait(0)`-lussen). |
+
+## Testplan — murderface-pets / K9 (fase 4)
+
+Doe **eerst punt 1**, anders kan niemand een huisdier kopen.
+
+| # | Wat | Verwacht |
+|---|---|---|
+| 1 | Als admin `/petshop`, kies een ras, zet een display-hond neer bij de Pet Shop (`405.32, 318.54, 102.87`). | Hond staat er en blijft na een restart staan (hij zit in de DB). |
+| 2 | Loop er als burger naartoe en koop hem via ox_target. | Geld eraf, item in je inventory, met afbeelding. |
+| 3 | Gebruik het item. | Hond spawnt, krijgt vanzelf een naam en level 0. Tweede keer gebruiken = oproepen/wegsturen. |
+| 4 | Probeer als burger de **Police K9** te kopen bij de display. | Geweigerd. Zet er anders geen K9-display neer; hij is bedoeld voor de job-supply. |
+| 5 | Haal als agent de Police K9 uit de supply bij MRPD. | Item met prijs 0. Gebruiken spawnt de hond. |
+| 6 | Ga on duty, richt het hond-menu (`]`) op een speler met drugs → persoon doorzoeken. | Hond loopt ernaartoe en slaat aan. Dit werkte hiervoor nooit — de itemlijst klopte niet. |
+| 7 | Zelfde bij iemand **zonder** drugs. | "K9 could not find anything". |
+| 8 | Doorzoek een voertuig met drugs in de kofferbak of het dashboardkastje. | Slaat aan. Dit was kapot door de `gloveV`/`trunkV`-prefix. |
+| 9 | Probeer hetzelfde **off duty**, of als burger. | Gebeurt niets. |
+| 10 | Probeer een gewone hond (Rottweiler) te laten doorzoeken. | "This pet can not do that!" |
+| 11 | Koop voer, EHBO, waterfles, halsband, naamplaatje, trimset en een hondenhok bij de Pet Shop van renzu_shops. | Allemaal aanwezig, met afbeelding. |
+| 12 | Gebruik voer en EHBO op je hond. | Item gaat er **één keer** af, niet twee keer. |
+| 13 | Zet het hondenhok neer. | Prop verschijnt; hond in de buurt krijgt de rust-bonus. |
+| 14 | Loop naar een zwerfdier-punt (Sandy Shores, Paleto, stad) en voer hem. | Dier staat op de grond en niet in een muur — zo niet, zie BACKLOG #36. Sandy Shores is nu een Retriever, geen Shepherd. |
+| 15 | `resmon 1` bij murderface-pets, met en zonder hond buiten. | Idle laag; piek terwijl een hond je volgt is verwacht. |
 
 ## Gereedschap
 
