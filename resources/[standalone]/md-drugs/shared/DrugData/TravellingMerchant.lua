@@ -26,6 +26,13 @@ Config.Merchant = {
         lockpick            = 2,
         advancedlockpick    = 1,
 
+        -- Zipties. Handboeien zijn politie-uitrusting en zitten in de
+        -- job-supply van renzu_jobs; zipties zijn het criminele equivalent en
+        -- waren tot nu toe NERGENS te krijgen buiten die politiewinkel.
+        -- Gangs kunnen hiermee iemand vastbinden, agenten kunnen ze losknippen
+        -- met `tools`.
+        zipties             = 5,
+
         -- Bereiding en gereedschap
         bakingsoda          = 25,
         flour               = 25,

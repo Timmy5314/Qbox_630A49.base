@@ -69,9 +69,25 @@ Config.TurfColors = {
     ['ballas'] = 27, -- purple
     ['triads'] = 2,  -- green
     ['lostmc'] = 6,  -- red
-    ['families']= 25,
-    ['vagos']  = 5,
+    ['families']= 25, -- green
+    ['vagos']  = 5,  -- yellow
+    ['marabunta'] = 3,  -- blue
+    ['mafia']  = 40, -- dark grey
 }
+
+--[[
+    LET OP - er zijn maar drie turfs gedefinieerd (ballas, triads, lostmc).
+    families, vagos, marabunta en mafia hebben er nog geen.
+
+    Een turf toevoegen vraagt vijf opgemeten coordinaten: zone, capture, vault,
+    stash, wardrobe en garage (met spawnpunt). Die zijn niet uit de code of uit
+    een repo te halen, alleen in-game op te meten. Gok je ze, dan komt de kluis
+    in een muur te staan.
+
+    Wil je turfs voor de overige gangs: loop de plek in-game af, noteer de
+    coordinaten en kopieer het ballas-blok hieronder. De rest van het systeem
+    (oorlogen, scores, blips, beloningen) werkt dan meteen mee.
+]]
 
 Config.Turfs = {
 
