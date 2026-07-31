@@ -7,30 +7,38 @@ Config.Merchant = {
             vector4(-3278.98, 973.38, 5.35, 101.53),
         },
     },
-    -- Alleen illegale spullen: precursors, codeine, inbraakgereedschap en de
-    -- prepaid telefoons. De legale spullen (bakingsoda, flour, chocolate,
-    -- mdbutter, weedgrinder, mdwoods, dabrig, leancup, butane, butanetorch,
-    -- emptyvial, needle) staan bij YouTool, de bouwmarkt.
-    -- Zie renzu_shops/config/defaultshops.lua.
-    --
-    -- Wie wietkoekjes wil bakken hoeft daar geen dealer voor op te zoeken;
-    -- wie een auto wil openbreken of MDMA wil persen wel.
+    -- Alles wat md-drugs nodig heeft loopt via deze NPC, legaal of niet. De
+    -- getallen zijn voorraadaantallen, geen prijzen.
     stores = {
-        -- LSD-precursors
+        -- LSD
         tab_paper           = 50,
         lysergic_acid       = 25,
         diethylamide        = 25,
 
-        -- MDMA-precursors
+        -- MDMA
         isosafrole          = 25,
         mdp2p               = 25,
 
         -- Codeine
         mdlean              = 50,
 
-        -- Inbraakgereedschap. Illegaal, dus hier en nergens anders.
+        -- Inbraakgereedschap
         lockpick            = 2,
         advancedlockpick    = 1,
+
+        -- Bereiding en gereedschap
+        bakingsoda          = 25,
+        flour               = 25,
+        chocolate           = 25,
+        mdbutter            = 25,
+        weedgrinder         = 25,
+        mdwoods             = 2,
+        dabrig              = 2,
+        leancup             = 25,
+        butane              = 25,
+        butanetorch         = 2,
+        emptyvial           = 2,
+        needle              = 2,
 
         -- Prepaid telefoons voor wholesale-deals
         cokeburner          = 25,

@@ -29,17 +29,10 @@ return {
 		}
 	},
 
-	YouTool = {
-		name = 'YouTool',
-		blip = {
-			id = 402, colour = 69, scale = 0.8
-		}, inventory = {
-			{ name = 'lockpick', price = 10 }
-		}, locations = {
-		}, targets = {
-
-		}
-	},
+	-- YouTool verwijderd. De bouwmarkt bestaat niet meer op deze server; alle
+	-- md-drugs benodigdheden lopen via de dealer-NPC van md-drugs.
+	-- Hij stond hier bovendien met een lockpick voor $10, wat een probleem was
+	-- geworden zodra iemand er een locatie aan had gehangen.
 
 	Ammunation = {
 		name = 'Ammunation',

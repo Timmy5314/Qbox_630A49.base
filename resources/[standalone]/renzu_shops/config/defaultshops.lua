@@ -104,45 +104,9 @@ return {
 		}
 	},
 
-	-- YouTool - de bouwmarkt. Alle legale spullen die eerst bij de md-drugs
-	-- dealer lagen staan hier: wie een blunt wil draaien of wietkoekjes wil
-	-- bakken hoeft daar geen crimineel voor op te zoeken.
-	--
-	-- Bij de dealer blijven alleen de precursors (isosafrole, mdp2p,
-	-- lysergic_acid, diethylamide, tab_paper), codeine en de prepaid telefoons.
-	YouTool = {
-		--groups = 'police',
-		-- Stond op black_money. Dat is sinds juli 2026 het zwartgeld-account,
-		-- en een bouwmarkt hoort gewoon schoon geld aan te nemen.
-		moneytype = 'money',
-		name = 'YouTool',
-		blip = {
-			id = 402, colour = 69, scale = 0.8
-		}, inventory = {
-			-- GEEN lockpick. Inbraakgereedschap is illegaal en hoort niet in
-			-- een bouwmarkt over de toonbank. Die staat bij de md-drugs dealer.
-			-- Huishoudelijk
-			{ name = 'bakingsoda',  price = 12,   grade = 0 },
-			{ name = 'flour',       price = 10,   grade = 0 },
-			{ name = 'chocolate',   price = 15,   grade = 0 },
-			{ name = 'mdbutter',    price = 18,   grade = 0 },
-
-			-- Rookwaar-accessoires
-			{ name = 'weedgrinder', price = 85,   grade = 0 },
-			{ name = 'mdwoods',     price = 8,    grade = 0 },
-			{ name = 'dabrig',      price = 240,  grade = 0 },
-			{ name = 'leancup',     price = 6,    grade = 0 },
-
-			-- Gereedschap
-			{ name = 'butane',      price = 22,   grade = 0 },
-			{ name = 'butanetorch', price = 180,  grade = 0 },
-			{ name = 'emptyvial',   price = 9,    grade = 0 },
-			{ name = 'needle',      price = 14,   grade = 0 },
-		}, locations = {
-			vec3(2747.025390625,3473.0822753906,55.683399200439),
-			vec3(343.35479736328,-1297.6322021484,32.688446044922)
-		}
-	},
+	-- YouTool is bewust verwijderd. Alle spullen die md-drugs nodig heeft, legaal
+	-- of niet, lopen via de dealer-NPC van md-drugs. Zie
+	-- md-drugs/shared/DrugData/TravellingMerchant.lua.
 
 	Ammunation = {
 		moneytype = 'money',

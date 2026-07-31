@@ -32,7 +32,6 @@ local NPC_MODELS = {
 	MechanicSupply = `s_m_y_xmech_02`,
 	PondCafe = `a_f_y_hipster_02`,
 	Balls8 = `a_m_y_business_02`,
-	YouTool = `s_m_y_dealer_01`,
 }
 
 ShopTargets.NpcModelFor = function(shoptype)
