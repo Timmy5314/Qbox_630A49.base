@@ -2298,8 +2298,21 @@ return {
         weight = 100,
         stack = true,
         close = true,
-        client = { 
-           image = "gta5phone.png" 
+        client = {
+           image = "gta5phone.png"
+         },
+    },
+
+    -- Ontbrak, terwijl md-drugs server/wholesale.lua over alle burners loopt en
+    -- Config.Wholesale.Price er een prijs voor heeft. Zonder dit item was
+    -- meth-wholesale stil kapot.
+    ['methburner'] = {
+        label = 'Meth Burner',
+        weight = 100,
+        stack = true,
+        close = true,
+        client = {
+           image = "gta5phone.png"
          },
     },
     ['crackburner'] = {

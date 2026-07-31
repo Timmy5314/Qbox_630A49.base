@@ -7,30 +7,35 @@ Config.Merchant = {
             vector4(-3278.98, 973.38, 5.35, 101.53),
         },
     },
+    -- Alleen wat illegaal of dubieus is. De legale spullen (bakingsoda, flour,
+    -- chocolate, mdbutter, weedgrinder, mdwoods, dabrig, leancup, butane,
+    -- butanetorch, emptyvial, needle) zijn verhuisd naar de General Store in
+    -- renzu_shops, categorieen household / smoke shop / tools.
+    --
+    -- Wie wietkoekjes wil bakken hoeft daar geen dealer voor op te zoeken;
+    -- wie MDMA wil persen wel.
     stores = {
-        tab_paper 	     	= 50,
-		bakingsoda 	     	= 25,
-		isosafrole 	     	= 25,
-		mdp2p 		     	= 25,
-		lysergic_acid    	= 25,
-		diethylamide     	= 25,
-		lockpick  	     	= 2,
-		emptyvial 	     	= 2,
-		needle 		   	 	= 2,
-		cokeburner 	     	= 25,
-		crackburner 	 	= 2,
-		lsdburner	   	 	= 2,
-		heroinburner     	= 2,
-		mdlean 		     	= 50,
-		weedgrinder 	 	= 25,
-		mdbutter 	     	= 25,
-		flour 		     	= 25,
-		chocolate  	     	= 25,
-		butane 		     	= 25,
-		butanetorch 	   	= 2,
-		dabrig 		   		= 2,
-		mdwoods 		   	= 2,
-		leancup 		   	= 25,
-		xtcburner 	   		= 25,
+        -- LSD-precursors
+        tab_paper           = 50,
+        lysergic_acid       = 25,
+        diethylamide        = 25,
+
+        -- MDMA-precursors
+        isosafrole          = 25,
+        mdp2p               = 25,
+
+        -- Codeine
+        mdlean              = 50,
+
+        -- Inbraakgereedschap
+        lockpick            = 2,
+
+        -- Prepaid telefoons voor wholesale-deals
+        cokeburner          = 25,
+        crackburner         = 2,
+        lsdburner           = 2,
+        heroinburner        = 2,
+        xtcburner           = 25,
+        methburner          = 2,
     }
 }
