@@ -576,6 +576,9 @@ const moneyHud = Vue.createApp({
       showCash: false,
       showBank: false,
       showUpdate: false,
+      job: "",
+      jobGrade: "",
+      onDuty: false,
     };
   },
   destroyed() {
@@ -608,11 +611,17 @@ const moneyHud = Vue.createApp({
       });
       return formatter.format(value);
     },
+    // Zet saldo en job vast rechtsboven. Deze actie zat er al in maar werd
+    // door de client nooit gestuurd, waardoor het saldo alleen even opflitste.
     showConstant(data) {
       this.showCash = true;
       this.showBank = true;
       this.cash = data.cash;
       this.bank = data.bank;
+
+      if (data.job !== undefined) this.job = data.job;
+      if (data.jobGrade !== undefined) this.jobGrade = data.jobGrade;
+      if (data.onDuty !== undefined) this.onDuty = data.onDuty;
     },
     update(data) {
       this.showUpdate = true;

@@ -63,6 +63,41 @@ div#q-loading-bar { display: none!important; } /* makes sure there's no ajax loa
   font-size: 40px;
 }
 
+/* Job rechtsboven, boven het saldo. Bewust kleiner en rustiger dan de bedragen:
+   het is context, geen cijfer dat je in de gaten houdt. Het stipje is groen
+   zodra je on duty bent. */
+#job-display {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  margin-bottom: 0.15rem;
+  font-family: 'Pricedown Bl', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  color: #e8e8ea;
+  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.7), 1px -1px 0 rgba(0, 0, 0, 0.7),
+               -1px 1px 0 rgba(0, 0, 0, 0.7), 1px 1px 0 rgba(0, 0, 0, 0.7);
+}
+
+#job-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6b6e75;
+  flex: 0 0 auto;
+}
+
+#job-dot.duty {
+  background: #00ac31;
+  box-shadow: 0 0 6px rgba(0, 172, 49, 0.85);
+}
+
+#job-grade {
+  font-size: 16px;
+  color: #a9abb1;
+}
+
 #sign, #bank {
   font-family: 'Pricedown Bl', sans-serif;
   text-align: right;

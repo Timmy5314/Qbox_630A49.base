@@ -19,7 +19,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 | 3 Gangs, drugs, illegaal | 7 | **7** | — |
 | 4 Hulpdiensten, medisch | 7 | **7** | — |
 | 5 Voertuigen, sleutels | 5 | **5** | — |
-| 6 HUD, visuals, systemen | 6 | 0 | alles |
+| 6 HUD, visuals, systemen | 6 | 0 | HUD deels (job + saldo af), hygiene, ps-scripts, billing, visuals, wipe |
 | 7 Discord | 2 | 0 | alles |
 
 > Fase 4 stond hier op 6 punten met 3 open — dat telde niet op. SERVER-OVERHAUL
@@ -27,7 +27,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 > verzekeringen, K9/pets en het wanted-systeem. Gecorrigeerd naar 7; het totaal
 > wordt daarmee 39 in plaats van 38.
 
-56 commits sinds `da40e53`. **Fase 4 en 5 zijn af.**
+58 commits sinds `da40e53`. **Fase 4 en 5 zijn af, fase 6 loopt.**
 
 ---
 
@@ -248,7 +248,56 @@ proefrit van 60 seconden en de AI-taxi. Zie de tabel hierboven.
 onbruikbaar (overal `_fixed`/`_new`/`_updated` varianten van hetzelfde bestand,
 niet af te leiden welke telt). Alleen het concept is overgenomen.
 
-### Nog te bouwen (Fase 6 en 7)
+## FASE 6 — HUD: de keuze, met onderbouwing
+
+De opdracht vraagt hier expliciet om advies vóór het bouwen: qbx_hud uitbreiden
+of `ps-hud` porten.
+
+**Advies: qbx_hud uitbreiden. ps-hud niet porten.**
+
+De premisse "qbx_hud is te kaal" bleek maar half te kloppen. Wat er al in zit,
+nagelopen in `html/index.html`, `html/app.js` en `client/main.lua`:
+
+- health, armor, honger, dorst, stress, zuurstof, voice
+- cash én bank, met een +/- animatie bij mutaties
+- snelheidsmeter, brandstof, gordel, hoogtemeter, nitro, motorstaat
+- een instellingenmenu op `I` waarin elk element apart aan/uit kan, opgeslagen
+  in KVP
+- stress met blur en schermschudden, per niveau instelbaar
+- 20+ locales, waaronder `nl.json`
+
+Wat er echt ontbrak was **de job**, en dat het saldo niet bleef staan.
+
+Tegenover die kleine delta staat wat porten zou kosten: ps-hud is 2,9 MB,
+QBCore-tijdperk, en zou betekenen dat we de framework-laag herbouwen én een
+werkende, gelokaliseerde, qbx-native HUD weggooien. Dat is veel eigenaarschap
+voor weinig winst, op een codebase die al veel te onderhouden heeft.
+
+### Wat er is gedaan
+
+| Sev | Item | Fix |
+|---|---|---|
+| MED | **Het saldo bleef niet staan.** De NUI kán dat al — er zit een `showconstant`-actie in `app.js` die `showCash`/`showBank` vastzet — maar de client stuurde die **nooit**. Daardoor flitste het bedrag alleen 3,5 seconde op na een mutatie en verdween daarna | client stuurt `showconstant` bij inladen, en opnieuw na elke mutatie |
+| MED | **De job stond nergens in de HUD** | rechtsboven boven het saldo, met een stipje dat groen wordt zodra je on duty bent; ververst op `OnJobUpdate` en `SetDuty` (beide geverifieerd afgevuurd door qbx_core) |
+
+### Nog open in fase 6
+
+- Minimap-styling
+- `renzu_hygiene` naar Qbox + statussen in de HUD, **alle** decay-rates omlaag
+  (ook honger en dorst) en centraal instelbaar
+- ps-housing / ps-dispatch / ps-mdt / ps-realtor nalopen
+- Billing-systeem
+- `qbx_visuals` lichtreflectie
+- Monthly wipe
+
+> **Opgemerkt, niet aangeraakt:** `qbx_hud/html/app.js` regel ~449 doet
+> `eval(\`this.${event.data.event} = "${event.data.toggle}"\`)` op data uit een
+> NUI-bericht. Het gaat om de eigen client die zijn eigen NUI voedt, dus geen
+> andere speler kan er iets in stoppen — maar een `eval` met string-interpolatie
+> in een instellingenmenu is nergens voor nodig. Los te vervangen door een
+> lookup; niet gedaan om deze wijziging klein te houden.
+
+### Nog te bouwen (Fase 7)
 - **Fase 5**: qbx_vehiclekeys item-based, NPC-carjacking, proefrit 60s, NPWD garage-app, mns-aitaxi
 - **Fase 6**: HUD (job + geld rechtsboven), renzu_hygiene, ps-dispatch/mdt nalopen, billing, qbx_visuals, monthly wipe
 - **Fase 7**: Discord-koppeling (server-ID `1067817202578890802`)

@@ -71,6 +71,33 @@ local function saveSettings()
     SetResourceKvp('hudSettings', json.encode(sharedConfig.menu))
 end
 
+--[[
+    Rechtsboven permanent: job en saldo.
+
+    De NUI kon dit al: er zit een `showconstant`-actie in html/app.js die
+    showCash en showBank op true zet en zo laat staan. Alleen stuurde de client
+    hem nooit, waardoor het saldo alleen 3,5 seconde opflitste na een mutatie en
+    daarna weer verdween.
+
+    De job stond er helemaal niet in en is toegevoegd (markup, stijl en Vue-data
+    in html/, hier de aanvoer).
+]]
+local function pushConstantHud()
+    if not QBX.PlayerData or not QBX.PlayerData.money then return end
+
+    local job = QBX.PlayerData.job
+    local grade = job and job.grade
+
+    SendNUIMessage({
+        action = 'showconstant',
+        cash = QBX.PlayerData.money.cash,
+        bank = QBX.PlayerData.money.bank,
+        job = job and job.label or '',
+        jobGrade = grade and grade.name or '',
+        onDuty = job and job.onduty or false,
+    })
+end
+
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     Wait(2000)
     local hudSettings = GetResourceKvpString('hudSettings')
@@ -79,7 +106,12 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     hunger = QBX.PlayerData.metadata.hunger
     thirst = QBX.PlayerData.metadata.thirst
     hp = QBX.PlayerData.metadata.health
+    pushConstantHud()
 end)
+
+--- Job of dienst gewijzigd: qbx_core stuurt deze twee naar de client.
+RegisterNetEvent('QBCore:Client:OnJobUpdate', pushConstantHud)
+RegisterNetEvent('QBCore:Client:SetDuty', pushConstantHud)
 
 AddEventHandler('onResourceStart', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end
@@ -795,6 +827,11 @@ RegisterNetEvent('hud:client:OnMoneyChange', function(type, amount, isMinus)
         minus = isMinus,
         type = type
     })
+
+    -- `updatemoney` toont de +/- animatie en laat het bedrag daarna weer
+    -- verdwijnen. Hierna opnieuw vastzetten, anders is het permanente saldo na
+    -- de eerste de beste transactie weg.
+    SetTimeout(3600, pushConstantHud)
 end)
 
 -- Stress Gain
