@@ -38,8 +38,19 @@ Deze zijn bewust vervangen en staan alleen nog in `cache/files/` (oude download-
 
 Vervangen door: ND_Police, ND_Ambulance, renzu_garage, renzu_vehicleshop, md-drugs, ps-housing.
 
-> `QBCore` is **altijd nil** in scripts die het via `GetResourceState('qb-core')` ophalen —
-> er draait geen losse qb-core resource. Gebruik `exports.qbx_core`.
+> **Genuanceerd (geverifieerd juli 2026):** er draait geen losse qb-core resource, maar
+> `qbx_core` doet `provide 'qb-core'` in zijn fxmanifest en registreert
+> `createQbExport('GetCoreObject', ...)` in `bridge/qb/`. Daardoor **werkt**
+> `exports['qb-core']:GetCoreObject()` gewoon, en geeft `GetResourceState('qb-core')`
+> ook `started` terug. ps-dispatch, ps-mdt en renzu_shops leunen daarop.
+>
+> Schrijf in nieuwe code toch `exports.qbx_core` — dat is de echte API en de bridge is
+> een compatibiliteitslaag. Maar ga niet bestaande `qb-core`-aanroepen "fixen" in de
+> veronderstelling dat ze stuk zijn; controleer eerst.
+>
+> Let op: de bridge leest de convar `qbx:enablebridge` (kleine b), terwijl server.cfg
+> `qbx:enableBridge` zet. De default is `true`, dus de bridge staat aan — maar hem op
+> `false` zetten in server.cfg doet niets.
 
 ## Mapstructuur
 

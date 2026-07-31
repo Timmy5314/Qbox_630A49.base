@@ -8,10 +8,6 @@ function Bridge.Client.ShowTextUI(text)
       exports["ox_lib"]:showTextUI(text, {
         position = "left-center"
       })
-    elseif (config.textUI == "auto" and GetResourceState("okokTextUI") == "started") or config.textUI == "okokTextUI" then
-      exports["okokTextUI"]:Open(text, "lightblue", "left")
-    elseif (config.textUI == "auto" and GetResourceState("ps-ui") == "started") or config.textUI == "ps-ui" then
-      exports["ps-ui"]:DisplayText(text, "primary")
     else
       error("We do not support it or you don't have a TextUI system!")
     end
@@ -22,10 +18,6 @@ function Bridge.Client.HideTextUI()
 
   if (config.textUI == "auto" and GetResourceState("ox_lib") == "started") or config.textUI == "ox_lib" then
     exports["ox_lib"]:hideTextUI()
-  elseif (config.textUI == "auto" and GetResourceState("ps-ui") == "started") or config.textUI == "ps-ui" then
-    exports["ps-ui"]:HideText()
-  elseif (config.textUI == "auto" and GetResourceState("okokTextUI") == "started") or config.textUI == "okokTextUI" then
-    exports["okokTextUI"]:Close()
   else
     error("We do not support it or you don't have a TextUI system!")
   end
@@ -40,18 +32,12 @@ function Bridge.Client.Notify(title, msg, type, time)
   type = type or "success"
   time = time or 5000
 
-  if (config.notify == "auto" and GetResourceState("okokNotify") == "started") or config.notify == "okokNotify" then
-    exports["okokNotify"]:Alert(title, msg, time, type)
-  elseif (config.notify == "auto" and GetResourceState("ps-ui") == "started") or config.notify == "ps-ui" then
-    exports["ps-ui"]:Notify(msg, type, time)
-  elseif (config.notify == "auto" and GetResourceState("ox_lib") == "started") or config.notify == "ox_lib" then
+  if (config.notify == "auto" and GetResourceState("ox_lib") == "started") or config.notify == "ox_lib" then
     exports["ox_lib"]:notify({
       title = title,
       description = msg,
       type = type
     })
-  elseif (config.notify == "auto" and GetResourceState("wasabi_notify") == "started") or config.notify == "wasabi_notify" then
-    exports.wasabi_notify:notify(title, msg, time, type)
   else
     exports.qbx_core:Notify(msg, type, time)
   end
@@ -81,20 +67,6 @@ function Bridge.Client.AddZone(coords, icon, label, func, id)
           
       }
     })
-  elseif (config.target == "auto" and GetResourceState("qb-target") == "started") or config.target == "qb-target" then
-    exports['qb-target']:AddCircleZone(id, vec3(coords.x, coords.y, coords.z+1.0), 1.3,{
-      name = id, 
-      debugPoly = false, 
-      useZ=true, 
-    }, { options = {
-      { 
-          icon = icon, 
-          label = label,
-          action = func,
-      },}, 
-      distance = 1.5 
-    })
-    zone = id
   else 
     error("We do not support it or you don't have a targeting system!")
   end
@@ -109,8 +81,6 @@ function Bridge.Client.RemoveZone(zone)
 
   if (config.target == "auto" and GetResourceState("ox_target") == 'started') or config.target == "ox_target" then
     exports.ox_target:removeZone(zone)
-  elseif (config.target == "auto" and GetResourceState("qb-target") == "started") or config.target == "qb-target" then
-    exports['qb-target']:RemoveZone(zone)
   end
 end
 
