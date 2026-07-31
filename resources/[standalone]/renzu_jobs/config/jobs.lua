@@ -171,10 +171,10 @@ Config.Jobs = {
 
         ['interaction'] = {
             ['Citizen Interaction'] = {
+                -- 3 en 4 (Handcuff/Uncuff) weggehaald: dat gaat via de items
+                -- cuffs en handcuffkey, niet via een menuknop.
                 { index = 1,  grade = 0, type = 'citizen_interaction' },
                 { index = 2,  grade = 0, type = 'citizen_interaction' },
-                { index = 3,  grade = 0, type = 'citizen_interaction' },
-                { index = 4,  grade = 0, type = 'citizen_interaction' },
                 { index = 5,  grade = 0, type = 'citizen_interaction' },
                 { index = 6,  grade = 0, type = 'citizen_interaction' },
                 { index = 7,  grade = 0, type = 'citizen_interaction' },
@@ -183,8 +183,6 @@ Config.Jobs = {
                 { index = 10, grade = 0, type = 'citizen_interaction' },
                 { index = 11, grade = 0, type = 'citizen_interaction' },
                 { index = 12, grade = 0, type = 'citizen_interaction' },
-                -- Ziptie (index 19) koppelt aan de bestaande ND_Police export.
-                { index = 19, grade = 0, type = 'citizen_interaction' },
             },
             ['Vehicle Interaction'] = {
                 { index = 1, grade = 0, type = 'vehicle_interaction' },
@@ -408,11 +406,10 @@ Config.Jobs = {
 
         ['interaction'] = {
             ['Citizen Interaction'] = {
+                -- 14 t/m 17 (Revive, Drag Patient, Treat) weggehaald: dat gaat
+                -- via de items defibrillator, bag, stretcher en de
+                -- behandelitems, niet via een menuknop.
                 { index = 13, grade = 0, type = 'citizen_interaction' },
-                { index = 14, grade = 0, type = 'citizen_interaction' },
-                { index = 15, grade = 0, type = 'citizen_interaction' },
-                { index = 16, grade = 0, type = 'citizen_interaction' },
-                { index = 17, grade = 0, type = 'citizen_interaction' },
                 { index = 18, grade = 0, type = 'citizen_interaction' },
             },
             ['Vehicle Interaction'] = {
@@ -561,28 +558,28 @@ Config.Jobs = {
 -- dood. Er was dus ook geen conflict met ND_Police of ND_Ambulance, er was
 -- domweg geen implementatie.
 --
--- Wat wel bestaat zijn client exports:
---   ND_Police    : cuff, uncuff, ziptie, deploySpikestrip, useShield, hasShield
---   ND_Ambulance : useBag, useDefib, treatment, createStretcher, hasDefib
+-- BOEIEN, ZIPTIES EN MEDISCHE HANDELINGEN HOREN NIET IN DIT MENU.
+-- Ze zijn al volledig item-based via ox_inventory en dat blijft zo:
 --
--- Entries die daarop aansluiten gebruiken nu `export`. De rest staat op
--- `unimplemented = true` en wordt door client/interaction.lua verborgen, zodat
--- je geen knop ziet die niets doet. Haal de vlag weg zodra je hem bouwt.
+--   cuffs        -> ND_Police.cuff          zipties -> ND_Police.ziptie
+--   handcuffkey  -> ND_Police.uncuff        tools   -> ND_Police:unziptie
+--   defibrillator/bag/behandelitems -> ND_Ambulance.useDefib/useBag/treatment
+--   stretcher    -> ND_Ambulance.createStretcher
+--
+-- Een menuknop ernaast maakt het item betekenisloos: je hoeft dan niets meer
+-- bij je te hebben. Op een RP-server is het bezit van het middel juist de
+-- beperking. Daarom staan ze hier bewust NIET in.
+--
+-- Wat hier wel thuishoort zijn handelingen zonder voorwerp: identiteit
+-- controleren, fouilleren, iemand meenemen. Die moeten nog gebouwd worden en
+-- staan tot die tijd op `unimplemented = true`, waardoor client/interaction.lua
+-- ze verbergt. Een knop die niets doet is slechter dan geen knop.
 -- ─────────────────────────────────────────────────────────────────────────────
 
 Config.Interactions = {
     citizen_interaction = {
-        -- Werkend: gekoppeld aan bestaande ND_Police / ND_Ambulance exports.
-        [3]  = { label = 'Handcuff',            export = 'ND_Police:cuff',       icon = 'handcuffs',               description = 'Restrain the nearest person' },
-        [4]  = { label = 'Uncuff',              export = 'ND_Police:uncuff',     icon = 'handcuffs',               description = 'Release the nearest person' },
-        [19] = { label = 'Ziptie',              export = 'ND_Police:ziptie',     icon = 'link',                    description = 'Ziptie the nearest person' },
-        [14] = { label = 'Revive',              export = 'ND_Ambulance:useDefib',icon = 'kit-medical',             description = 'Revive the nearest person' },
-        [16] = { label = 'Treat Wounds',        export = 'ND_Ambulance:useBag',  icon = 'bandage',                 description = 'Treat the nearest patient' },
-        [15] = { label = 'Stretcher',           export = 'ND_Ambulance:createStretcher', icon = 'bed-pulse',       description = 'Deploy a stretcher' },
-
-        -- Nog niet gebouwd. Verborgen tot er een implementatie is.
-        -- Unpaid Bills hoort bij het billing-systeem, Manage License bij cityhall,
-        -- Vehicle Information en Search Plate bij ps-mdt.
+        -- Nog te bouwen. Unpaid Bills hoort bij het billing-systeem, Manage
+        -- License bij cityhall, Vehicle Information en Search Plate bij ps-mdt.
         [1]  = { label = 'Check ID',            event = 'police:identity_card',  icon = 'id-badge',                description = 'Check the nearest person their identification', unimplemented = true },
         [2]  = { label = 'Search',              event = 'police:search',         icon = 'magnifying-glass-dollar', description = 'Search the nearest person', unimplemented = true },
         [5]  = { label = 'Drag',                event = 'police:drag',           icon = 'person-walking',          description = 'Escort the nearest person', unimplemented = true },
@@ -594,7 +591,6 @@ Config.Interactions = {
         [11] = { label = 'Drug Swab Test',      event = 'police:drugtest',       icon = 'capsules',                description = 'Run a drug swab test', unimplemented = true },
         [12] = { label = 'Breathalyser',        event = 'police:breathalizer',   icon = 'wind',                    description = 'Check the alcohol level', unimplemented = true },
         [13] = { label = 'Check Vitals',        event = 'ems:checkvitals',       icon = 'heart-pulse',             description = 'Check vital signs', unimplemented = true },
-        [17] = { label = 'Treat Serious Injury',event = 'ems:big',               icon = 'suitcase-medical',        description = 'Heal up to 100%', unimplemented = true },
         [18] = { label = 'Search Area',         event = 'ems:searchdeadinarea',  icon = 'magnifying-glass',        description = 'Scan the area for casualties', unimplemented = true },
     },
     vehicle_interaction = {

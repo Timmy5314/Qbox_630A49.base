@@ -547,17 +547,19 @@ return {
 ['WEAPON_PUMPSHOTGUN'] = { label = 'Pump Shotgun', weight = 3000 },
 
 
-['handcuffs'] = {		
-    label = 'handcuffs',
-    weight = 1,
-},
+-- ['handcuffs'] stond hier dubbel: deze definitie werd verderop (rond regel
+-- 1180) overschreven door een tweede met dezelfde sleutel. Lua neemt stil de
+-- laatste. Deze weggehaald zodat er nog maar een definitie is.
+-- Let op: het item dat ND_Police daadwerkelijk gebruikt heet 'cuffs', niet
+-- 'handcuffs'. Dat laatste is een legacy-item dat niets aanstuurt.
 
 ['lockpick'] = {
     label = 'Lockpick',
     weight = 160,
-    client = {
-	export = 'ars_policejob.breakCuffs'
-    }
+    -- Had client.export = 'ars_policejob.breakCuffs'. Die resource bestaat niet
+    -- op deze server, dus het gebruik van een lockpick riep een dode export
+    -- aan. Lockpicks worden door qbx_vehiclekeys zelf afgehandeld (het script
+    -- controleert op het item en verbruikt het), niet via een use-export.
 },
 
 ['medicalbag'] = {
