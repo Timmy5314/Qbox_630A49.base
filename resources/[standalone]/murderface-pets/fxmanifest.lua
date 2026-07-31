@@ -1,0 +1,55 @@
+fx_version 'cerulean'
+games { 'gta5' }
+
+name         'murderface-pets'
+author       'Murderface (FMRP)'
+version      '2.0.0'
+license      'MIT'
+repository   'https://github.com/fruitmob/murderface-pets'
+description  'Pet companion system for FiveM — 26 breeds, XP progression, AI behaviors, leash, K9, hunting. Qbox/ox stack.'
+
+shared_scripts {
+    '@ox_lib/init.lua',
+    'shared/namevalidation.lua',
+    'shared/variations.lua',
+    'shared/animations.lua',
+    'config.lua',
+    'locales/en.lua',
+}
+
+ui_page 'web/dist/index.html'
+
+files {
+    'web/dist/index.html',
+    'web/dist/assets/*.js',
+    'web/dist/assets/*.css',
+}
+
+client_scripts {
+    '@qbx_core/modules/playerdata.lua',
+    'client/functions.lua',
+    'client/client.lua',
+    'client/leash.lua',
+    'client/guard.lua',
+    'client/strays.lua',
+    'client/doghouse.lua',
+    'client/petshop.lua',
+    'client/commands.lua',
+    'client/reactions.lua',
+    'client/menu.lua',
+    'client/nui.lua',
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/functions.lua',
+    'server/server.lua',
+    'server/petshop.lua',
+}
+
+dependencies {
+    'ox_lib',
+    'ox_target',
+    'ox_inventory',
+    'qbx_core',
+}
