@@ -33,7 +33,8 @@ server_scripts {
 }
 
 client_scripts {
-    'client/main.lua',
+    'client/main.lua', -- zet Config; moet als eerste laden
+    'client/backup.lua',
     'client/cuff.lua',
     'client/escort.lua',
     'client/evidence.lua',

@@ -52,8 +52,24 @@ die jobs aan in `qbx_core/shared/jobs.lua` en zet de `groups` daar weer op terug
 | `nearest-postal` of `ModernHUD` | postcode in shotspotter melding | melding toont alleen straat + zone |
 | `npwd` | telefoon blokkeren bij handen omhoog | wordt overgeslagen |
 
-## 6. Let op: overlap met `qbx_police`
+## 6. Let op: handen omhoog
 
-`qbx_police` heeft zijn eigen boeien, escort en evidence systeem. Draai je beide, dan krijg
-je dubbele ox_target opties en conflicterende animaties. Zet in `qbx_police/config` de
-overlappende onderdelen uit, of stop `qbx_police` helemaal.
+ND_Police heeft een eigen "handen omhoog" (standaard `X`) die `state.handsUp` zet — met een
+hoofdletter U, gerepliceerd naar de server. Alleen díe wordt gelezen door boeien, tiewraps,
+fouilleren en het dragen in ND_Ambulance.
+
+`scully_emotemenu` heeft ook een handen-omhoog (standaard `H`) maar zet `state.handsup`
+(kleine u, niet gerepliceerd). Die twee zien elkaar niet. In `server.cfg` staat daarom:
+
+```
+setr scully_emotemenu:handsUpKey ""
+```
+
+Zet dat niet terug zonder ND_Police's keybind uit te zetten, anders heb je weer twee
+systemen waarvan er één niets doet.
+
+## 7. Assistentie-oproep
+
+`data/config.lua` heeft `backup`, `backupKey` (standaard `F6`) en `backupCooldown`.
+De toets stuurt een 10-32 naar ps-dispatch, het commando `/distress` een 10-99.
+Zonder ps-dispatch krijgt de agent een melding dat dispatch niet beschikbaar is.
