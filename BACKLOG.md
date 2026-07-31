@@ -158,12 +158,18 @@ er wél mis was:
 
 ## AFGEROND — controlepas op verzoek van Tim
 
-Zes fouten, allemaal van het soort dat niets meldt. Daarna dezelfde vier controles
-breed over álle resources gedraaid — zie "Controles die nu schoon zijn" hieronder.
+Vijf echte fouten en één misdiagnose van mij. Daarna dezelfde controles breed
+over álle resources gedraaid — zie "Controles die nu schoon zijn" hieronder.
+
+> **Les uit de misdiagnose:** ik greppte alleen op server-side `TriggerEvent` en
+> concludeerde dat het event niet bestond. Het werd afgevuurd met
+> `TriggerServerEvent` vanuit de **client**. Zoek altijd op alle drie de vormen —
+> `TriggerEvent`, `TriggerServerEvent` en `TriggerClientEvent` — voordat je een
+> listener dood verklaart. De sweep verderop doet dat wel goed.
 
 | Sev | Resource | Item | Fix |
 |---|---|---|---|
-| **BLOCKER** | los_insurance | `warnings.lua` luisterde op `QBCore:Server:OnPlayerLoaded`. Dat event bestaat niet (het is `PlayerLoaded`, en het geeft het spelerobject mee, dus `source` klopte ook niet). `onlineSince` bleef leeg → **er is nooit een waarschuwing verstuurd** | juiste naam + `AddEventHandler` |
+| ~~BLOCKER~~ LOW | los_insurance | **Mijn eigen misdiagnose, rechtgezet.** Ik schreef op dat `QBCore:Server:OnPlayerLoaded` niet bestaat en dat er dus nooit een waarschuwing verstuurd is. Dat klopt niet: qbx_core vuurt dat event af vanaf de **client** (`client/character.lua` regel 280 en 407). De originele code werkte. | Wel omgezet naar het server-side `QBCore:Server:PlayerLoaded`, want een client-getriggerd event kan een speler zelf blijven afvuren om zijn online-teller te resetten. Verbetering, geen bugfix. |
 | **HIGH** | los_insurance | `payroll.lua` gaf `Notify` een tabel met `title`/`description`. qbx_core leest bij een tabel `text`/`caption` → de speler zag letterlijk **"Placeholder"** zonder omschrijving | naar de `subTitle`-vorm |
 | **HIGH** | los_insurance | Kopen gebruikte `ON DUPLICATE KEY UPDATE` op een unique key met een NULLbare `plate`. MySQL ziet twee NULLs als verschillend → elke aankoop van een zorgpolis maakte een **nieuwe rij**, en payroll telt alle lopende polissen op. Drie keer kopen = drie keer premie | expliciet zoeken met `<=>` en bijwerken |
 | **HIGH** | los_aidoctor | Hing aan `AddEventHandler('ND_Ambulance:sendSignal')` — een **net event van een andere resource**. Of dat meevuurt hangt af van FiveM's routering; te riskant voor de enige trigger van de resource | ND_Ambulance vuurt nu een server-interne `signalSent` af |
