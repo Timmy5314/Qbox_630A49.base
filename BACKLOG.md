@@ -10,19 +10,19 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
-## STAND: 29 van de 38 punten
+## STAND: 30 van de 38 punten
 
 | Fase | Punten | Af | Openstaand |
 |---|---|---|---|
 | 1 Anti-cheat | 6 | **6** | — |
 | 2 Shops, kleding, economie | 7 | **6** | cw-crafting (geparkeerd door Tim), economie-rebalance |
 | 3 Gangs, drugs, illegaal | 7 | **7** | — |
-| 4 Hulpdiensten, medisch | 6 | **4** | ND_Police doorlopen, K9/pets, wanted-systeem |
+| 4 Hulpdiensten, medisch | 6 | **5** | K9/pets, wanted-systeem |
 | 5 Voertuigen, sleutels | 4 | 0 | alles |
 | 6 HUD, visuals, systemen | 6 | 0 | alles |
 | 7 Discord | 2 | 0 | alles |
 
-40 commits sinds `da40e53`.
+43 commits sinds `da40e53`.
 
 ---
 
@@ -105,6 +105,24 @@ betreffende bestanden, maar een nieuwe sessie kan ze anders "verbeteren".
 | MED | md-drugs dealer-locatie stond vast bij resource-start | verhuist elke 45 min + black market SMS |
 | MED | `xt-robnpcs` `requiredCops` las `GlobalState.copCount` van Renewed-Lib (bestaat hier niet) → deed stilzwijgend niets; dispatch stond uitgecommentarieerd | beide gefixt |
 
+## AFGEROND — ND_Police doorlopen (fase 4)
+
+| Sev | Item | Fix |
+|---|---|---|
+| **HIGH** | `client/shield.lua` riep `lib.RequestAnimDict` aan met hoofdletter R. ox_lib laadt modules op exacte naam en valt anders terug op `exports.ox_lib:RequestAnimDict`, die niet bestaat → **error zodra je het schild gebruikte** | 3× naar `lib.requestAnimDict` |
+| **HIGH** | De lus die schoten detecteert zette zichzelf uit bij een tweede `ox_inventory:currentWeapon`. Wisselen van wapen zonder opbergen → **geen nieuwe lus**: geen GSR, geen hulzen, geen shotspotter voor elk tweede wapen | eigen thread met een `currentWeapon`-variabele |
+| **HIGH** | `setPlayerEscort` had **nul** controles: iedereen kon elke speler binnen 10m aan zich vastmaken, naar zich toe teleporteren (`exitVeh`) en in een auto zetten | boei-, staat- en afstandscontrole server-side |
+| **HIGH** | `deploySpikestrip` accepteerde een negatieve `size`; `count < data.size` was dan onwaar en `RemoveItem` draaide met een negatief aantal | integer-range 1..4 + jobcheck + afstandscheck |
+| **HIGH** | `retrieveSpikestrip` controleerde het model niet → elke netId **verwijderde een willekeurige entity** en gaf een gratis spikestrip | modelcontrole op `p_ld_stinger_s` |
+| **HIGH** | Inbeslagname deed niets. `if Bridge.impoundVehicle then` verwees naar een functie die nergens bestaat; de auto werd alleen **verwijderd**, terwijl de bevestiging belooft dat de eigenaar hem kan ophalen | nieuwe export `renzu_garage:ImpoundVehicle` + reden-veld |
+| **HIGH** | Twee handen-omhoog systemen naast elkaar: scully zet `state.handsup` (kleine u, niet gerepliceerd), ND_Police `state.handsUp`. Alleen de tweede wordt gelezen → wie H gebruikte kon **niet getiewrapt, gefouilleerd of gedragen** worden | scully's toets uit via `server.cfg` |
+| MED | `gsrTest`, `shotspotter` en `collectEvidence` waren alleen client-side afgeschermd; `collectEvidence` liep bovendien over `pairs(nil)` bij een onbekende sleutel | jobcheck, afstandscheck, rate-limit, nil-guards |
+| MED | Schild-prop werd opgeruimd op `onPlayerDropped` — een **server**-event, dus die client-handler vuurde nooit. Props bleven na een disconnect hangen | server stuurt `ND_Police:playerDropped` |
+| MED | Sporen bleven eeuwig op de server én als ox_target-zone bij elke client | `evidenceLifetime`, standaard 45 min |
+| MED | Shotspotter zette zijn cooldown **vóór** de filters: een demper-schot verbruikte de cooldown | volgorde omgedraaid |
+| MED | ps-dispatch `OfficerBackup` (10-32) en `OfficerInDistress` (10-99) werden **nergens** aangeroepen | toets `F6` + commando `/distress`, server autoriseert |
+| LOW | Geen `nl.json`; `en.json` had een typefout ("otufit") | beide opgelost |
+
 ### Nieuwe resources deze sessie
 
 `los_anticheat` · `los_aidoctor` · `los_insurance` · `los_gangpeds` ·
@@ -128,16 +146,44 @@ betreffende bestanden, maar een nieuwe sessie kan ze anders "verbeteren".
 | 29 | MED | 4 | `los_aidoctor` / `los_insurance` / elevators: coördinaten niet in-game gecontroleerd. |
 | 30 | MED | 2 | **cw-crafting geparkeerd op verzoek van Tim** — hij wil er eerst RP voor bedenken. |
 | 31 | MED | 2 | **Economie-rebalance server-breed** nog niet gedaan (job-payouts, drugsprijzen). Vraagt eerst een model. |
+| 32 | MED | 4 | **ox_inventory herkent het geknielde "handen omhoog" van ND_Police niet.** `canOpenTarget` kent `missminuteman_1ig_2` en `random@mugging3`, maar niet `random@arrests@busted idle_c` (X ingedrukt houden). Politie kan altijd fouilleren, een burger-overvaller niet. ox_inventory is een core-resource — niet aangeraakt, zie standing rule 4. |
+| 33 | LOW | 4 | ND_Police impound kiest altijd `impoundcoord[1]` (MRPD). Boten en vliegtuigen belanden dus in de auto-impound. De export accepteert al een `garage`-parameter; alleen de keuze ontbreekt nog. |
+| 34 | LOW | 4 | `ND_Police/data/locker_rooms.lua` "opgeslagen outfits" hangt aan `ND_AppearanceShops` + `fivem-appearance`, die hier niet draaien. De knop verschijnt dus nooit. De vaste outfits werken wel. Koppelen aan illenium-appearance kan, maar is een keuze. |
+| 35 | LOW | 4 | `ND_Police/locales/sv.json` mist de nieuwe sleutels. Valt terug op `en`, dus onschadelijk. |
 | 17 | ~~MED~~ | — | ~~community_bridge dead weight~~ — **ONJUIST.** md-drugs gebruikt het op ruim 800 aanroepen over 30 API's. **Laten staan.** |
 
 ### Nog te bouwen (Fase 4 t/m 7)
 
-- **Fase 4**: ND_Police doorlopen, K9/pets (`murderface-pets`), wanted-systeem
+- **Fase 4**: K9/pets (`murderface-pets`), wanted-systeem
 - **Fase 5**: qbx_vehiclekeys item-based, NPC-carjacking, proefrit 60s, NPWD garage-app, mns-aitaxi
 - **Fase 6**: HUD (job + geld rechtsboven), renzu_hygiene, ps-dispatch/mdt nalopen, billing, qbx_visuals, monthly wipe
 - **Fase 7**: Discord-koppeling (server-ID `1067817202578890802`)
 
 ---
+
+## Testplan — ND_Police (fase 4)
+
+Alles hieronder is statisch geverifieerd, niets is op een draaiende server geweest.
+Doe eerst de twee blockers bovenaan dit bestand.
+
+| # | Wat | Verwacht |
+|---|---|---|
+| 1 | Pak een pistool, schiet, wissel **zonder op te bergen** naar een tweede wapen, schiet weer. Bekijk daarna de grond. | Bij **beide** wapens hulzen op de grond. Dit was de bug: het tweede wapen liet niets achter. |
+| 2 | Laat een agent `GSR Test` doen na test 1. | POSITIEF. Spring daarna een minuut in het water → melding dat het is weggespoeld. |
+| 3 | Gebruik het `shield`-item. | Schild komt in beeld, geen `SCRIPT ERROR` over `RequestAnimDict` in F8. |
+| 4 | Speler met schild disconnect. | Prop verdwijnt bij de andere spelers. |
+| 5 | Druk `X` (handen omhoog) en laat een ander je tiewrappen. Druk daarna `H`. | X werkt. H doet **niets** meer — dat is de bedoeling, zie punt over scully. |
+| 6 | Boei iemand, neem hem mee, zet hem in een auto, haal hem eruit. | Werkt als voorheen. |
+| 7 | Probeer als **niet-agent** iemand mee te nemen die niet geboeid is. | Gebeurt niets. |
+| 8 | Leg een spijkermat, rijd erover, pak hem weer op. | Banden klappen, mat komt terug in je inventory. |
+| 9 | Neem een **speler-eigen** auto in beslag, vul een reden in. Laat de eigenaar naar de MRPD-impound gaan. | Auto staat in de impound, met de opgegeven boete en reden. Dit werkte hiervoor niet — de auto was gewoon weg. |
+| 10 | Neem een **NPC-auto** in beslag. | Melding "staat op niemands naam", auto verdwijnt. |
+| 11 | Schiet in een shotspotter-zone (zie `data/shotspotter.lua`), als burger. | Politie krijgt een 10-71 met straat + zone. Tweede schot binnen 2 minuten: geen tweede melding. |
+| 12 | Zelfde met een demper. | Geen melding. Daarna direct **zonder** demper schieten → wél een melding (dit ging eerder mis). |
+| 13 | Druk als agent `F6`. | 10-32 in ps-dispatch bij politie én EMS. Nogmaals binnen 30 s → melding dat je moet wachten. |
+| 14 | Typ als agent `/distress`. | 10-99 in ps-dispatch. |
+| 15 | Typ `/distress` als burger. | Gebeurt niets. |
+| 16 | `resmon 1` bij ND_Police. | Idle ≈ 0.00 ms. Piek tijdens schieten of geboeid zijn is verwacht (dat zijn `Wait(0)`-lussen). |
 
 ## Gereedschap
 
