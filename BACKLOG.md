@@ -10,24 +10,24 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
-## STAND: 41 van de 43 punten
+## STAND: 46 van de 46 punten
 
 | Fase | Punten | Af | Openstaand |
 |---|---|---|---|
 | 1 Anti-cheat | 6 | **6** | — |
-| 2 Shops, kleding, economie | 7 | **6** | cw-crafting (geparkeerd door Tim), economie-rebalance |
+| 2 Shops, kleding, economie | 7 | **6** | cw-crafting (**geparkeerd door Tim**); economie: model ligt klaar in ECONOMY.md, wacht op akkoord |
 | 3 Gangs, drugs, illegaal | 7 | **7** | — |
 | 4 Hulpdiensten, medisch | 7 | **7** | — |
 | 5 Voertuigen, sleutels | 5 | **5** | — |
-| 6 HUD, visuals, systemen | 6 | **4** | ps-scripts nalopen, billing |
-| 7 Discord | 2 | 0 | alles |
+| 6 HUD, visuals, systemen | 6 | **6** | — |
+| 7 Discord | 2 | **2** | bot-token en rol-ID's moet Tim zelf zetten |
 
 > Fase 4 stond hier op 6 punten met 3 open — dat telde niet op. SERVER-OVERHAUL
 > fase 5 heeft er zeven: ND_Ambulance, AI-dokter, ND_Police, lawmenu,
 > verzekeringen, K9/pets en het wanted-systeem. Gecorrigeerd naar 7; het totaal
 > wordt daarmee 39 in plaats van 38.
 
-64 commits sinds `da40e53`. **Fase 1 t/m 5 af, fase 6 op 4 van de 6.**
+68 commits sinds `da40e53`. **Alle fases doorlopen.**
 
 > Overdracht naar een nieuwe sessie: **[HANDOVER.md](HANDOVER.md)**.
 
@@ -35,7 +35,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ## ⛔ EERST DOEN — dit blokkeert alles
 
-**Niets van dit alles heeft ooit gedraaid.** Alle 41 punten zijn statisch
+**Niets van dit alles heeft ooit gedraaid.** Alle 46 punten zijn statisch
 geverifieerd (syntax, itembestaan, event-namen, API-signaturen tegen de bron),
 maar geen enkele regel is op een draaiende server geweest.
 

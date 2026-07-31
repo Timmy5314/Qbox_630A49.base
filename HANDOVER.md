@@ -35,56 +35,34 @@ Zonder die log bouwt elke volgende fase op ongeteste grond.
 | 3 Gangs, drugs, illegaal | 7 | 7 | — |
 | 4 Hulpdiensten, medisch | 7 | 7 | — |
 | 5 Voertuigen, sleutels | 5 | 5 | — |
-| 6 HUD, visuals, systemen | 6 | 4 | ps-scripts nalopen, billing |
-| 7 Discord | 2 | 0 | alles |
+| 6 HUD, visuals, systemen | 6 | 6 | — |
+| 7 Discord | 2 | 2 | bot-token en rol-ID's moet Tim zelf zetten |
 
-Fase 6 af: HUD (job + saldo), hygiëne + decay-rates, qbx_visuals, monthly wipe.
-Open: minimap-styling (klein), ps-scripts nalopen, billing-systeem.
+**Alle fases zijn doorlopen.** Wat er nog ligt is geen bouwwerk maar besluiten en
+handelingen die alleen Tim kan doen:
 
----
-
-## 3. Werk dat klaarligt — onderzoek is al gedaan
-
-### Billing (fase 6)
-
-Concept van `ars_billing`, nieuw bouwen. Vereisten uit SERVER-OVERHAUL §10.4:
-bedrijven sturen rekeningen, verzekering betaalt automatisch wat gedekt is,
-speler kan betalen/uitstellen/weigeren behalve bij boetes en medisch, limieten
-per job en grade, logging, cooldown, admin-audit, rente + deurwaarders-SMS.
-
-Wat er al ligt om op te bouwen:
-
-- `los_insurance` heeft `claimMedical(src, amount)` en `claimVehicle(src, plate,
-  amount)` als server-exports. Dat is de haak voor "verzekering betaalt wat
-  gedekt is".
-- NPWD's `emitMessage({senderNumber, targetNumber, message})` voor de
-  deurwaarders-SMS. **Let op:** `getPlayerData` wil een locator-object
-  (`{source=…}`), geen getal, en geeft een platte tabel met `phoneNumber`
-  terug — geen object met `getPhoneNumber()`. Daar zijn hier al twee resources
-  in getrapt.
-- Nummers die al bezet zijn: `1500` overheid, `4040` black market, `4747` taxi.
-
-### Discord (fase 7)
-
-Server-ID `1067817202578890802`. Twee delen: een FiveM-resource (logging +
-rolcheck) en een los Node-botproces.
-
-Tim moet zelf: bot aanmaken in de developer portal, token, intents, permissies.
-**Vraag hem nooit een token in de chat te plakken** — hij zet die zelf in een
-`.env` die niet gecommit wordt.
-
-### ps-scripts nalopen (fase 6)
-
-`ps-housing`, `ps-dispatch`, `ps-mdt`, `ps-realtor`. Grotendeels een audit.
-Aandachtspunt: ps-dispatch matcht `jobs` op job **type** (`leo`), niet op
-jobnaam — zie de valkuilenlijst in CLAUDE.md.
-
-### Economie-rebalance (fase 2)
-
-Vraagt eerst een `ECONOMY.md` met het model, en dat **aan Tim voorleggen vóór**
-je waardes doorvoert.
+- **ECONOMY.md** ligt klaar als voorstel. Er is bewust niets doorgevoerd; de
+  opdracht vraagt om eerst akkoord. Vier concrete vragen staan onderaan dat
+  bestand.
+- **cw-crafting** blijft geparkeerd — dat is Tims eigen beslissing.
+- **Discord-bot**: token, intents en rol-ID's. Zie `discord-bot/README.md`.
 
 ---
+
+## 3. Nieuw in dit traject, en waar de haken zitten
+
+| Resource | Wat | Let op |
+|---|---|---|
+| `los_billing` | Rekeningen, verzekeringsdekking, rente, deurwaarder-SMS, audit | `claimVehicle` zoekt de polis **op kenteken**; zonder kenteken geen dekking |
+| `los_discord` + `discord-bot/` | Logging naar webhooks, rol-sync | Token en rol-ID's moet Tim zelf zetten; bot-rol moet **boven** de rollen staan die hij toekent |
+| `los_wipe` | Maandelijkse wipe, drie sloten | Kan **geen** mysqldump draaien — FiveM's Lua heeft geen shell. Maakt wel een JSON-momentopname |
+| `los_hygiene` | Douchen, blaas, darmen + alle decay-rates | Modelnamen niet geverifieerd; `/hygienemodel` geeft de hash |
+| `los_vehiclekeys` | Sleutel als ox_inventory-item | Laat qbx_vehiclekeys' `keysList` intact; het item is de laag erboven |
+| `los_aitaxi` | Downtown Cab Co., nummer 4747 | `Config.depots` is leeg gelaten; hij spawnt op een wegknooppunt |
+| `los_wanted` | AI-politie op 3 standen | "Schiet niet" is een client-heuristiek, geen instelling |
+
+Telefoonnummers die bezet zijn: **1500** overheid · **4040** black market ·
+**4747** taxi · **1600** deurwaarder.
 
 ## 4. Fouten die deze codebase steeds oplevert
 
