@@ -363,7 +363,11 @@ function Property:UpdateOwner(data)
     local totalAfterCommission = self.propertyData.price - commission
 
     if Config.QBManagement then
-        exports['qb-banking']:AddMoney(realtor.job.name, totalAfterCommission)
+        -- Was exports['qb-banking']:AddMoney. Die resource bestaat niet op deze
+        -- server; het bankscript is Renewed-Banking. Stond onschadelijk omdat
+        -- Config.QBManagement op false staat, maar sprong zodra iemand dat
+        -- aanzette.
+        exports['Renewed-Banking']:addAccountMoney(realtor.job.name, totalAfterCommission)
     elseif prevPlayer then
         Framework.Notify(prevPlayer.PlayerData.source, "Sold " .. reason, "success")
         Framework.AddMoney(prevPlayer.PlayerData.source, 'bank', totalAfterCommission, "Sold " .. reason)

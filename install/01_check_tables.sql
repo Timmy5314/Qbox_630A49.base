@@ -8,8 +8,10 @@ SELECT '=== ONTBREKENDE TABELLEN ===' AS report;
 
 SELECT expected.table_name AS ontbrekende_tabel, expected.bron
 FROM (
+    -- ps-housing gebruikt runtime alleen `properties`. De tabellen apartments,
+    -- houselocations en player_houses worden uitsluitend door de handmatige
+    -- migratie-commando's bevraagd en hoeven niet te bestaan.
     SELECT 'properties'          AS table_name, 'ps-housing'        AS bron UNION ALL
-    SELECT 'properties_stash',                  'ps-housing'        UNION ALL
     SELECT 'ps_cache_metadata',                 'ps_lib ORM'        UNION ALL
     SELECT 'mdt_data',                          'ps-mdt'            UNION ALL
     SELECT 'mdt_reports',                       'ps-mdt'            UNION ALL

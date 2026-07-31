@@ -5,10 +5,19 @@ end
 local dbloaded = false
 
 MySQL.ready(function()
-    local result = MySQL.query.await('SELECT * FROM properties')
+    -- pcall omdat een ontbrekende tabel een exception geeft, geen nil. Zonder
+    -- dit sterft de resource hier bij startup en werd de melding hieronder
+    -- nooit bereikt - wat er van buitenaf uitzag als "ps-housing crasht de
+    -- server" terwijl het gewoon een niet-geimporteerde SQL was.
+    local ok, result = pcall(MySQL.query.await, 'SELECT * FROM properties')
 
-    if not result then
-        lib.print.error('No result returned from the properties query. Did you import the SQL file?')
+    if not ok or not result then
+        lib.print.error(
+            'ps-housing kon de tabel `properties` niet lezen. Draai eerst ' ..
+            '"README - INSTALL INSTRUCTIONS/QBOX/properties.sql". ' ..
+            'Zie ook install/README.md in de server root.'
+        )
+        if not ok then lib.print.error(result) end
         dbloaded = true
         return
     end

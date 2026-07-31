@@ -105,8 +105,10 @@ Config.RealtorJobNames = { -- add multiple realestate jobs that are allowed to s
     -- "realestate3",
 }
 
--- If you are utilizing qb-banking and wish for the funds to be deposited directly into the Realestate bank account, set this value to true. 
--- In case you are using an alternative Boss Menu, replace the qb-banking export with the appropriate script export or event.
+-- Makelaarscommissie rechtstreeks op de bedrijfsrekening storten in plaats van
+-- op de persoonlijke bankrekening van de makelaar.
+-- Op deze server loopt dat via Renewed-Banking (zie sv_property.lua); de
+-- oorspronkelijke qb-banking export is vervangen.
 Config.QBManagement = false
 
 -- Realtor Commisions based on job grade, the rest goes to the owner, if any.
@@ -221,6 +223,37 @@ Config.Apartments = {
             vector3(-799.8, 321.23, 219.5)
         },
         shell = "mlo",
+    },
+
+    -- ── Uit qbx_properties overgenomen ───────────────────────────────────
+    -- De ingangscoordinaten komen uit qbx_properties/config/shared.lua. Die
+    -- resource draait hier niet meer, maar de appartementsdata is bruikbaar.
+    -- Tinsel Towers stond al in deze lijst (bijna dezelfde plek) en is
+    -- daarom niet nogmaals toegevoegd.
+    --
+    -- De `h` (heading) van de deur is NIET uit qbx_properties te halen: daar
+    -- staat de entry als vector3 zonder rotatie. De waarden hieronder zijn
+    -- geschat op de gevelrichting. Klopt de deurmarkering niet, dan is dat de
+    -- eerste waarde om bij te stellen.
+    ['Del Perro Heights'] = {
+        label = 'Del Perro Heights',
+        door = { x = -1447.35, y = -537.84, z = 34.74, h = 125.0, length = 1, width = 2 },
+        imgs = {},
+        shell = "Apartment Furnished",
+    },
+
+    ['4 Integrity Way'] = {
+        label = '4 Integrity Way',
+        door = { x = -59.4, y = -616.29, z = 37.36, h = 250.0, length = 1, width = 2 },
+        imgs = {},
+        shell = "Apartment Furnished",
+    },
+
+    ['Richard Majestic'] = {
+        label = 'Richard Majestic',
+        door = { x = -936.15, y = -378.91, z = 38.96, h = 115.0, length = 1, width = 2 },
+        imgs = {},
+        shell = "Apartment Furnished",
     },
 }
 
