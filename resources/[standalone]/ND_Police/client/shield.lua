@@ -49,7 +49,10 @@ local function deleteAttachedProps(serverId)
     createdProps[serverId] = nil
 end
 
-RegisterNetEvent("onPlayerDropped", function(serverId)
+-- `onPlayerDropped` is een SERVER-event; deze handler vuurde client-side nooit,
+-- waardoor het schild-prop van een speler die disconnect voorgoed in de wereld
+-- bleef hangen. server/main.lua stuurt nu ND_Police:playerDropped naar iedereen.
+RegisterNetEvent("ND_Police:playerDropped", function(serverId)
     deleteAttachedProps(serverId)
 end)
 
@@ -87,7 +90,10 @@ local function disableShield()
     local ped = cache.ped
     StopAnimTask(ped, "combat@gestures@gang@pistol_1h@beckon", "-90", 2.0)
 
-    lib.RequestAnimDict("combat@gestures@gang@pistol_1h@beckon")
+    -- lib.requestAnimDict, met kleine r. ox_lib laadt modules op exacte naam; bij
+    -- `lib.RequestAnimDict` valt hij terug op exports.ox_lib:RequestAnimDict, die
+    -- niet bestaat. Het schild gooide daardoor een error zodra je het gebruikte.
+    lib.requestAnimDict("combat@gestures@gang@pistol_1h@beckon")
     TaskPlayAnim(ped, "combat@gestures@gang@pistol_1h@beckon", "-180", 8.0, -8.0, -1, 50, 0.0, false, false, false)
 
     Wait(500)
@@ -132,7 +138,7 @@ local function enableShield()
     holdingShield = true
     local coords = GetEntityCoords(ped)
 
-    lib.RequestAnimDict("combat@gestures@gang@pistol_1h@beckon")
+    lib.requestAnimDict("combat@gestures@gang@pistol_1h@beckon")
     TaskPlayAnim(ped, "combat@gestures@gang@pistol_1h@beckon", "-90", 8.0, -8.0, -1, 50, 0.0, false, false, false)
     Wait(600)
     shieldOnBack(false)
@@ -151,7 +157,7 @@ local function enableShield()
             end
 
             if weapon and not IsEntityPlayingAnim(ped, "combat@gestures@gang@pistol_1h@beckon", "-90", 3) then
-                lib.RequestAnimDict("combat@gestures@gang@pistol_1h@beckon")
+                lib.requestAnimDict("combat@gestures@gang@pistol_1h@beckon")
                 TaskPlayAnim(ped, "combat@gestures@gang@pistol_1h@beckon", "-90", 8.0, -8.0, -1, 50, 0.0, false, false, false)
             end
 

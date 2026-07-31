@@ -53,18 +53,25 @@ local function triggerShotSpotter()
     local time = GetCloudTimeAsInt()
 
     if time-lastTrigger < data_shotspotter.cooldown then return end
-    lastTrigger = time
-    
+
     local coords = GetEntityCoords(ped)
     local weapon = cache.weapon
     if not isPlayerNearShotspotter(coords) or isWeaponIgnored(weapon) or usingSuppressor(ped, weapon) then return end
-    
+
+    -- Pas hier zetten. Stond het hierboven, dan verbruikte een schot dat toch
+    -- niets zou melden (demper, uitgezonderd wapen, buiten bereik) de cooldown,
+    -- en bleef een echt schot in de twee minuten daarna stil.
+    lastTrigger = time
+
+
     local zoneName = GetLabelText(GetNameOfZone(coords.x, coords.y, coords.z))
     local street = GetStreetNameFromHashKey(GetStreetNameAtCoord(coords.x, coords.y, coords.z))
     local postal = getPlayerPostal()
     local location = postal and ("%s %s (%s)"):format(street, zoneName, postal) or ("%s %s"):format(street, zoneName)
     
     Wait(data_shotspotter.delay * 1000)
+
+    -- De server toetst deze coordinaten tegen de eigen positie van de speler.
     TriggerServerEvent("ND_Police:shotspotter", location, coords)
 end
 

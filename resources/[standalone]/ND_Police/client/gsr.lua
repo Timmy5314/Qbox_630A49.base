@@ -2,17 +2,17 @@ local timeEnteredWater = 0
 
 local function checkGsr(state)
     local shot, lastShot = state.shot, state.lastShot
-    if not shot then return end
+    if not shot or not lastShot then return end
 
     local time = GetCloudTimeAsInt()
 
-    local inWater = IsEntityInWater(cache.ped)
-    if not inWater then
+    -- Zolang je niet in het water bent loopt de teller mee, dus telt alleen
+    -- aaneengesloten tijd IN het water. Dat deed de originele versie ook, maar
+    -- die zette `inWater = true` in de tak "niet in het water", waardoor het
+    -- leek alsof de wasbeurt altijd doorliep.
+    if not IsEntityInWater(cache.ped) then
         timeEnteredWater = time
-        inWater = true
-    end
-
-    if inWater and time-timeEnteredWater > (Config.clearGSRinWater*60) then
+    elseif time-timeEnteredWater > (Config.clearGSRinWater*60) then
         local ped = cache.ped
         ClearPedBloodDamage(ped)
         ClearPedEnvDirt(ped)
@@ -21,7 +21,7 @@ local function checkGsr(state)
             type = 'inform',
             description = locale("gsr_washed_off")
         })
-        state:set('shot', false, true)
+        return state:set('shot', false, true)
     end
 
     if time-lastShot > (Config.clearGSR*60) then
