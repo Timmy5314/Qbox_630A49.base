@@ -13,9 +13,7 @@ return {
         -- server sloeg het afschrijven over (`if price and price > 0`),
         -- waardoor respawnen gratis was.
         --
-        -- Bewust stevig: respawnen hoort de dure uitweg te zijn, wachten op
-        -- EMS de goedkope.
-        respawn = 5000
+        respawn = 1000
     },
 
     -- De dokter-peds in het ziekenhuis zijn ALTIJD beschikbaar. Wie er zelf

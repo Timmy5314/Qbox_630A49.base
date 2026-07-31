@@ -62,7 +62,11 @@ Config.billing = {
     insured = 750,
 
     -- Wat het kost zonder verzekering. Komt rechtstreeks bij de speler terecht.
-    uninsured = 4500,
+    --
+    -- LET OP: staat nu gelijk aan `insured`, dus voor deze rit maakt een
+    -- verzekering financieel niets uit. Wil je dat verzekerd zijn hier loont,
+    -- zet dit bedrag dan hoger dan `insured`.
+    uninsured = 750,
 
     -- Rekening op de bank in plaats van contant.
     account = 'bank',
