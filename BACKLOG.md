@@ -10,7 +10,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
-## STAND: 39 van de 40 punten
+## STAND: 41 van de 43 punten
 
 | Fase | Punten | Af | Openstaand |
 |---|---|---|---|
@@ -19,7 +19,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 | 3 Gangs, drugs, illegaal | 7 | **7** | — |
 | 4 Hulpdiensten, medisch | 7 | **7** | — |
 | 5 Voertuigen, sleutels | 5 | **5** | — |
-| 6 HUD, visuals, systemen | 6 | **2** | ps-scripts, billing, visuals, wipe |
+| 6 HUD, visuals, systemen | 6 | **4** | ps-scripts nalopen, billing |
 | 7 Discord | 2 | 0 | alles |
 
 > Fase 4 stond hier op 6 punten met 3 open — dat telde niet op. SERVER-OVERHAUL
@@ -27,13 +27,15 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 > verzekeringen, K9/pets en het wanted-systeem. Gecorrigeerd naar 7; het totaal
 > wordt daarmee 39 in plaats van 38.
 
-60 commits sinds `da40e53`. **Fase 4 en 5 af, fase 6 op 2 van de 6.**
+64 commits sinds `da40e53`. **Fase 1 t/m 5 af, fase 6 op 4 van de 6.**
+
+> Overdracht naar een nieuwe sessie: **[HANDOVER.md](HANDOVER.md)**.
 
 ---
 
 ## ⛔ EERST DOEN — dit blokkeert alles
 
-**Niets van dit alles heeft ooit gedraaid.** Alle 39 punten zijn statisch
+**Niets van dit alles heeft ooit gedraaid.** Alle 41 punten zijn statisch
 geverifieerd (syntax, itembestaan, event-namen, API-signaturen tegen de bron),
 maar geen enkele regel is op een draaiende server geweest.
 
