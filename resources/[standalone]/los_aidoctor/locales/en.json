@@ -1,0 +1,9 @@
+{
+    "dispatched": "No medics are on duty. An ambulance has been dispatched from the hospital.",
+    "on_the_way": "An ambulance is on its way to you.",
+    "treating": "The paramedic is treating you...",
+    "treated": "You have been stabilised. Take it easy.",
+    "no_response": "The ambulance could not reach you.",
+    "billed_insured": "Your insurance covered the callout. Your share: $%s.",
+    "billed_uninsured": "You have no medical insurance. The full callout has been charged to you: $%s."
+}

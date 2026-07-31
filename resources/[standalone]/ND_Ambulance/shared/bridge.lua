@@ -102,6 +102,17 @@ if IsDuplicityVersion() then
         TriggerEvent("ND_Ambulance:playerRevived", src)
     end
 
+    -- Exposed so other resources can revive without reaching into this one.
+    -- los_aidoctor uses it; without an export it would have to copy the three
+    -- steps above and would silently drift when they change.
+    exports("revivePlayer", function(src)
+        src = tonumber(src)
+        if not src or not GetPlayerName(src) then return false end
+
+        Bridge.revivePlayer(src)
+        return true
+    end)
+
     lib.addCommand("revive", {
         help = "Admin command, revive a player.",
         restricted = "group.admin",

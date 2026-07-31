@@ -1,0 +1,9 @@
+{
+    "dispatched": "Er is geen ambulancepersoneel op dienst. Er is een ambulance vanuit het ziekenhuis onderweg gestuurd.",
+    "on_the_way": "Er komt een ambulance naar je toe.",
+    "treating": "De ambulancebroeder behandelt je...",
+    "treated": "Je bent gestabiliseerd. Rustig aan.",
+    "no_response": "De ambulance kon je niet bereiken.",
+    "billed_insured": "Je verzekering heeft de rit gedekt. Jouw eigen bijdrage: $%s.",
+    "billed_uninsured": "Je hebt geen zorgverzekering. De volledige rit is bij jou in rekening gebracht: $%s."
+}
