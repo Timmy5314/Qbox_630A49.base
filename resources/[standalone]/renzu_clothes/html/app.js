@@ -27,6 +27,7 @@
         selection: {},          // slot -> { drawable, texture }
         arms: {},               // slot -> arms drawable
         cart: [],
+        atRegister: false,      // alleen bij de kassa mag je afrekenen
         account: 'bank',
         money: { cash: 0, bank: 0 },
         worn: {},
@@ -125,7 +126,11 @@
 
         el.shopName.textContent = data.shop || 'Clothing Store';
         el.payRow.hidden = data.allowPaymentChoice === false;
-        el.cartNote.hidden = !data.atRegister;
+        // Kleren uitzoeken mag overal, afrekenen alleen bij de kassa. De server
+        // controleert dit ook (zie server/shop.lua); dit is puur zodat de speler
+        // niet op een knop drukt die toch geweigerd wordt.
+        state.atRegister = data.atRegister === true;
+        el.cartNote.hidden = !state.atRegister;
         el.search.value = '';
 
         renderMoney();
@@ -446,7 +451,11 @@
 
         const total = cartTotal();
         el.cartTotal.textContent = money(total);
-        el.btnCheckout.disabled = state.cart.length === 0;
+        // Afrekenen kan alleen bij de kassa. De server weigert het anders toch.
+        el.btnCheckout.disabled = state.cart.length === 0 || !state.atRegister;
+        el.btnCheckout.title = state.atRegister
+            ? ''
+            : 'Take your cart to the register to pay';
         el.cartBadge.textContent = state.cart.length;
         el.cartBadge.hidden = state.cart.length === 0;
     }
@@ -460,6 +469,10 @@
 
     function checkout() {
         if (!state.cart.length) return;
+        if (!state.atRegister) {
+            toast('Take your cart to the register to pay.', 'error');
+            return;
+        }
 
         el.btnCheckout.disabled = true;
         el.btnCheckout.textContent = 'Working…';
@@ -470,7 +483,7 @@
             el.btnCheckout.textContent = 'Checkout';
 
             if (!result || !result.success) {
-                el.btnCheckout.disabled = state.cart.length === 0;
+                el.btnCheckout.disabled = state.cart.length === 0 || !state.atRegister;
                 toast(result && result.message ? result.message : 'Purchase failed.', 'error');
                 return;
             }

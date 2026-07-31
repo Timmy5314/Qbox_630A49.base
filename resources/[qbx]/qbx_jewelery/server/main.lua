@@ -81,10 +81,16 @@ local function fireAlarm()
     TriggerClientEvent('qbx_jewelery:client:alarm', -1)
     alarmFired = true
 
+    -- De juwelier in renzu_clothes staat op deze locatie en moet dicht zolang
+    -- de overval loopt. GlobalState is hier de eenvoudigste koppeling: geen
+    -- extra event, en de winkel kan hem client- en server-side uitlezen.
+    GlobalState.jewelryRobbery = true
+
     SetTimeout(config.timeOut, function()
         local doorEntrance = exports.ox_doorlock:getDoorFromName(sharedConfig.doorlock.name)
         TriggerEvent('ox_doorlock:setState', doorEntrance.id, 1)
         alarmFired = false
+        GlobalState.jewelryRobbery = false
         TriggerEvent('qb-scoreboard:server:SetActivityBusy', 'jewellery', false)
 
         for i = 1, #sharedConfig.vitrines do

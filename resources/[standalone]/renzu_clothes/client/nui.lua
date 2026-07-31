@@ -305,6 +305,14 @@ function Shop.open(shop, categories, opts)
         end
     end
 
+    -- Tijdelijk gesloten: de juwelier gebruikt dit tijdens de qbx_jewelery
+    -- overval. De server weigert de aankoop sowieso; dit voorkomt alleen dat
+    -- iemand midden in een overval rustig staat te winkelen.
+    if shop.closedWhen and GlobalState[shop.closedWhen] then
+        Bridge.notify('The store is closed right now.', 'error')
+        return
+    end
+
     allowedSlots = nil
     if categories then
         allowedSlots = {}
