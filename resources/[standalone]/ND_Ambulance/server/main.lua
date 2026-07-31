@@ -177,6 +177,60 @@ lib.callback.register("ND_Ambulance:respawnPlayer", function(src)
     return true
 end)
 
+---Is this player covered by medical insurance?
+---Returns false while the insurance resource does not exist yet, so everyone
+---simply pays their own way until it does.
+---@param src number
+---@return boolean
+local function isInsured(src)
+    local config = data_death.insurance
+    if not config or not config.enabled then return false end
+    if GetResourceState(config.resource) ~= "started" then return false end
+
+    local ok, result = pcall(function()
+        return exports[config.resource]:hasMedicalInsurance(src)
+    end)
+
+    return ok and result == true
+end
+
+---Puts the bill with the insurer. Falls back to the player when the claim is
+---refused, so treatment is never handed out for free by accident.
+---@param src number
+---@param price number
+---@return boolean paid
+local function settleTreatment(src, price)
+    if price <= 0 then return true end
+
+    if isInsured(src) then
+        local config = data_death.insurance
+        local ok, claimed = pcall(function()
+            return exports[config.resource]:claimMedical(src, price)
+        end)
+
+        if ok and claimed then
+            Bridge.notify(src, {
+                title = "Covered by insurance",
+                description = ("Your medical insurance paid the $%s bill."):format(price),
+                type = "success",
+                duration = 10000
+            })
+            return true
+        end
+    end
+
+    if not Bridge.hasMoney(src, price) then
+        Bridge.notify(src, {
+            title = "Not enough money",
+            type = "error"
+        })
+        return false
+    end
+
+    Bridge.deductMoney(src, price)
+    return true
+end
+
 RegisterNetEvent("ND_Ambulance:treatSelf", function()
     local src = source
     local ped = GetPlayerPed(src)
@@ -184,16 +238,7 @@ RegisterNetEvent("ND_Ambulance:treatSelf", function()
     local player = Bridge.getPlayer(src)
     if not player or not isNearHospitalPed(coords) then return end
 
-    local price = data_death.prices.selfHeal
-
-    if not Bridge.hasMoney(src, price) then
-        return Bridge.notify(src, {
-            title = "Not enough money",
-            type = "error"
-        })
-    end
-
-    Bridge.deductMoney(src, price)
+    if not settleTreatment(src, data_death.prices.selfHeal) then return end
 
     TriggerClientEvent("ND_Ambulance:respawnHospital", src)
     Wait(1000)
@@ -227,14 +272,23 @@ RegisterNetEvent("ND_Ambulance:treatPatient", function(targetSrc, stretcherNetId
 
     if not player or not targetPlayer or not isNearHospitalPed(coords) or not isNearHospitalPed(targetCoords) then return end
     
+    -- Was prices.selfHeal, waardoor prices.otherHeal nergens werd gebruikt en
+    -- behandeld worden door iemand anders even duur was als het zelf regelen.
+    -- Ook ging Bridge.deductMoney hier zonder saldocheck: een patient zonder
+    -- geld werd gewoon gereanimeerd. settleTreatment doet beide, en laat de
+    -- verzekering meebetalen.
+    if not settleTreatment(targetSrc, data_death.prices.otherHeal) then
+        return Bridge.notify(src, {
+            title = "Patient cannot pay",
+            description = "They have no insurance and not enough money for the bill.",
+            type = "error"
+        })
+    end
+
     Bridge.notify(src, {
         title = "Succesfully treated patient!",
         type = "success"
     })
-
-    local price = data_death.prices.selfHeal
-
-    Bridge.deductMoney(targetSrc, price)
 
     TriggerClientEvent("ND_Ambulance:respawnHospital", targetSrc)
     Wait(700)

@@ -58,14 +58,11 @@ Config.stations = {
 
 -- ── Kosten ───────────────────────────────────────────────────────────────
 Config.billing = {
-    -- Wat de rit kost als de speler verzekerd is. De verzekeraar betaalt.
-    insured = 750,
+    -- Eigen bijdrage voor een verzekerde speler. 0 = de rit is gratis, de
+    -- verzekeraar betaalt alles.
+    insured = 0,
 
     -- Wat het kost zonder verzekering. Komt rechtstreeks bij de speler terecht.
-    --
-    -- LET OP: staat nu gelijk aan `insured`, dus voor deze rit maakt een
-    -- verzekering financieel niets uit. Wil je dat verzekerd zijn hier loont,
-    -- zet dit bedrag dan hoger dan `insured`.
     uninsured = 750,
 
     -- Rekening op de bank in plaats van contant.

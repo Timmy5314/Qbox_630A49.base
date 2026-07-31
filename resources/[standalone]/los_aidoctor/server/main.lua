@@ -71,34 +71,49 @@ local function hasInsurance(src)
     return ok and result == true
 end
 
+--[[
+    Eigen-risicomodel.
+
+    De rit kost altijd `uninsured`; dat is de werkelijke prijs. Ben je
+    verzekerd, dan betaalt de verzekeraar het verschil en houd jij alleen
+    `insured` over als eigen bijdrage. Staat die op 0, dan is de rit gratis.
+
+    Weigert de verzekeraar of bestaat de resource nog niet, dan valt het terug
+    op de speler - maar wel tegen zijn eigen bijdrage, niet het volle tarief.
+    Hij had immers een polis.
+]]
 ---@param src number
 local function bill(src)
     local player = exports.qbx_core:GetPlayer(src)
     if not player then return end
 
+    local cost = config.billing.uninsured
     local insured = hasInsurance(src)
-    local amount = insured and config.billing.insured or config.billing.uninsured
+    local owed = insured and config.billing.insured or cost
 
     if insured then
-        local ins = config.billing.insurance
-        local ok, claimed = pcall(function()
-            return exports[ins.resource]:claimMedical(src, amount)
-        end)
+        local covered = cost - config.billing.insured
 
-        if ok and claimed then
-            exports.qbx_core:Notify(src, locale('billed_insured', amount), 'inform', 10000)
-            return
+        if covered > 0 then
+            local ins = config.billing.insurance
+            local ok, claimed = pcall(function()
+                return exports[ins.resource]:claimMedical(src, covered)
+            end)
+
+            if not ok or not claimed then
+                dbg(('claim geweigerd voor %s'):format(src))
+            end
         end
-
-        -- Verzekeraar weigert of de claim mislukt: de speler betaalt alsnog,
-        -- maar het lage tarief. Hij had tenslotte wel een polis.
-        dbg(('claim geweigerd voor %s, speler betaalt zelf'):format(src))
     end
 
-    player.Functions.RemoveMoney(config.billing.account, amount, 'AI doctor callout')
+    if owed <= 0 then
+        return exports.qbx_core:Notify(src, locale('billed_covered'), 'success', 10000)
+    end
+
+    player.Functions.RemoveMoney(config.billing.account, owed, 'AI doctor callout')
 
     exports.qbx_core:Notify(src,
-        insured and locale('billed_insured', amount) or locale('billed_uninsured', amount),
+        insured and locale('billed_insured', owed) or locale('billed_uninsured', owed),
         insured and 'inform' or 'error', 12000)
 end
 

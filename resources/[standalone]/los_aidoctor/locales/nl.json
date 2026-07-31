@@ -5,5 +5,6 @@
     "treated": "Je bent gestabiliseerd. Rustig aan.",
     "no_response": "De ambulance kon je niet bereiken.",
     "billed_insured": "Je verzekering heeft de rit gedekt. Jouw eigen bijdrage: $%s.",
-    "billed_uninsured": "Je hebt geen zorgverzekering. De volledige rit is bij jou in rekening gebracht: $%s."
+    "billed_uninsured": "Je hebt geen zorgverzekering. De volledige rit is bij jou in rekening gebracht: $%s.",
+    "billed_covered": "Je zorgverzekering heeft de rit volledig gedekt."
 }

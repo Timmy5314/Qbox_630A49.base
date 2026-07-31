@@ -21,6 +21,24 @@ return {
     --
     -- De AI-dokter die naar je toe komt als er geen medics zijn is een aparte
     -- resource: los_aidoctor.
+
+    --[[
+        Zorgverzekering.
+
+        Met een geldige polis is behandeling in het ziekenhuis gratis: de
+        verzekeraar betaalt selfHeal/otherHeal. Zonder polis betaalt de speler
+        het volle bedrag zelf.
+
+        De resource bestaat nog niet; tot die tijd geldt iedereen als
+        onverzekerd en verandert er niets aan de huidige prijzen. Verwacht
+        wordt:
+            exports[resource]:hasMedicalInsurance(src) -> boolean
+            exports[resource]:claimMedical(src, amount) -> boolean
+    ]]
+    insurance = {
+        enabled = true,
+        resource = "los_insurance",
+    },
     
     -- locations player will respawn if they get respawned at mourge.
     mourgeRespawn = {
