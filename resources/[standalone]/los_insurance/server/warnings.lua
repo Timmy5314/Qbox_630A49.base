@@ -24,21 +24,44 @@ local onlineSince = {}
 
 ---@param src number
 ---@return string?
+--[[
+    Uit de NPWD-bundle (dist/game/server/server.js) gehaald, want de exports zijn
+    niet gedocumenteerd:
+
+        exp5("getPlayerData", async (locator) => {
+            if (locator.source) { ... }
+            if (locator.identifier) { ... }
+            if (locator.phoneNumber) { ... }
+            if (!player) return null;
+            return { phoneNumber, firstName, lastName, ... };
+        });
+
+    Twee dingen die hier fout stonden:
+
+    1. Er ging een getal in waar een LOCATOR-object hoort. `locator.source` op
+       een getal is nil, dus alle drie de takken werden overgeslagen en er kwam
+       altijd null uit. Zonder telefoonnummer geen bericht - de waarschuwing is
+       dus nooit verstuurd.
+    2. De teruggave is een platte tabel met `phoneNumber`. De tak die
+       `getPhoneNumber()` aanriep bestond niet.
+
+    De export is `async`, dus afhankelijk van de bundle kan er een promise
+    terugkomen in plaats van de tabel. Beide gevallen worden hier afgevangen.
+]]
 local function phoneNumberOf(src)
-    local ok, player = pcall(function()
-        return exports.npwd:getPlayerData(src)
+    local ok, result = pcall(function()
+        return exports.npwd:getPlayerData({ source = src })
     end)
 
-    if not ok or not player then return end
+    if not ok or type(result) ~= 'table' then return end
 
-    -- getPlayerData geeft een object met getPhoneNumber(); afhankelijk van de
-    -- bundle kan het ook een tabel met phoneNumber zijn.
-    if type(player) == 'table' then
-        if type(player.getPhoneNumber) == 'function' then
-            return player:getPhoneNumber()
-        end
-        return player.phoneNumber
+    if result.phoneNumber == nil and type(result.next) == 'function' then
+        local awaited
+        local awaitOk = pcall(function() awaited = Citizen.Await(result) end)
+        result = awaitOk and awaited or nil
     end
+
+    return type(result) == 'table' and result.phoneNumber or nil
 end
 
 ---@param src number
