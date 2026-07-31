@@ -3410,6 +3410,26 @@ return {
             export = "ND_Police.uncuff"
         }
     },
+    -- s4t4n667_moneywash
+    ["moneywash_key"] = {
+        label = "Laundromat Key",
+        weight = 20,
+        stack = false,
+        description = "Opens the back room of a laundromat. Not the kind you ask about."
+    },
+    ["moneywash_token"] = {
+        label = "Laundromat Token",
+        weight = 5,
+        stack = true,
+        description = "One wash cycle."
+    },
+    ["wet_bills"] = {
+        label = "Wet Bills",
+        weight = 1,
+        stack = true,
+        description = "Freshly washed. Needs drying and counting before it spends."
+    },
+
     ["casing"] = {
         label = "Bullet Casing"
     },
