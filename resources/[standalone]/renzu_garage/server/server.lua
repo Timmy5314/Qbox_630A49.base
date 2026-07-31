@@ -291,6 +291,7 @@ RegisterServerCallBack_('renzu_garage:changestate', function (source, cb, plate,
                         if Config.Ox_Inventory then
                             DoesPlayerHaveKey(plate,source,Config.RemoveKeys)
                         end
+                        LosTakeVehicleKey(source, plate)
                     else
                         Config.Notify( 'success', Message[79], xPlayer)
                         -- Bug: on retrieval (state 0) no key was ever given back, only
@@ -299,6 +300,7 @@ RegisterServerCallBack_('renzu_garage:changestate', function (source, cb, plate,
                         if Config.Ox_Inventory then
                             GiveVehicleKey(plate,source)
                         end
+                        LosGiveVehicleKey(source, plate)
                     end
                     cb(true,public)
                 else
@@ -387,6 +389,7 @@ RegisterServerCallBack_('renzu_garage:changestate', function (source, cb, plate,
                         if Config.Ox_Inventory then
                             DoesPlayerHaveKey(plate,source,Config.RemoveKeys)
                         end
+                        LosTakeVehicleKey(source, plate)
                     else
                         Config.Notify( 'success', Message[81],xPlayer)
                         -- Same bug as the regular garage branch above: releasing from
@@ -394,6 +397,7 @@ RegisterServerCallBack_('renzu_garage:changestate', function (source, cb, plate,
                         if Config.Ox_Inventory then
                             GiveVehicleKey(plate,source)
                         end
+                        LosGiveVehicleKey(source, plate)
                     end
                     cb(true,public)
                 else

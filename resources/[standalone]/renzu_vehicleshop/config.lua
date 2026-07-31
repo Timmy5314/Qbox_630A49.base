@@ -24,6 +24,19 @@ Config.Carkeys = function(plate,source)
     -- (De qbx export GiveKeys() vereist een server-side entity; die bestaat hier nog niet,
     --  want het gekochte voertuig wordt client-side gespawned. Daarom dit plate-based event.)
     TriggerClientEvent('vehiclekeys:client:SetOwner',source,plate)
+
+    -- En de fysieke sleutel. Zonder deze regel heeft de koper wel toegang tot
+    -- zijn nieuwe auto, maar niets in zijn zak - en dan is er bij het parkeren
+    -- ook niets in te leveren. Zie los_vehiclekeys.
+    if GetResourceState('los_vehiclekeys'):find('start') then
+        local ok, err = pcall(function()
+            return exports.los_vehiclekeys:GiveKeyItem(source, plate)
+        end)
+
+        if not ok then
+            print(('[renzu_vehicleshop] los_vehiclekeys:GiveKeyItem faalde: %s'):format(err))
+        end
+    end
 end
 -- CARKEYS --
 --EXTRA

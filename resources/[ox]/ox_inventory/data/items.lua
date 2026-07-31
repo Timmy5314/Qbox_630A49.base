@@ -3445,6 +3445,21 @@ return {
         label = "Projectile"
     },
 
+    -- Voertuigsleutel (los_vehiclekeys). Uniek per auto: de metadata draagt het
+    -- kenteken, dus stack = false. Je krijgt hem bij aankoop, levert hem in bij
+    -- het parkeren en krijgt hem terug bij het uithalen. Job- en gangvoertuigen
+    -- geven een tijdelijke variant met een `expires` in de metadata.
+    --
+    -- Geen eigen afbeelding: key.png staat er al.
+    ["vehiclekey"] = {
+        label = "Vehicle Key",
+        weight = 30,
+        stack = false,
+        close = true,
+        description = "Hoort bij een bepaald voertuig.",
+        client = { image = "key.png" }
+    },
+
     -- ============================================================
     --  murderface-pets
     --  Elk huisdier is een uniek item met metadata (naam, level, XP,
