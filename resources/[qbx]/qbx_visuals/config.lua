@@ -266,10 +266,22 @@ Config.ModSets = {
 
 -- Eindsterkte = preset.strength * deze waarde. Ontbreekt een context, dan 1.0.
 Config.ContextStrength = {
+    -- Elke context stond hier getemperd BEHALVE de heldere: day, dawn, dusk,
+    -- overcast en rain_day ontbraken en draaiden dus op 1.00. Voor zonlicht is
+    -- dat precies verkeerd om - dat is de context waar hooglichten al uit
+    -- zichzelf tegen het plafond zitten.
+    day        = 0.85,
+    dawn       = 0.95,
+    dusk       = 0.95,
+    overcast   = 0.90,
+    rain_day   = 0.90,
+
     interior   = 0.75,
     aerial     = 0.70,
     fog        = 0.85,
     snow       = 0.85,
+
+    -- 's Nachts mag het vol: daar is bloom geen fout maar het effect zelf.
     night      = 1.00,
     rain_night = 1.00,
 }
