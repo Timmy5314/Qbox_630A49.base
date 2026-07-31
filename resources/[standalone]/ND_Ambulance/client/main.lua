@@ -239,7 +239,36 @@ local function setDead(ped, dict, clip, newDeathState)
         TriggerServerEvent("ND_Ambulance:playerDown")
     end
 
-    SendNUIMessage({ type = "dead", state = newDeathState })
+    -- The death screen used to show a bare countdown with no explanation, and the
+    -- warning about losing your belongings only appeared once the timer ran out --
+    -- five minutes too late to act on. Send the terms up front.
+    local minutes = math.floor(data_death.timer/60)
+    local seconds = data_death.timer%60
+    local timerText = minutes > 0
+        and (seconds > 0 and ("%d min %d sec"):format(minutes, seconds) or ("%d min"):format(minutes))
+        or ("%d sec"):format(seconds)
+
+    SendNUIMessage({
+        type = "dead",
+        state = newDeathState,
+        cost = data_death.prices.respawn,
+        timerText = timerText
+    })
+
+    -- One notification on the first death only. The screen keeps the terms
+    -- visible after this; repeating it on every escalation is just noise.
+    if firstDeath then
+        Bridge.notify({
+            title = "You are down",
+            description = ("EMS can revive you and you keep your belongings. Respawning is possible in %s, costs $%s and you lose everything you carry.")
+                :format(timerText, data_death.prices.respawn),
+            type = "error",
+            icon = "hospital",
+            iconColor = "#eb4034",
+            duration = 15000,
+            position = "top-center"
+        })
+    end
 
     -- the red screen. "damage" is the vanilla low-health timecycle (red vignette);
     -- it replaces the GTA death effect, which is lost the moment this script

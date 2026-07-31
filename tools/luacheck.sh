@@ -32,11 +32,15 @@ tmp="${TEMP:-/tmp}/luacheck_sanitized.lua"
 # De compound-assignment regex eist een identifier-teken vóór de operator, zodat
 # een comment als `--= foo` niet wordt aangetast.
 sanitize() {
-    sed -e 's/`\([A-Za-z0-9_]*\)`/"\1"/g' \
+    # Backtick-hashes mogen elk teken bevatten behalve een backtick zelf:
+    # `move_m@injured`, `a_m_m_bevhills_01`, `prop_ld_case_01`.
+    # De eerdere versie accepteerde alleen [A-Za-z0-9_] en liet daardoor
+    # alles met een @ erin staan, wat een valse "echte fout" opleverde.
+    sed -e 's/`\([^`]*\)`/"\1"/g' \
         -e 's/?\./\./g' \
         -e 's/?:/:/g' \
-        -e 's/\([A-Za-z0-9_)]\)[[:space:]]*\.\.=/\1 =/g' \
-        -e 's/\([A-Za-z0-9_)]\)[[:space:]]*\([+*/-]\)=/\1 =/g' \
+        -e 's/\([A-Za-z0-9_)]\]*\)[[:space:]]*\.\.=/\1 =/g' \
+        -e 's/\([A-Za-z0-9_)]\]*\)[[:space:]]*\([+*/-]\)=/\1 =/g' \
         "$1" > "$tmp"
 }
 

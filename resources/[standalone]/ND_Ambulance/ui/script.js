@@ -5,6 +5,12 @@ let signalSent = false;
 let secondsLeft = null;
 let respawnLines = null;
 
+// Uitleg die DIRECT bij het neergaan verschijnt. Stond er eerder niet: de speler
+// zag alleen een aftellende timer zonder te weten waarop hij wachtte, en de
+// waarschuwing over zijn spullen kwam pas als de timer afgelopen was - vijf
+// minuten te laat om er iets mee te kunnen.
+let waitLines = null;
+
 function reset() {
     base = null;
     eliminated = false;
@@ -12,6 +18,7 @@ function reset() {
     signalSent = false;
     secondsLeft = null;
     respawnLines = null;
+    waitLines = null;
 }
 
 function render() {
@@ -40,6 +47,9 @@ function render() {
 
     if (respawnLines) {
         lines.push(...respawnLines);
+    } else if (waitLines) {
+        // Zolang de timer loopt: uitleggen waarop je wacht en wat het kost.
+        lines.push(...waitLines);
     }
 
     document.getElementById("lines").textContent = lines.join("\n");
@@ -53,6 +63,12 @@ window.addEventListener("message", function (event) {
     if (item.type === "dead") {
         eliminated = item.state === "eliminated";
         base = eliminated ? "You are dead" : "You are injured";
+
+        waitLines = [
+            "EMS can revive you - you keep everything you are carrying",
+            `Respawning costs $${item.cost} and you lose your belongings`,
+            `Respawn unlocks in ${item.timerText}`
+        ];
     } else if (item.type === "knocked_out") {
         base = "You've been knocked out unconscious";
     } else if (item.type === "signal_hint") {

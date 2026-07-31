@@ -6,7 +6,16 @@ return {
     damageInterval = 4, -- interavall in seconds player will take damage when knocked down injured.
     prices = {
         selfHeal = 2000,
-        otherHeal = 3000
+        otherHeal = 3000,
+
+        -- Ontbrak, terwijl client/main.lua en server/main.lua hem op vijf
+        -- plekken gebruiken. Gevolg: het scherm toonde "for $nil" en de
+        -- server sloeg het afschrijven over (`if price and price > 0`),
+        -- waardoor respawnen gratis was.
+        --
+        -- Bewust stevig: respawnen hoort de dure uitweg te zijn, wachten op
+        -- EMS de goedkope.
+        respawn = 5000
     },
     
     -- locations player will respawn if they get respawned at mourge.
