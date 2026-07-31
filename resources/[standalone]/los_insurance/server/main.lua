@@ -195,15 +195,11 @@ lib.callback.register('los_insurance:buy', function(src, policyType, plate)
         plate = nil
     end
 
-    if (player.PlayerData.money[config.account] or 0) < settings.premium then
-        return false, locale('cannot_afford', settings.premium)
-    end
-
-    if not player.Functions.RemoveMoney(config.account, settings.premium, 'Insurance premium') then
-        return false, locale('payment_failed')
-    end
-
-    local expires = os.time() + (settings.days * 86400)
+    -- Geen bedrag ineens: de premie wordt bij elke loonstrook ingehouden.
+    -- Afsluiten kost dus niets, maar de polis loopt alleen door zolang je
+    -- betaalt. Vanaf nu krijg je meteen dekking, zodat je niet eerst een
+    -- loonstrook hoeft af te wachten voordat de polis iets waard is.
+    local expires = os.time() + config.policyExtendHours * 3600
 
     -- Bestaat er al een polis, dan verlengen we vanaf nu. ON DUPLICATE KEY
     -- werkt op de unique key (citizenid, type, plate).
@@ -213,9 +209,23 @@ lib.callback.register('los_insurance:buy', function(src, policyType, plate)
         ON DUPLICATE KEY UPDATE expires = VALUES(expires), premium = VALUES(premium)
     ]], { citizenid, policyType, plate, settings.premium, expires })
 
-    dbg(('%s kocht %s%s tot %s'):format(citizenid, policyType, plate and (' ' .. plate) or '', expires))
+    dbg(('%s sloot %s%s af'):format(citizenid, policyType, plate and (' ' .. plate) or ''))
 
-    return true, locale('purchased', settings.label, settings.days)
+    return true, locale('purchased', settings.label, settings.premium)
+end)
+
+---Opzeggen. Zonder dit blijft de premie doorlopen bij elke loonstrook.
+lib.callback.register('los_insurance:cancel', function(src, policyType, plate)
+    local citizenid = citizenIdOf(src)
+    if not citizenid then return false end
+
+    plate = policyType == 'vehicle' and normalizePlate(plate) or nil
+
+    MySQL.query.await(
+        'DELETE FROM los_insurance_policies WHERE citizenid = ? AND type = ? AND (plate <=> ?)',
+        { citizenid, policyType, plate })
+
+    return true, locale('cancelled')
 end)
 
 -- =========================================================================

@@ -24,36 +24,102 @@ Config.account = 'bank'
 --[[
     Polissen.
 
-    LOOPTIJD IS IN ECHTE DAGEN, geen in-game dagen. De code rekent met
-    os.time() + days * 86400, dus dat is kloktijd. Een polis van 7 dagen loopt
-    een echte week, ongeacht hoe vaak de in-game zon opkomt.
+    GEEN BEDRAG INEENS MEER. Je sluit een polis af en de premie wordt daarna bij
+    elke loonuitbetaling ingehouden, net als in het echt. Zolang je betaalt loop
+    je door; stopt de betaling, dan verloopt de polis vanzelf.
 
-    PREMIE. Een verzekering hoort goedkoper te zijn dan waar hij tegen
-    beschermt, anders sluit niemand hem af. Ter vergelijking op deze server:
-        ziekenhuisbehandeling  $2000
-        AI-dokter onverzekerd  $750
-        respawnen              $1000
-    Een weekpremie van een paar honderd is dan logisch: je bent na een of twee
-    incidenten al uit de kosten.
+    qbx_core betaalt elke `paycheckTimeout` minuten uit (standaard 10). De
+    lonen op deze server liggen tussen $50 en $150 per uitbetaling, met een
+    enkele uitschieter naar $500.
+
+    De bedragen hieronder zijn VASTE bedragen per loonstrook, geen percentages.
+    Bij een gemiddeld loon van $100 komt dat neer op ongeveer 20% voor beide
+    verzekeringen samen, zoals gevraagd. Een vast bedrag is voorspelbaar: je
+    weet wat je betaalt, ook als je die week meer verdient.
+
+    Er wordt nooit meer ingehouden dan er binnenkomt - zie Config.deductions.
 ]]
 Config.policies = {
     medical = {
         label = 'Medical insurance',
-        premium = 450,
-        days = 7,
+        premium = 12,
         description = 'Covers ambulance callouts and hospital treatment.',
     },
 
     vehicle = {
         label = 'Vehicle insurance',
-        premium = 300,
-        days = 7,
+        premium = 8,
         description = 'Covers recovery and repair costs for one vehicle.',
 
         -- Deel van de schade dat de verzekeraar dekt.
         coverage = 0.75,
     },
 }
+
+--[[
+    Inhoudingen op het loon.
+
+    Alles hieronder wordt afgeboekt zodra qbx_core een loonstrook heeft
+    uitbetaald. De melding komt kort na de loonmelding, zodat je eerst ziet wat
+    je verdient en daarna wat eraf gaat.
+
+    RICHTLIJN bij een loon van $100 met een auto op naam:
+        zorgverzekering      $12
+        autoverzekering      $8
+        inkomstenbelasting   $8   (8%)
+        motorrijtuigenbel.   $3   per voertuig
+        ------------------------------
+        totaal               $31  oftewel ongeveer 30%
+
+    HARDE GRENS: de inhouding is nooit hoger dan het loon zelf. Wie weinig
+    verdient betaalt naar rato en houdt altijd iets over.
+]]
+Config.deductions = {
+    enabled = true,
+
+    -- Seconden na de loonmelding voordat de inhouding zichtbaar wordt.
+    delaySeconds = 6,
+
+    --[[
+        Maximaal deel van het loon dat in totaal ingehouden mag worden.
+
+        Vaste premies pakken laag inkomen relatief zwaarder: bij een loon van
+        $50 zou de volle inhouding 54% zijn, bij $500 nog maar 13%. Dit plafond
+        vangt de onderkant af. Op 0.35 betaalt niemand meer dan een derde:
+
+            loon $50   ->  $17  (35%, afgetopt)
+            loon $100  ->  $31  (31%)
+            loon $150  ->  $35  (23%)
+            loon $500  ->  $63  (13%)
+    ]]
+    maxShareOfPaycheck = 0.35,
+
+    tax = {
+        enabled = true,
+
+        -- Percentage inkomstenbelasting over de loonstrook.
+        incomeRate = 0.08,
+
+        -- Vast bedrag per voertuig op naam, per loonstrook.
+        perVehicle = 3,
+
+        -- Voertuigbelasting alleen over de eerste zoveel auto's, zodat een
+        -- verzamelaar niet onbetaalbaar uitkomt.
+        maxVehiclesTaxed = 5,
+    },
+}
+
+--[[
+    Hoe lang een polis geldig blijft na een betaling.
+
+    Elke ingehouden premie schuift de einddatum op met deze tijd. Met een
+    loonstrook per 10 minuten en 3 uur speling loopt een werkende speler nooit
+    tegen een verlopen polis aan, terwijl iemand die stopt met werken er na een
+    paar uur uit valt.
+
+    ECHTE UREN, geen in-game uren.
+]]
+Config.policyExtendHours = 3
 
 -- ── Verzekeringskantoor ──────────────────────────────────────────────────
 Config.office = {

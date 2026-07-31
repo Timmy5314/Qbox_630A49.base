@@ -5,21 +5,17 @@
     "no_policies": "Je hebt geen polissen",
     "insure_vehicle": "Voertuig verzekeren",
     "no_vehicles": "Je hebt geen voertuigen op naam",
-
-    "days": "%s dagen",
     "not_insured": "Niet verzekerd",
     "expired": "Verlopen",
     "valid_days": "Nog %s dagen en %s uur geldig",
     "valid_hours": "Nog %s uur geldig",
-
-    "purchased": "%s afgesloten voor %s dagen.",
+    "purchased": "%s afgesloten. Er wordt $%s per loonstrook ingehouden.",
     "cannot_afford": "Dit kun je niet betalen. Premie: $%s.",
     "payment_failed": "Betaling mislukt.",
     "unknown_policy": "Die polis bestaat niet.",
     "not_your_vehicle": "Dat voertuig staat niet op jouw naam.",
     "no_plate": "Geen kenteken opgegeven.",
     "failed": "Er ging iets mis.",
-
     "check_person": "Persoon controleren",
     "check_vehicle": "Voertuig controleren",
     "nobody_nearby": "Niemand in de buurt.",
@@ -29,8 +25,15 @@
     "vehicle": "Voertuig",
     "owner": "Eigenaar",
     "unregistered": "Niet geregistreerd",
-
     "warn_medical": "BERICHT VAN DE OVERHEID: uit onze gegevens blijkt dat u geen zorgverzekering heeft. Ambulanceritten en ziekenhuisbehandelingen worden volledig bij u in rekening gebracht. Een verzekering sluit u af bij een erkende tussenpersoon.",
     "warn_vehicle": "BERICHT VAN DE OVERHEID: een of meer voertuigen op uw naam zijn onverzekerd. Onverzekerd rijden is strafbaar en u bent aansprakelijk voor alle schade die u veroorzaakt.",
-    "warn_both": "BERICHT VAN DE OVERHEID: u heeft geen zorgverzekering en minstens een onverzekerd voertuig. Behandeling wordt volledig bij u in rekening gebracht en onverzekerd rijden is strafbaar. Neem contact op met een erkende tussenpersoon."
+    "warn_both": "BERICHT VAN DE OVERHEID: u heeft geen zorgverzekering en minstens een onverzekerd voertuig. Behandeling wordt volledig bij u in rekening gebracht en onverzekerd rijden is strafbaar. Neem contact op met een erkende tussenpersoon.",
+    "cancelled": "Polis opgezegd. Er wordt geen premie meer ingehouden.",
+    "cancel_policy": "Polis opzeggen",
+    "deduction_title": "Inhoudingen: $%s",
+    "deduction_failed": "Je verzekering en belasting konden niet worden geind. Blijft dit gebeuren, dan vervalt je dekking.",
+    "deduction_capped": "Afgetopt zodat het niet boven je loon uitkomt.",
+    "tax_income": "Inkomstenbelasting",
+    "tax_vehicle": "Motorrijtuigenbelasting (%s voertuigen)",
+    "premium_per_paycheck": "$%s per loonstrook"
 }

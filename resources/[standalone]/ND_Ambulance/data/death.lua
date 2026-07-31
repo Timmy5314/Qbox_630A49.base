@@ -5,8 +5,8 @@ return {
     damage = 2, -- amount of damage that will be taken every damageInterval when knocked down injured (Must be a whole number).
     damageInterval = 4, -- interavall in seconds player will take damage when knocked down injured.
     prices = {
-        selfHeal = 2000,
-        otherHeal = 3000,
+        selfHeal = 1000,
+        otherHeal = 1500,
 
         -- Ontbrak, terwijl client/main.lua en server/main.lua hem op vijf
         -- plekken gebruiken. Gevolg: het scherm toonde "for $nil" en de

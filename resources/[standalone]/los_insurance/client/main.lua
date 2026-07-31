@@ -40,7 +40,19 @@ local function showOwnPolicies()
                 policy.plate and (policy.plate .. ' - ') or '',
                 expiryText(policy.expires)),
             icon = policy.type == 'medical' and 'briefcase-medical' or 'car',
-            readOnly = true,
+            onSelect = function()
+                local confirm = lib.alertDialog({
+                    header = locale('cancel_policy'),
+                    content = settings and settings.label or policy.type,
+                    centered = true,
+                    cancel = true,
+                })
+
+                if confirm ~= 'confirm' then return end
+
+                local ok, message = lib.callback.await('los_insurance:cancel', false, policy.type, policy.plate)
+                lib.notify({ description = message or locale('failed'), type = ok and 'success' or 'error' })
+            end,
         }
     end
 
@@ -100,7 +112,7 @@ local function openOffice()
         options = {
             {
                 title = medical.label,
-                description = ('%s  -  $%s / %s'):format(medical.description, medical.premium, locale('days', medical.days)),
+                description = ('%s  -  %s'):format(medical.description, locale('premium_per_paycheck', medical.premium)),
                 icon = 'briefcase-medical',
                 onSelect = function()
                     local ok, message = lib.callback.await('los_insurance:buy', false, 'medical')
@@ -109,7 +121,7 @@ local function openOffice()
             },
             {
                 title = vehicle.label,
-                description = ('%s  -  $%s / %s'):format(vehicle.description, vehicle.premium, locale('days', vehicle.days)),
+                description = ('%s  -  %s'):format(vehicle.description, locale('premium_per_paycheck', vehicle.premium)),
                 icon = 'car',
                 onSelect = buyVehiclePolicy,
             },

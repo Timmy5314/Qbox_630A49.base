@@ -5,21 +5,17 @@
     "no_policies": "You have no policies",
     "insure_vehicle": "Insure a vehicle",
     "no_vehicles": "You do not own any vehicles",
-
-    "days": "%s days",
     "not_insured": "Not insured",
     "expired": "Expired",
     "valid_days": "Valid for %s days, %s hours",
     "valid_hours": "Valid for %s hours",
-
-    "purchased": "%s taken out for %s days.",
+    "purchased": "%s arranged. $%s will be deducted from each paycheck.",
     "cannot_afford": "You cannot afford this. Premium: $%s.",
     "payment_failed": "Payment failed.",
     "unknown_policy": "That policy does not exist.",
     "not_your_vehicle": "That vehicle is not registered to you.",
     "no_plate": "No plate given.",
     "failed": "Something went wrong.",
-
     "check_person": "Check person",
     "check_vehicle": "Check vehicle",
     "nobody_nearby": "Nobody nearby.",
@@ -29,8 +25,15 @@
     "vehicle": "Vehicle",
     "owner": "Owner",
     "unregistered": "Not registered",
-
     "warn_medical": "GOVERNMENT NOTICE: our records show you have no medical insurance. Ambulance callouts and hospital treatment will be charged to you in full. Insurance is available at any registered broker.",
     "warn_vehicle": "GOVERNMENT NOTICE: one or more vehicles registered to you are uninsured. Driving uninsured is an offence and you are liable for all damage you cause.",
-    "warn_both": "GOVERNMENT NOTICE: you have no medical insurance and at least one uninsured vehicle. Treatment will be charged to you in full, and driving uninsured is an offence. Visit a registered broker to arrange cover."
+    "warn_both": "GOVERNMENT NOTICE: you have no medical insurance and at least one uninsured vehicle. Treatment will be charged to you in full, and driving uninsured is an offence. Visit a registered broker to arrange cover.",
+    "cancelled": "Policy cancelled. No further premiums will be deducted.",
+    "cancel_policy": "Cancel policy",
+    "deduction_title": "Deductions: $%s",
+    "deduction_failed": "Your insurance and tax could not be collected. Your cover lapses if this keeps happening.",
+    "deduction_capped": "Capped so it does not exceed your wage.",
+    "tax_income": "Income tax",
+    "tax_vehicle": "Road tax (%s vehicles)",
+    "premium_per_paycheck": "$%s per paycheck"
 }
