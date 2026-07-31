@@ -31,7 +31,7 @@ return {
 	['PondCafe'] = request('config/ownedshops/PondCafe'),
 	['Balls8'] = request('config/ownedshops/Balls8'),
 	['ClothingShop'] = request('config/ownedshops/ClothingShop'),
-	--['Petshop'] = request('config/ownedshops/Petshop'),
+	['Petshop'] = request('config/ownedshops/Petshop'), -- aan sinds murderface-pets; Storeitems.Petshop bestaat nu
 	['LiquorStore'] = request('config/ownedshops/LiquorStore'),
 	--['BoatShop'] = request('config/ownedshops/BoatShop'), -- placeholder, not active yet
 	--['AirplaneShop'] = request('config/ownedshops/AirplaneShop'), -- placeholder, not active yet

@@ -3445,5 +3445,196 @@ return {
         label = "Projectile"
     },
 
+    -- ============================================================
+    --  murderface-pets
+    --  Elk huisdier is een uniek item met metadata (naam, level, XP,
+    --  vachtkleur). Vandaar stack = false: twee honden zijn niet
+    --  inwisselbaar.
+    --
+    --  consume = 0 op alles. De handlers in murderface-pets geven
+    --  `false` terug en verwijderen het item zelf pas als de handeling
+    --  ook echt is afgerond. Zonder consume = 0 vult ox_inventory die
+    --  standaard op 1 en wordt het item twee keer weggehaald.
+    --
+    --  De riem-items (murderface_leash*) staan hier BEWUST niet: hun
+    --  props zitten in een streaming-resource die deze server niet heeft.
+    --  Config.leash.enabled staat daarom op false.
+    -- ============================================================
+
+    -- Honden
+    ["murderface_husky"] = {
+        label = "Husky",
+        weight = 1000,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_husky" }
+    },
+    ["murderface_shepherd"] = {
+        label = "Police K9",
+        weight = 1000,
+        stack = false,
+        consume = 0,
+        description = "Politiehond. Alleen bruikbaar door de politie.",
+        server = { export = "murderface-pets.murderface_shepherd" }
+    },
+    ["murderface_rottweiler"] = {
+        label = "Rottweiler",
+        weight = 1000,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_rottweiler" }
+    },
+    ["murderface_retriever"] = {
+        label = "Golden Retriever",
+        weight = 1000,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_retriever" }
+    },
+    ["murderface_chop"] = {
+        label = "Chop",
+        weight = 1000,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_chop" }
+    },
+    ["murderface_westy"] = {
+        label = "Westie",
+        weight = 600,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_westy" }
+    },
+    ["murderface_pug"] = {
+        label = "Pug",
+        weight = 600,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_pug" }
+    },
+    ["murderface_poodle"] = {
+        label = "Poodle",
+        weight = 600,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_poodle" }
+    },
+
+    -- Katten en wild
+    ["murderface_cat"] = {
+        label = "House Cat",
+        weight = 600,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_cat" }
+    },
+    ["murderface_panther"] = {
+        label = "Black Panther",
+        weight = 1500,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_panther" }
+    },
+    ["murderface_mtlion"] = {
+        label = "Mountain Lion",
+        weight = 1500,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_mtlion" }
+    },
+    ["murderface_coyote"] = {
+        label = "Coyote",
+        weight = 1000,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_coyote" }
+    },
+
+    -- Klein spul
+    ["murderface_hen"] = {
+        label = "Chicken",
+        weight = 400,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_hen" }
+    },
+    ["murderface_rabbit"] = {
+        label = "Rabbit",
+        weight = 400,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_rabbit" }
+    },
+    ["murderface_chimp"] = {
+        label = "Chimpanzee",
+        weight = 1200,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_chimp" }
+    },
+    ["murderface_rhesus"] = {
+        label = "Rhesus Monkey",
+        weight = 800,
+        stack = false,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_rhesus" }
+    },
+
+    -- Benodigdheden
+    ["murderface_food"] = {
+        label = "Pet Food",
+        weight = 200,
+        stack = true,
+        consume = 0,
+        description = "Voer voor je huisdier. Werkt ook om een zwerfdier vertrouwen te geven.",
+        server = { export = "murderface-pets.murderface_food" }
+    },
+    ["murderface_collar"] = {
+        label = "Pet Collar",
+        weight = 100,
+        stack = true,
+        consume = 0,
+        description = "Zet een huisdier op naam van iemand anders.",
+        server = { export = "murderface-pets.murderface_collar" }
+    },
+    ["murderface_nametag"] = {
+        label = "Name Tag",
+        weight = 50,
+        stack = true,
+        consume = 0,
+        description = "Geef je huisdier een naam.",
+        server = { export = "murderface-pets.murderface_nametag" }
+    },
+    ["murderface_firstaid"] = {
+        label = "Pet First Aid Kit",
+        weight = 500,
+        stack = true,
+        consume = 0,
+        description = "Verzorgt een gewond huisdier.",
+        server = { export = "murderface-pets.murderface_firstaid" }
+    },
+    ["murderface_groomingkit"] = {
+        label = "Grooming Kit",
+        weight = 800,
+        stack = true,
+        consume = 0,
+        server = { export = "murderface-pets.murderface_groomingkit" }
+    },
+    ["murderface_waterbottle"] = {
+        label = "Portable Water Bottle",
+        weight = 500,
+        stack = false,
+        consume = 0,
+        description = "Bij te vullen met water.",
+        server = { export = "murderface-pets.murderface_waterbottle" }
+    },
+    ["murderface_doghouse"] = {
+        label = "Dog House",
+        weight = 5000,
+        stack = true,
+        consume = 0,
+        description = "Neerzetten geeft huisdieren in de buurt rust. Nodig om te fokken.",
+        server = { export = "murderface-pets.murderface_doghouse" }
+    },
 
 }

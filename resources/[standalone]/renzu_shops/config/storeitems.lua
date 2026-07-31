@@ -374,4 +374,23 @@ return {
 		}, -- whitelisted table
 		AllClothings -- all vehicles can be found /data/vehicles.lua
 	),
+
+	-- Benodigdheden voor murderface-pets. De winkel zelf (ownedshops/Petshop.lua)
+	-- stond al geconfigureerd maar verwees naar shared.Storeitems.Petshop, en die
+	-- bestond niet - vandaar dat hij ook uitgecommentarieerd stond in
+	-- ownedshops/init.lua.
+	--
+	-- De DIEREN zelf staan hier bewust niet in. Die hebben metadata nodig (hash,
+	-- naam, level, vacht) en gaan via de ingebouwde dierenwinkel van
+	-- murderface-pets, die een admin met /petshop in de wereld zet. De
+	-- politiehond loopt via de job-supply van renzu_jobs.
+	['Petshop'] = {
+		{ lvl = 1, category = 'Voeding',    name = 'murderface_food',        price = 100 },
+		{ lvl = 1, category = 'Voeding',    name = 'murderface_waterbottle', price = 300 },
+		{ lvl = 1, category = 'Verzorging', name = 'murderface_firstaid',    price = 500 },
+		{ lvl = 1, category = 'Verzorging', name = 'murderface_groomingkit', price = 750 },
+		{ lvl = 1, category = 'Toebehoren', name = 'murderface_collar',      price = 250 },
+		{ lvl = 1, category = 'Toebehoren', name = 'murderface_nametag',     price = 150 },
+		{ lvl = 2, category = 'Toebehoren', name = 'murderface_doghouse',    price = 5000 },
+	},
 }

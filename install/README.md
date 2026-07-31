@@ -34,9 +34,16 @@ In deze volgorde. Alles met `IF NOT EXISTS` is veilig om nogmaals te draaien.
 | 5 | `resources/[standalone]/renzu_garage/QBCORE_garage.sql` | een garage-tabel ontbreekt — **sla de vijf ALTER-regels bovenaan over**, die zijn vervangen door stap 4 |
 | 6 | `resources/[standalone]/los_anticheat/install/anticheat.sql` | altijd (nieuwe resource) |
 | 7 | `resources/[standalone]/los_insurance/install/insurance.sql` | altijd (nieuwe resource) |
+| 8 | `resources/[standalone]/murderface-pets/sql/install.sql` | niet verplicht — zie hieronder |
 
 Let op bij stap 3: `ps-mdt/sql/qbx.sql` is 126 KB en bevat naast tabellen ook
 seed-data. Draai hem één keer.
+
+Let op bij stap 8: murderface-pets maakt zijn eigen tabellen aan bij het opstarten
+(`CREATE TABLE IF NOT EXISTS` in `server/server.lua` en `server/petshop.lua`). Je
+hoeft het bestand dus niet te draaien. Het staat hier zodat je weet wat de
+resource aanmaakt: `murderface_pets`, `murderface_stray_trust`,
+`murderface_doghouses`, `murderface_breeding` en `murderface_petshop_displays`.
 
 Let op bij stap 5: gebruik de QBOX-variant van ps-housing, niet de QBCore-variant
 die ernaast staat.

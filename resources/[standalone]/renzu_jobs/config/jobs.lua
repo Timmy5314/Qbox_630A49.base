@@ -116,6 +116,12 @@ Config.Jobs = {
                     { name = 'tools',                 label = 'Cutting Tools',  price = 0 },
                     { name = 'spikestrip',            label = 'Spikestrip',     price = 0 },
                     { name = 'shield',                label = 'Riot Shield',    price = 0 },
+
+                    -- De politiehond (murderface-pets). Bewust hier en niet in
+                    -- de dierenwinkel: dit is uitrusting, geen huisdier. Het
+                    -- item wordt zonder metadata uitgegeven; murderface-pets
+                    -- maakt die bij het eerste gebruik zelf aan (InitPet).
+                    { name = 'murderface_shepherd',   label = 'Police K9',      price = 0 },
                 },
             },
         },

@@ -3,7 +3,7 @@
 ---
 ---Elk server-side RegisterNetEvent dat een client kan triggeren, met de
 ---resource waar het vandaan komt. Dit is de aanvalsoppervlakte van de server.
----Gegenereerd op 2026-07-31 uit 435 server-side bestanden.
+---Gegenereerd op 2026-07-31 uit 458 server-side bestanden.
 
 KnownServerEvents = {
     ['baseevents:enteredVehicle'] = 'ps_lib',
@@ -47,7 +47,9 @@ KnownServerEvents = {
     ['illenium-appearance:server:saveOutfit'] = 'illenium-appearance',
     ['illenium-appearance:server:syncUniform'] = 'illenium-appearance',
     ['illenium-appearance:server:updateOutfit'] = 'illenium-appearance',
+    ['los_aidoctor:callFailed'] = 'los_aidoctor',
     ['los_anticheat:heartbeat'] = 'los_anticheat',
+    ['los_anticheat:markFalsePositive'] = 'los_anticheat',
     ['md-drugs:server:buyItemDealer'] = 'md-drugs',
     ['md-drugs:server:buyWeedItem'] = 'md-drugs',
     ['md-drugs:server:CleanupWholesale'] = 'md-drugs',
@@ -56,6 +58,7 @@ KnownServerEvents = {
     ['md-drugs:server:getBackRobbed'] = 'md-drugs',
     ['md-drugs:server:getkilledFuckingNoob'] = 'md-drugs',
     ['md-drugs:server:giveDeliveryItems'] = 'md-drugs',
+    ['md-drugs:server:lootJunkie'] = 'md-drugs',
     ['md-drugs:server:makeLean'] = 'md-drugs',
     ['md-drugs:server:requestDelivery'] = 'md-drugs',
     ['md-drugs:server:RollBlunt'] = 'md-drugs',
@@ -74,6 +77,20 @@ KnownServerEvents = {
     ['mm_radio:server:removejammer'] = 'mm_radio',
     ['mm_radio:server:spawnobject'] = 'mm_radio',
     ['mm_radio:server:togglejammer'] = 'mm_radio',
+    ['murderface-pets:petshop:requestSync'] = 'murderface-pets',
+    ['murderface-pets:server:applyCustomization'] = 'murderface-pets',
+    ['murderface-pets:server:deleteEntity'] = 'murderface-pets',
+    ['murderface-pets:server:despawnNotOwned'] = 'murderface-pets',
+    ['murderface-pets:server:feedPet'] = 'murderface-pets',
+    ['murderface-pets:server:fillBottle'] = 'murderface-pets',
+    ['murderface-pets:server:healPet'] = 'murderface-pets',
+    ['murderface-pets:server:onLogout'] = 'murderface-pets',
+    ['murderface-pets:server:setAsDespawned'] = 'murderface-pets',
+    ['murderface-pets:server:setNearDoghouse'] = 'murderface-pets',
+    ['murderface-pets:server:spawnCancelled'] = 'murderface-pets',
+    ['murderface-pets:server:startGrooming'] = 'murderface-pets',
+    ['murderface-pets:server:syncLeash'] = 'murderface-pets',
+    ['murderface-pets:server:updatePetStats'] = 'murderface-pets',
     ['ND_Ambulance:attachStretcher'] = 'ND_Ambulance',
     ['ND_Ambulance:detachStretcher'] = 'ND_Ambulance',
     ['ND_Ambulance:pickupBag'] = 'ND_Ambulance',
@@ -91,6 +108,7 @@ KnownServerEvents = {
     ['ND_Ambulance:useOnNearby'] = 'ND_Ambulance',
     ['ND_Police:gsrTest'] = 'ND_Police',
     ['ND_Police:impoundVehicle'] = 'ND_Police',
+    ['ND_Police:requestBackup'] = 'ND_Police',
     ['ND_Police:shotspotter'] = 'ND_Police',
     ['ND_Police:syncAgressiveCuff'] = 'ND_Police',
     ['ND_Police:syncNormalCuff'] = 'ND_Police',
@@ -273,6 +291,11 @@ KnownServerEvents = {
     ['scully_emotemenu:requestGroupEmote'] = 'scully_emotemenu',
     ['scully_emotemenu:requestSynchronizedEmote'] = 'scully_emotemenu',
     ['scully_emotemenu:synchronizedEmoteResponse'] = 'scully_emotemenu',
+    ['stevo_cayocrates:cancelCrateOpening'] = 'stevo_cayocrates',
+    ['stevo_cayocrates:createCrateDrop'] = 'stevo_cayocrates',
+    ['stevo_cayocrates:finishCrateOpening'] = 'stevo_cayocrates',
+    ['stevo_cayocrates:requestCrateDrop'] = 'stevo_cayocrates',
+    ['stevo_cayocrates:startCrateOpening'] = 'stevo_cayocrates',
     ['tackle:server:TacklePlayer'] = 'qbx_smallresources',
     ['thermite:StartServerFire'] = 'qbx_bankrobbery',
     ['thermite:StopFires'] = 'qbx_bankrobbery',
