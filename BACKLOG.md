@@ -10,7 +10,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
-## STAND: 32 van de 39 punten
+## STAND: 33 van de 40 punten
 
 | Fase | Punten | Af | Openstaand |
 |---|---|---|---|
@@ -18,7 +18,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 | 2 Shops, kleding, economie | 7 | **6** | cw-crafting (geparkeerd door Tim), economie-rebalance |
 | 3 Gangs, drugs, illegaal | 7 | **7** | — |
 | 4 Hulpdiensten, medisch | 7 | **7** | — |
-| 5 Voertuigen, sleutels | 4 | 0 | alles |
+| 5 Voertuigen, sleutels | 5 | **1** | job-sleutels, carjacking, proefrit 60s, mns-aitaxi |
 | 6 HUD, visuals, systemen | 6 | 0 | alles |
 | 7 Discord | 2 | 0 | alles |
 
@@ -27,13 +27,13 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 > verzekeringen, K9/pets en het wanted-systeem. Gecorrigeerd naar 7; het totaal
 > wordt daarmee 39 in plaats van 38.
 
-50 commits sinds `da40e53`. **Fase 4 is af.**
+52 commits sinds `da40e53`. **Fase 4 is af, fase 5 loopt.**
 
 ---
 
 ## ⛔ EERST DOEN — dit blokkeert alles
 
-**Niets van dit alles heeft ooit gedraaid.** Alle 32 punten zijn statisch
+**Niets van dit alles heeft ooit gedraaid.** Alle 33 punten zijn statisch
 geverifieerd (syntax, itembestaan, event-namen, API-signaturen tegen de bron),
 maar geen enkele regel is op een draaiende server geweest.
 
@@ -225,7 +225,21 @@ Breed gedraaid over `[standalone]`, `[qbx]`, `[ps]` en `[ox]`:
 | 42 | **HIGH** | — | **De `require`-valkuil is generiek.** Elk nieuw config-bestand dat via `require` wordt geladen moet eindigen op `return Config`, anders krijg je boolean `true` terug en crasht de eerste index. Dit heeft `los_aidoctor` en `los_insurance` allebei stukgemaakt. Controleer dit bij elke nieuwe resource. |
 | 17 | ~~MED~~ | — | ~~community_bridge dead weight~~ — **ONJUIST.** md-drugs gebruikt het op ruim 800 aanroepen over 30 API's. **Laten staan.** |
 
-### Nog te bouwen (Fase 5 t/m 7)
+### Fase 5 — stand
+
+**Af:** sleutels zijn een echt ox_inventory-item (`los_vehiclekeys`), gekoppeld
+aan renzu_vehicleshop (kopen) en renzu_garage (parkeren, uithalen, impound).
+
+**Open, in deze volgorde:**
+
+| # | Item | Waarom het niet triviaal is |
+|---|---|---|
+| 44 | **Tijdelijke sleutels aansluiten** op md-drugs en de job-voertuigen. De haak staat er (`GiveKeyItem(..., temporary)`), maar niemand roept hem aan. | Moet weten wáár die voertuigen gespawnd worden; md-drugs doet dat via community_bridge. |
+| 45 | **NPC-carjacking.** Werkt nu niet omdat renzu_garage alle lokale voertuigen locked (`Config.LockAllLocalVehicle` / `LockParkedLocalVehiclesOnly` in `ServerEntityCreated`). Onderzoek die lock-logica vóór je aan qbx_vehiclekeys' carjack.lua komt. | Twee resources die dezelfde deuren op slot doen. |
+| 46 | **Proefrit max 60 s** in renzu_vehicleshop, harde timeout, voertuig weg en speler terug. | — |
+| 47 | **mns-aitaxi**: `/aitaxi` eruit, als NPWD-contact "Downtown Cab Co.", alleen bij 0 spelers met job `taxi` on duty. Staat in `_external/mns-aitaxi`. | Zwaar optimaliseren: geen permanente client-loop. |
+
+### Nog te bouwen (Fase 6 en 7)
 - **Fase 5**: qbx_vehiclekeys item-based, NPC-carjacking, proefrit 60s, NPWD garage-app, mns-aitaxi
 - **Fase 6**: HUD (job + geld rechtsboven), renzu_hygiene, ps-dispatch/mdt nalopen, billing, qbx_visuals, monthly wipe
 - **Fase 7**: Discord-koppeling (server-ID `1067817202578890802`)
