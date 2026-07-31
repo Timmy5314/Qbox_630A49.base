@@ -1559,10 +1559,10 @@ RegisterNUICallback(
                 end
                 Wait(1000)
 
-                -- Hier stond een teller die vanaf 30000 met 1 per frame afliep en
-                -- gedeeld werd door 100 om er seconden van te maken. Dat klopt
-                -- alleen bij precies 100 fps; op 60 fps duurde een proefrit
-                -- ongeveer acht minuten in plaats van vijf.
+                -- Hier stond een teller die vanaf 30000 met 1 per iteratie afliep en
+                -- gedeeld werd door 100 om er seconden van te maken. De duur hing daarmee
+                -- af van hoe vaak de lus draait in plaats van van de klok, en de weergave
+                -- klopte alleen als dat toevallig 100 keer per seconde was.
                 --
                 -- Nu een echte klok. GetGameTimer loopt in milliseconden en trekt
                 -- zich niets aan van de framerate.
