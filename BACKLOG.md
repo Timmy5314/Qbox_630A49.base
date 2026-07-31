@@ -10,14 +10,14 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
-## STAND: 31 van de 39 punten
+## STAND: 32 van de 39 punten
 
 | Fase | Punten | Af | Openstaand |
 |---|---|---|---|
 | 1 Anti-cheat | 6 | **6** | — |
 | 2 Shops, kleding, economie | 7 | **6** | cw-crafting (geparkeerd door Tim), economie-rebalance |
 | 3 Gangs, drugs, illegaal | 7 | **7** | — |
-| 4 Hulpdiensten, medisch | 7 | **6** | wanted-systeem |
+| 4 Hulpdiensten, medisch | 7 | **7** | — |
 | 5 Voertuigen, sleutels | 4 | 0 | alles |
 | 6 HUD, visuals, systemen | 6 | 0 | alles |
 | 7 Discord | 2 | 0 | alles |
@@ -27,13 +27,13 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 > verzekeringen, K9/pets en het wanted-systeem. Gecorrigeerd naar 7; het totaal
 > wordt daarmee 39 in plaats van 38.
 
-45 commits sinds `da40e53`.
+48 commits sinds `da40e53`. **Fase 4 is af.**
 
 ---
 
 ## ⛔ EERST DOEN — dit blokkeert alles
 
-**Niets van dit alles heeft ooit gedraaid.** Alle 29 punten zijn statisch
+**Niets van dit alles heeft ooit gedraaid.** Alle 32 punten zijn statisch
 geverifieerd (syntax, itembestaan, event-namen, API-signaturen tegen de bron),
 maar geen enkele regel is op een draaiende server geweest.
 
@@ -146,9 +146,19 @@ er wél mis was:
 | MED | renzu_shops had een `Petshop` geconfigureerd die naar `shared.Storeitems.Petshop` wees — die bestond niet, en de winkel stond daarom uitgecommentarieerd | itemlijst aangemaakt, winkel aan |
 | LOW | `los_anticheat` kende de 14 nieuwe server-events niet | whitelist opnieuw gegenereerd |
 
+## AFGEROND — wanted-systeem + twee dingen die nooit gedraaid kunnen hebben
+
+| Sev | Item | Fix |
+|---|---|---|
+| **BLOCKER** | `los_aidoctor` en `los_insurance` doen `local config = require 'shared.config'`, maar hun config.lua gaf **niets terug**. ox_lib's require levert dan boolean `true`, dus de eerste `config.<iets>` crasht op "attempt to index a boolean value". Beide zijn vorige sessie als afgerond opgeschreven en **geen van beide zou ooit hebben gewerkt** | `return Config` toegevoegd |
+| **HIGH** | `ps-dispatch` exporteert `CustomAlert` **alleen client-side**. Zowel de shotspotter van ND_Police als het noodsignaal van ND_Ambulance riep hem aan vanuit een server-bestand → `No such export CustomAlert`. Beide meldingen zijn nooit aangekomen | loopt nu via de client van de speler; autorisatie blijft server-side |
+| MED | `description` bestaat niet in `CustomAlert` en werd stilzwijgend weggegooid — de straatnaam die beide scripts meestuurden kwam nooit in beeld | in de titel gezet |
+| MED | Beide scripts zetten alleen `dispatchCode` en geen `code`. Dat is de valkuil uit CLAUDE.md: het scherm toonde "10-80" in plaats van 10-71 en 10-13 | gecorrigeerd |
+| **HIGH** | Er was **nooit** AI-politie. `qbx_disableservices` zette `SetMaxWantedLevel(0)` en alle politie-dispatchservices uit, ook bij nul agenten online | nieuwe resource `los_wanted` met drie standen |
+
 ### Nieuwe resources deze sessie
 
-`los_anticheat` · `los_aidoctor` · `los_insurance` · `los_gangpeds` ·
+`los_anticheat` · `los_aidoctor` · `los_insurance` · `los_gangpeds` · `los_wanted` ·
 `s4t4n667_moneywash` · `s4t4n667_elevators` · `s4t4n667_lawmenu` ·
 `xt-robnpcs` · `stevo_chopshop` · `stevo_cayocrates`
 
@@ -177,11 +187,12 @@ er wél mis was:
 | 37 | MED | 4 | **De dierenwinkel moet nog neergezet worden.** `/petshop` als admin, bij een van de renzu_shops Petshop-locaties. Zolang dat niet gebeurd is, kan niemand een huisdier kopen — de politiehond wél, die loopt via de job-supply. |
 | 38 | LOW | 4 | murderface-pets gebruikt een eigen `locales/en.lua` (Lua-tabel met `Lang:t`), niet ox_lib locales met en/nl zoals de rest. Omzetten raakt honderden strings verspreid over ~300 KB code; niet gedaan. |
 | 39 | LOW | 4 | De riem is uit (`Config.leash.enabled = false`) omdat de props `leash_model*` uit een streaming-pack komen dat hier niet staat. Komt dat pack er, dan kunnen riem én de tien verwijderde rassen terug uit `_external/murderface-pets/config.lua`. |
+| 40 | MED | 4 | **`los_wanted` "schiet niet" is een heuristiek.** De AI-agenten worden client-side ontwapend zodra ze binnen 120 m komen; tussen spawnen en de scan van 1,5 s kan er een schot vallen. Wil je die kans nul: `Config.maxWantedLevel.passive = 0`. Staat zo in de README. |
+| 41 | LOW | — | **Twee agenten-tellers naast elkaar.** `xt-prison` houdt `GlobalState.copCount` bij op jobnaam (interval 120 s), `los_wanted` houdt `GlobalState.losWantedOfficers` bij op jobtype `leo` (interval 20 s). `xt-robnpcs` leest de eerste. Werkt, maar het is dubbel werk met twee definities van "agent". |
+| 42 | **HIGH** | — | **De `require`-valkuil is generiek.** Elk nieuw config-bestand dat via `require` wordt geladen moet eindigen op `return Config`, anders krijg je boolean `true` terug en crasht de eerste index. Dit heeft `los_aidoctor` en `los_insurance` allebei stukgemaakt. Controleer dit bij elke nieuwe resource. |
 | 17 | ~~MED~~ | — | ~~community_bridge dead weight~~ — **ONJUIST.** md-drugs gebruikt het op ruim 800 aanroepen over 30 API's. **Laten staan.** |
 
-### Nog te bouwen (Fase 4 t/m 7)
-
-- **Fase 4**: wanted-systeem
+### Nog te bouwen (Fase 5 t/m 7)
 - **Fase 5**: qbx_vehiclekeys item-based, NPC-carjacking, proefrit 60s, NPWD garage-app, mns-aitaxi
 - **Fase 6**: HUD (job + geld rechtsboven), renzu_hygiene, ps-dispatch/mdt nalopen, billing, qbx_visuals, monthly wipe
 - **Fase 7**: Discord-koppeling (server-ID `1067817202578890802`)
@@ -233,6 +244,22 @@ Doe **eerst punt 1**, anders kan niemand een huisdier kopen.
 | 13 | Zet het hondenhok neer. | Prop verschijnt; hond in de buurt krijgt de rust-bonus. |
 | 14 | Loop naar een zwerfdier-punt (Sandy Shores, Paleto, stad) en voer hem. | Dier staat op de grond en niet in een muur — zo niet, zie BACKLOG #36. Sandy Shores is nu een Retriever, geen Shepherd. |
 | 15 | `resmon 1` bij murderface-pets, met en zonder hond buiten. | Idle laag; piek terwijl een hond je volgt is verwacht. |
+
+## Testplan — wanted-systeem en dispatch (fase 4)
+
+| # | Wat | Verwacht |
+|---|---|---|
+| 1 | Start de server, ga **niet** on duty. `/wantedtier` als admin. | `full`, 0 agenten. |
+| 2 | Pleeg iets waar de politie op af komt (auto stelen waar een NPC bij is, schieten). | Je krijgt sterren en er komt AI-politie. Dit kon hiervoor niet: `SetMaxWantedLevel` stond op 0. |
+| 3 | Ga on duty als agent (of laat iemand dat doen). `/wantedtier`. | Binnen ~20 s `passive`. Direct na de dienstwissel eigenlijk al. |
+| 4 | Krijg in die stand sterren. | AI-politie komt wel, maar schiet niet. Zie #40 — er kan een schot vallen vlak na het spawnen. |
+| 5 | Zet drie agenten on duty. `/wantedtier`. | `off`. Sterren die je had worden gewist en er komt geen AI-politie meer. |
+| 6 | Ga in de stand `full` naar drie sterren. | Politie krijgt een **10-99** in ps-dispatch. Binnen 90 s geen tweede melding. |
+| 7 | Schiet als burger in een shotspotter-zone. | **10-71** in ps-dispatch, met de juiste code — niet "10-80". Dit kwam hiervoor helemaal niet aan. |
+| 8 | Ga neer en stuur het noodsignaal (G). | **10-13** bij EMS. Ook dit kwam nooit aan. |
+| 9 | Ga dood met 0 EMS on duty. | Er rijdt een AI-ambulance uit. Dit crashte hiervoor op `config` — zie de blocker-regel hierboven. |
+| 10 | Check je verzekering (ps-mdt of het radial menu). | Werkt. Crashte hiervoor op dezelfde fout. |
+| 11 | `resmon 1` bij los_wanted, zonder sterren. | Idle ≈ 0.00 ms. De ped-scan draait alleen met sterren én in de stand `passive`. |
 
 ## Gereedschap
 
