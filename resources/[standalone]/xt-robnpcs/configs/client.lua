@@ -70,12 +70,20 @@ return {
     dispatch = function(coords)
         if GetResourceState('ps-dispatch') ~= 'started' then return end
 
+        -- CustomAlert gebruikt `dispatchCode` als interne naam en `code` als de
+        -- code die in beeld komt. Die twee niet verwisselen, anders toont de
+        -- melding de standaardcode 10-80.
+        -- ps-dispatch matcht op job TYPE, niet op jobnaam:
+        -- client/main.lua doet lib.table.contains(data.jobs, PlayerData.job.type).
+        -- police, bcso en sasp hebben allemaal type 'leo' in qbx_core.
         exports['ps-dispatch']:CustomAlert({
             coords = coords,
-            job = { 'police', 'bcso', 'sasp' },
+            jobs = { 'leo' },
             message = 'Street robbery',
-            dispatchCode = '10-31',
-            description = 'A citizen is being robbed',
+            dispatchCode = 'streetrobbery',
+            code = '10-31',
+            icon = 'fas fa-user-injured',
+            priority = 2,
             radius = 0,
             sprite = 58,
             color = 1,
