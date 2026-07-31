@@ -42,36 +42,6 @@ return {
 		{ lvl = 1, name = 'wheat_seed', price = 100 , category = 'seeds'},
 		{ lvl = 1, name = 'carrot_seed', price = 100 , category = 'seeds'},
 		{ lvl = 1, name = 'corn_seed', price = 100 , category = 'seeds'},
-
-		-- ── Tool shop ────────────────────────────────────────────────────
-		-- Alles wat de md-drugs dealer verkocht en op zichzelf legaal is,
-		-- staat nu hier. Een blunt draaien of wietkoekjes bakken hoeft geen
-		-- ontmoeting met een crimineel te zijn.
-		--
-		-- BEWUST NIET HIER, die blijven bij de md-drugs NPC:
-		--   isosafrole, mdp2p                 MDMA-precursors
-		--   lysergic_acid, diethylamide       LSD-precursors
-		--   tab_paper                         blotterpapier
-		--   mdlean                            codeine
-		--   cokeburner / crackburner / ...    prepaid telefoons voor deals
-		--   lockpick                          inbraakgereedschap
-		--
-		-- Gegroepeerd per categorie, dus makkelijk uit te knippen als je hier
-		-- later een losse YouTool-winkel van wilt maken.
-		{ lvl = 1, name = 'bakingsoda',  price = 12 , category = 'household'},
-		{ lvl = 1, name = 'flour',       price = 10 , category = 'household'},
-		{ lvl = 1, name = 'chocolate',   price = 15 , category = 'household'},
-		{ lvl = 1, name = 'mdbutter',    price = 18 , category = 'household'},
-
-		{ lvl = 1, name = 'weedgrinder', price = 85 , category = 'smoke shop'},
-		{ lvl = 1, name = 'mdwoods',     price = 8  , category = 'smoke shop'},
-		{ lvl = 1, name = 'dabrig',      price = 240, category = 'smoke shop'},
-		{ lvl = 1, name = 'leancup',     price = 6  , category = 'smoke shop'},
-
-		{ lvl = 1, name = 'butane',      price = 22 , category = 'tools'},
-		{ lvl = 1, name = 'butanetorch', price = 180, category = 'tools'},
-		{ lvl = 1, name = 'emptyvial',   price = 9  , category = 'tools'},
-		{ lvl = 1, name = 'needle',      price = 14 , category = 'tools'},
 	
 		
 		{ lvl = 1, name = 'playerbooth', price = 50000 , category = 'misc', 
@@ -188,40 +158,17 @@ return {
 		{ lvl = 2, name = 'vision_helmet', category = 'Tools', price = 5000 },
 		{ lvl = 2, name = 'thermal_helmet', category = 'Tools', price = 5000 },
 		{ lvl = 2, name = 'gpstracker', category = 'Tools', price = 15000 },
-
-		-- ── ND_Police uitrusting ─────────────────────────────────────────
-		-- Deze stonden nergens te koop, terwijl ND_Police er volledig op
-		-- draait. Zonder cuffs kon een agent letterlijk niemand aanhouden.
-		-- De lockerroom van ND_Police geeft alleen kleding, geen items.
-		{ lvl = 1, name = 'cuffs',       category = 'Restraints', price = 150 },
-		{ lvl = 1, name = 'handcuffkey', category = 'Restraints', price = 75 },
-		{ lvl = 1, name = 'zipties',     category = 'Restraints', price = 40 },
-		{ lvl = 2, name = 'spikestrip',  category = 'Tools',      price = 1200, grade = 2 },
-		{ lvl = 2, name = 'shield',      category = 'Tools',      price = 4500, grade = 3 },
+		-- ND_Police uitrusting (cuffs, zipties, shield, spikestrip) staat
+		-- bewust NIET hier maar in renzu_jobs -> police -> shops. Dat is de
+		-- job-supply die uit de jobkas betaalt en alleen voor personeel is.
 		
 
 
 	},
 
-	-- ╔══════════════════════════════════════════════════════════════════╗
-	-- ║  EmsSupply - medische uitrusting voor ND_Ambulance               ║
-	-- ╠══════════════════════════════════════════════════════════════════╣
-	-- ║  ND_Ambulance heeft zelf geen enkele winkel of locker met items. ║
-	-- ║  EMS kon dus nergens een medbag of defib vandaan halen. De       ║
-	-- ║  itemnamen hieronder komen exact uit ND_Ambulance/_INVENTORY.    ║
-	-- ╚══════════════════════════════════════════════════════════════════╝
-	EmsSupply = {
-		{ lvl = 1, name = 'medbag',       category = 'Medical', price = 250 },
-		{ lvl = 1, name = 'defib',        category = 'Medical', price = 1800, grade = 2 },
-		{ lvl = 1, name = 'stretcher',    category = 'Medical', price = 900 },
-		{ lvl = 1, name = 'gauze',        category = 'Supplies', price = 25 },
-		{ lvl = 1, name = 'splint',       category = 'Supplies', price = 60 },
-		{ lvl = 1, name = 'tourniquet',   category = 'Supplies', price = 85 },
-		{ lvl = 1, name = 'burndressing', category = 'Supplies', price = 70 },
-		{ lvl = 1, name = 'bandage',      category = 'Supplies', price = 20 },
-		{ lvl = 1, name = 'armour',       category = 'Supplies', price = 400 },
-		{ lvl = 1, name = 'radio',        category = 'Gear',    price = 300 },
-	},
+	-- ND_Ambulance uitrusting (medbag, defib, stretcher, gauze, splint,
+	-- tourniquet, burndressing) staat in renzu_jobs -> ambulance -> shops.
+	-- Zelfde reden als bij de politie: dat is de job-supply.
 
 	MechanicSupply = { -- MechanicSupply
 		{ category = 'Engine Parts',  name = 'transmition_clutch', price = 5000, },

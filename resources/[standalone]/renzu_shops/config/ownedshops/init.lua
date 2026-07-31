@@ -26,7 +26,6 @@ return {
 	--['EclipseSupply'] = request('config/ownedshops/EclipseSupply'),
 	--['Pharmacy'] = request('config/ownedshops/Pharmacy'),
 	['PoliceArmoury'] = request('config/ownedshops/PoliceArmoury'),
-	['EmsSupply'] = request('config/ownedshops/EmsSupply'),
 	['MechanicSupply'] = request('config/ownedshops/MechanicSupply'),
 	--['BeanMachine'] = request('config/ownedshops/BeanMachine'),
 	['PondCafe'] = request('config/ownedshops/PondCafe'),

@@ -105,6 +105,17 @@ Config.Jobs = {
                     { name = 'ammo-rifle',            label = '5.56mm Ammo',    price = 0 },
                     { name = 'ammo-9',                label = '9mm Ammo',       price = 0 },
                     { name = 'armour',                label = 'Body Armour',    price = 0 },
+
+                    -- ND_Police uitrusting. Deze stond nergens te koop,
+                    -- terwijl het script er volledig op draait: zonder cuffs
+                    -- kon een agent letterlijk niemand aanhouden. De
+                    -- lockerroom van ND_Police geeft alleen kleding.
+                    { name = 'cuffs',                 label = 'Handcuffs',      price = 0 },
+                    { name = 'handcuffkey',           label = 'Handcuff Key',   price = 0 },
+                    { name = 'zipties',               label = 'Zipties',        price = 0 },
+                    { name = 'tools',                 label = 'Cutting Tools',  price = 0 },
+                    { name = 'spikestrip',            label = 'Spikestrip',     price = 0 },
+                    { name = 'shield',                label = 'Riot Shield',    price = 0 },
                 },
             },
         },
@@ -363,9 +374,23 @@ Config.Jobs = {
                 coord = vec4(-456.96, -309.54, 34.91, 0.0),
                 ped = { model = 's_m_m_doctor_01', scenario = 'WORLD_HUMAN_CLIPBOARD' },
                 items = {
-                    { name = 'medikit',  label = 'Medkit',   price = 2500 },
-                    { name = 'bandage',  label = 'Bandage',  price = 1000 },
-                    { name = 'painkillers', label = 'Painkillers', price = 1000 },
+                    -- 'medikit' stond hier maar bestaat niet in ox_inventory.
+                    -- De echte items heten medicalbag en firstaid.
+                    { name = 'medicalbag',   label = 'Medical Bag',  price = 2500 },
+                    { name = 'firstaid',     label = 'First Aid Kit',price = 1500 },
+                    { name = 'bandage',      label = 'Bandage',      price = 1000 },
+                    { name = 'painkillers',  label = 'Painkillers',  price = 1000 },
+
+                    -- ND_Ambulance uitrusting. Ontbrak volledig, waardoor EMS
+                    -- nergens een medbag, defib of brancard kon halen.
+                    -- Namen exact uit ND_Ambulance/_INVENTORY/items.lua.
+                    { name = 'medbag',       label = 'Med Bag',      price = 0 },
+                    { name = 'defib',        label = 'Defibrillator',price = 0 },
+                    { name = 'stretcher',    label = 'Stretcher',    price = 0 },
+                    { name = 'gauze',        label = 'Gauze',        price = 0 },
+                    { name = 'splint',       label = 'Splint',       price = 0 },
+                    { name = 'tourniquet',   label = 'Tourniquet',   price = 0 },
+                    { name = 'burndressing', label = 'Burn Dressing',price = 0 },
                 },
             },
             [2] = {

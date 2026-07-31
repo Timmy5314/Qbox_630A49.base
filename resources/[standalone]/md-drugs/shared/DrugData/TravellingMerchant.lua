@@ -7,10 +7,10 @@ Config.Merchant = {
             vector4(-3278.98, 973.38, 5.35, 101.53),
         },
     },
-    -- Alleen wat illegaal of dubieus is. De legale spullen (bakingsoda, flour,
-    -- chocolate, mdbutter, weedgrinder, mdwoods, dabrig, leancup, butane,
-    -- butanetorch, emptyvial, needle) zijn verhuisd naar de General Store in
-    -- renzu_shops, categorieen household / smoke shop / tools.
+    -- Alleen de precursors. De legale spullen (bakingsoda, flour, chocolate,
+    -- mdbutter, weedgrinder, mdwoods, dabrig, leancup, butane, butanetorch,
+    -- emptyvial, needle) plus de lockpick staan nu bij YouTool, de bouwmarkt.
+    -- Zie renzu_shops/config/defaultshops.lua.
     --
     -- Wie wietkoekjes wil bakken hoeft daar geen dealer voor op te zoeken;
     -- wie MDMA wil persen wel.
@@ -26,9 +26,6 @@ Config.Merchant = {
 
         -- Codeine
         mdlean              = 50,
-
-        -- Inbraakgereedschap
-        lockpick            = 2,
 
         -- Prepaid telefoons voor wholesale-deals
         cokeburner          = 25,
