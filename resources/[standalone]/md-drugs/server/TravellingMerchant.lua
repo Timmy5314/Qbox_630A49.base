@@ -1,11 +1,30 @@
 if not Config.Drugs['TravellingMerchant'] then return end
-local loc = Config.Merchant.Locations.Travellingmerchant[math.random(1, #Config.Merchant.Locations.Travellingmerchant)]
+
+--[[
+    De dealer stond op een vaste plek: `loc` werd een keer bij resource-start
+    gekozen en veranderde daarna nooit meer. Hij verhuist nu op een interval.
+
+    Spelers krijgen nooit coordinaten. Ze sms'en het black market-nummer in NPWD
+    en krijgen een omschrijving van de buurt terug. De GetMerchant-callback
+    blijft de coordinaten leveren, want de client heeft ze nodig om de ped te
+    plaatsen zodra je in de buurt bent.
+]]
+
+local locations = Config.Merchant.Locations.Travellingmerchant
+local market = Config.Merchant.blackMarket or {}
+
+local index = math.random(1, #locations)
+local loc = locations[index]
+
+---@return string
+local function currentHint()
+    local hints = market.hints or {}
+    return hints[index] or 'Nobody knows where he is right now.'
+end
 
 Bridge.Callback.Register('md-drugs:server:GetMerchant', function(source)
 	return {loc = loc, items = Config.Merchant.stores}
 end)
-
-
 
 RegisterServerEvent("md-drugs:server:purchaseGoods", function(item)
 	local src = source
@@ -21,4 +40,68 @@ RegisterServerEvent("md-drugs:server:purchaseGoods", function(item)
 	else
 		Bridge.Notify.SendNotify(src, Bridge.Language.Locale('Catches.notEnoughMoney'), "error")
 	end
+end)
+
+-- =========================================================================
+--  Verhuizen
+-- =========================================================================
+
+if (market.rotateMinutes or 0) > 0 and #locations > 1 then
+    CreateThread(function()
+        while true do
+            Wait(market.rotateMinutes * 60000)
+
+            -- Nooit twee keer achter elkaar dezelfde plek: dan lijkt het alsof
+            -- hij niet verhuisd is.
+            local nextIndex = index
+            while nextIndex == index do
+                nextIndex = math.random(1, #locations)
+            end
+
+            index = nextIndex
+            loc = locations[index]
+        end
+    end)
+end
+
+-- =========================================================================
+--  Black market SMS
+-- =========================================================================
+-- NPWD stelt drie server-exports beschikbaar die we hier gebruiken:
+--   onMessage(number, cb)  vangt berichten die naar `number` gestuurd worden
+--   emitMessage({...})     stuurt een bericht namens een nummer
+--   getPlayerData(locator) haalt de spelersdata op, inclusief telefoonnummer
+
+if market.enabled then
+    CreateThread(function()
+        -- Wachten tot npwd geladen is; anders bestaat de export nog niet.
+        while GetResourceState('npwd') ~= 'started' do Wait(500) end
+        Wait(1000)
+
+        local ok, err = pcall(function()
+            exports.npwd:onMessage(market.number, function(data)
+                -- data bevat het nummer van de afzender. Terugsturen naar dat
+                -- nummer, niet naar een source: de speler kan tussendoor
+                -- gedisconnect zijn.
+                local sender = data and (data.senderNumber or data.phoneNumber or data.number)
+                if not sender then return end
+
+                exports.npwd:emitMessage({
+                    senderNumber = market.number,
+                    targetNumber = sender,
+                    message = (market.replyPrefix or '') .. currentHint(),
+                })
+            end)
+        end)
+
+        if not ok then
+            lib.print.warn(('md-drugs: black market SMS kon niet worden geregistreerd: %s'):format(err))
+        end
+    end)
+end
+
+---Geeft de huidige tip terug. Handig voor andere scripts of een admin-check.
+---@return string hint, number index
+exports('GetBlackMarketHint', function()
+    return currentHint(), index
 end)
