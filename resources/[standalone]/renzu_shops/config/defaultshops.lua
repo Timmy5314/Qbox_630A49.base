@@ -119,8 +119,8 @@ return {
 		blip = {
 			id = 402, colour = 69, scale = 0.8
 		}, inventory = {
-			{ name = 'lockpick',    price = 2000, grade = 0 },
-
+			-- GEEN lockpick. Inbraakgereedschap is illegaal en hoort niet in
+			-- een bouwmarkt over de toonbank. Die staat bij de md-drugs dealer.
 			-- Huishoudelijk
 			{ name = 'bakingsoda',  price = 12,   grade = 0 },
 			{ name = 'flour',       price = 10,   grade = 0 },
