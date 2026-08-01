@@ -26,6 +26,7 @@ FROM (
     SELECT 'los_anticheat_flags',               'los_anticheat'     UNION ALL
     SELECT 'los_insurance_policies',            'los_insurance'     UNION ALL
     SELECT 'los_insurance_claims',              'los_insurance'     UNION ALL
+    SELECT 'los_billing_invoices',              'los_billing'       UNION ALL
     SELECT 'los_anticheat_bans',                'los_anticheat'
 ) AS expected
 LEFT JOIN information_schema.TABLES actual
