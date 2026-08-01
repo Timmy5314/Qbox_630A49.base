@@ -229,8 +229,11 @@ deze machine); alles statisch geverifieerd + syntax-gecheckt.
 
 | Sev | Resource | Item | Fix |
 |---|---|---|---|
+| **HIGH** | qbx-overvallen | **De politie kreeg GEEN enkele melding van overvallen.** bank/huis/juwelier/winkel-overval + voertuigdiefstal vuren het legacy `police:server:policeAlert` af — op deze server (ND_Police + ps-dispatch) door **niemand** afgevangen. Ook `police:SetCopCount` werd nergens afgevuurd → qbx_bankrobbery's agententeller bleef 0 (latent: blokkeert Fleeca zodra je een minimum >0 instelt) | nieuwe brug **`los_policebridge`**: vertaalt het event naar ps-dispatch CustomAlert (via de client van de dader) en broadcast de leo-dienstteller |
+| **HIGH** | los_discord | dode listeners `los_anticheat:flag` / `los_wipe:announced` (self-posting) | gecentraliseerd via `exports.los_discord:Log`, zie #51 |
 | MED | los_wipe | `Config.startingMoney` miste **`crypto`** (qbx_core kent cash/bank/crypto/black_money). Na een wipe zou de money-JSON een sleutel missen die qbx_core verwacht | `crypto = 0` toegevoegd + comment |
-| LOW | los_billing | `install/01_check_tables.sql` controleert `los_billing_invoices` niet (staat wel in README stap 9) | zie #50 |
+| MED | renzu_shops | food/beverage-shops 25-100x te hoog + `panties` prijsloos (syntax) | zie #49 |
+| LOW | los_billing | `install/01_check_tables.sql` controleert `los_billing_invoices` niet | zie #50, opgelost |
 
 **Geverifieerd schoon / geen actie:**
 - Syntax: 114 los_*/geconverteerde bestanden + alle bewerkte bestanden — 0 echte fouten.
