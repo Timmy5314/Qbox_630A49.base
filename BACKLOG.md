@@ -33,6 +33,83 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
+## 🔴 RUNTIME-BEVINDINGEN — eerste echte boot (Tim, aug 2026)
+
+**De server draait nu echt.** SQL-tabellen staan erin (bevestigd door Tim), dus de
+lege inventory / kapotte housing komt NIET door ontbrekende tabellen maar door een
+startup-error of config. **Console-log (F8 / txAdmin) nog nodig** om de crash-cascade
+te vinden. Prioriteit: eerst schoon booten, dan functionele breuk, dan ontwerp.
+
+| # | Sev | Wat | Categorie |
+|---|---|---|---|
+| R1 | **BLOCKER** | **Inventory laadt niet / is leeg / werkt niet.** SQL staat er wel in → startup-error of ox_inventory-config. Console-log nodig. | breuk |
+| R2 | **BLOCKER** | **Down/revive kapot.** Speler blijft op de grond liggen, glitcht/"oud", admin- én txadmin-heal werken niet. ND_Ambulance death-flow. | breuk |
+| R3 | **HIGH** | **renzu_shops werkt bijna niet; ox_target staat verkeerd / te ver.** Zones misplaatst of resource start niet goed. | breuk |
+| R4 | **HIGH** | **ps-housing werkt niet.** Ziet álle appartementen, kan met de lift naar appartementen die hij niet bezit. | breuk |
+| R5 | **HIGH** | **AI-dokter (los_aidoctor) komt niet opdagen** als je down bent. Hangt deels aan R2 (death-flow). | breuk |
+| R6 | **HIGH** | **AI-taxi (los_aitaxi) werkt niet + staat niet in npwd-contacten.** | breuk |
+| R7 | MED | **Black market: SMS naar 4040 werkt niet.** Wens: black market NIET via SMS maar in de **telefoon-darkchat/IRC** (de illegale chat). | breuk + ontwerp |
+| R8 | MED | **Shop-peds spawnen te laat en op onbekende plek** (clothes, vehicleshop). **renzu_shops-ped draait niet mee** met de speler. Wens: pre-spawn in de winkel + meedraaien zoals clothes. | breuk |
+| R9 | **HIGH** | **renzu_clothes: kopen kan nog op verschillende ox_target-plekken** (per kledingrek). Moet: **alles alleen bij de kassa** afrekenen. Kassa-menu "doet raar". | ontwerp/breuk |
+| R10 | MED | **Housing-herbouw (wens).** Geen ps-realtor meer. Huizen op de map zien → kopen → na aankoop ziet **alleen de eigenaar** het huis op de map. | ontwerp |
+
+> Dit is precies het patroon waar dit traject voor waarschuwde: statisch "af" ≠
+> runtime werkend. De aanpak moet nu zijn: **tegen de draaiende server fixen**,
+> niet blind. Console-errors zijn de sleutel voor R1-R6.
+
+### ✅ Gefixt deze sessie (code, nog te testen door Tim)
+
+- **R2 (down/revive glitch + admin-heal doet niks) — ROOT CAUSE gevonden:**
+  `qbx_medical` draaide als **tweede death-systeem** naast ND_Ambulance. Beide
+  detecteerden death en forceerden down-animatie/ragdoll/health → "raar op de grond"
+  en onbetrouwbare revives. **`stop qbx_medical`** in server.cfg. De 3 afhankelijkheden
+  omgeleid naar ND: `ps_lib` bridge `ps.isDead()` leest nu `LocalPlayer.state.dead`;
+  ND vangt `qbx_medical:client:playerRevived` op (qbx admin-menu revive werkt weer);
+  qbx_radialmenu death-bag is passief (breekt niet). **Extra:** ND luistert nu naar
+  `txcl:heal` → een txAdmin-heal haalt je overeind (deed dat niet, want een downed
+  speler is al max-health, dus "heal" veranderde niks).
+- **R9 (kledingwinkel: overal kopen) — GEFIXT:** `renzu_clothes/client/shop.lua`
+  maakt geen koop-target meer per kledingrek. Eén punt bij de kassa opent de hele
+  winkel (bladeren + afrekenen), en het rare "cart-only" kassamenu is weg. Elke winkel
+  verkoopt nog steeds precies wat hij had (juwelier = alleen sieraden, masker = maskers).
+- **R11 (kleding-afbeeldingen):** zie boven — GitHub HTTPS.
+- **bob74_ipl parse-fout:** gefixt (interieurs laden weer).
+
+> **Let op — qbx_radialmenu:** met qbx_medical uit verandert de `qbx_medical:deathState`
+> statebag niet meer, dus het radiaal-menu wordt niet automatisch geblokkeerd terwijl
+> je down bent. ND's BlockActions zet ox_target/inventory al uit; het radiaalmenu open
+> kunnen tijdens down is klein. Eventueel later: ND de death-bag laten spiegelen.
+
+### Console-log triage (F8-boot, aug 2026)
+
+De log leek "vol errors" maar bestond voor ~95% uit ÉÉN regel, duizenden keren
+herhaald (de carmap Mixed-Content, zie R11). De écht losse fouten:
+
+| Bron | Melding | Status |
+|---|---|---|
+| **carmap / renzu_clothes NUI** | `Mixed Content … http://151.80.87.69:30120/carmap/... upgraded to HTTPS` (×~3000) | **R11 — kern-blocker, zie onder.** De afbeeldingen wórden opgevraagd met de juiste NameHash-namen (de wiring wérkt), maar de browser blokkeert HTTP vanaf een HTTPS-NUI. |
+| **bob74_ipl** | `Error parsing script @bob74_ipl/client.lua:42: unexpected symbol near '.'` | ✅ **GEFIXT.** Regel 42 was corrupt (`   [.Enable(false)` i.p.v. `UFO.Hippie.Enable(false)`). Parse-fout brak de hele client.lua → **geen enkele IPL/interieur laadde** (Michaels huis, alle appartementen, casino). Kan housing-/interieur-gedrag beïnvloeden. |
+| **chat** | `TypeError: Cannot read properties of undefined (reading 'replace') (@chat/dist/chat.js:1)` | ⚠️ Te onderzoeken. Cfx-`chat` resource; niet fataal maar verklaart mogelijk "chat doet raar". |
+| **npwd** | `Failed to load external app "npwd_qbx_mail" / "npwd_qbx_garages". Make sure it is started before NPWD.` | ⚠️ Boot-waarschuwing. Vaak niet-fataal (apps laden alsnog bij openen telefoon). **In-game verifiëren** vóór we de laadvolgorde omgooien — huidige volgorde volgt de officiële qbx-docs. Los van R7 (SMS 4040) en de taxi-contacten, dat zijn npwd-CORE dingen. |
+| **qbx_core** | `[ERROR] cannot set job. Job mechenic does not exist` + `command 'setjob' failed` | ✅ **Geen bug.** "mechenic" komt nergens in de code voor → dit was een typefout die jij (of iemand) in de console typte (`mechanic`). |
+| **stevo_chopshop** | `Replacing existing target option 'stevo_chopshop:1..11'` | ⚠️ Chopshop registreert z'n ox_targets dubbel. Niet fataal; opschonen kan later. |
+| **community_bridge** | `[ox_target] No entity with id '0' exists in community_bridge` | ⚠️ Warning, niet fataal. |
+| **ps-realtor** | `-1 (@ps-realtor/html/index.js:4)` (spam) | Hangt aan R10 (ps-realtor moet eruit). |
+
+> **Belangrijk inzicht:** ox_inventory, ND_Ambulance en ps-housing gooien in deze
+> log **géén** startup-error. `[SUCCESS] Inventory Module Loaded` staat er gewoon.
+> Dat betekent: R1 (lege inventory), R2 (niet kunnen revivven) en R4 (housing)
+> zijn **runtime-logica/config-bugs**, geen crash-cascade. Die moeten in-game
+> gereproduceerd worden — een schone bootlog "bewijst" niet dat ze werken, maar
+> sluit wel uit dat een kapotte resource ze omvertrekt. bob74_ipl (nu gefixt)
+> was de enige die echt niet laadde.
+
+| # | Sev | Wat | Categorie |
+|---|---|---|---|
+| R11 | ✅ **OPGELOST** | **carmap-afbeeldingen werden geblokkeerd door Mixed Content** (NUI = https, game-poort = http). Oplossing (keuze Tim): afbeeldingen laden van **`https://raw.githubusercontent.com/Timmy5314/carmap/main/carmap`** (eigen GitHub-repo, HTTPS). `carmap:baseurl` in server.cfg omgezet; lokale `ensure carmap` uitgezet. Geverifieerd: submappen `clothes/`, `items/`, `vehicle/` bestaan en geven 200. renzu_clothes-wiring was al correct (leest de convar, plakt `/clothes/<NameHash>.png`). **Nog te doen (taak #7/#8):** items → `/items/`, voertuigen → `/vehicle/` (voertuig-bestanden zijn `0xHASH.jpg`, vehicleshop verwacht modelnaam → mapping nodig). |
+
+---
+
 ## ⛔ EERST DOEN — dit blokkeert alles
 
 **Niets van dit alles heeft ooit gedraaid.** Alle 46 punten zijn statisch
@@ -432,31 +509,32 @@ Doe **eerst punt 1**, anders kan niemand een huisdier kopen.
 ## AFGEROND — renzu-scripts omzetten naar Qbox (sessie aug 2026)
 
 Tim wil 8 oude renzu-scripts (motels, customs, stancer, turbo, engine, nitro,
-itemback, bag) — allemaal oud ESX/QB — werkend maken op Qbox/ox. Afspraak:
-**grondig, één script per sessie**. Volgorde op Tims verzoek: motels eerst.
+itemback, bag) — allemaal oud ESX/QB — werkend maken op Qbox/ox.
+**Alle 8 zijn omgebouwd en luacheck-schoon. Nog niet in-game getest** — testplan
+per script bij Tim. Allemaal laden via `ensure [standalone]`.
 
-| Prio | Wat | Hoe |
-|---|---|---|
-| **DONE** | **renzu_motels** volledig omgebouwd naar Qbox/ox | Was al bridge-gebaseerd (ox_lib-menus, ox_target, ox_inventory). ESX/QB/quasar/qb-target/qb-inventory bridges verwijderd; nieuwe `bridge/framework/*/qbx.lua` via `exports.qbx_core`. config Qbox-only, `wardrobe=renzu_clothes` (export gecorrigeerd naar `:openWardrobe` — `OpenClotheInventory` bestond niet), `target=true`. `keys`-item toegevoegd aan ox_inventory (ontbrak; motelkey faalde stil). Laadt via `ensure [standalone]`. **Niet in-game getest** — testplan bij Tim. |
+| Script | Wat gedaan |
+|---|---|
+| **renzu_motels** | Was al bridge-gebaseerd. ESX/QB/quasar/qb-target/qb-inventory bridges eruit; nieuwe `bridge/framework/*/qbx.lua` via `exports.qbx_core`. wardrobe=renzu_clothes (`:openWardrobe`, want `OpenClotheInventory` bestond niet), target=true. `keys`-item toegevoegd. |
+| **renzu_customs** | Stond al als Qbox-rewrite v2.0.0. Society-payout gefixt: was `qbx_management`/`GetAccountMoney` (bestaat niet) → **Renewed-Banking** `qb-management`/`GetAccount`. |
+| **renzu_stancer** | Wrapper Qbox-only: `CreateUseableItem` + ox_inventory RemoveItem. Framework='QBX' (stancerkit-item vereist). `stancerkit`-item toegevoegd. Notify→lib.notify. |
+| **renzu_turbo** | Dode `cl_wrapper.lua` (ESX, niet geladen) weg. sv_wrapper Qbox-only. `@mysql-async` weg (KVP). 4 turbo-items + iconen. |
+| **renzu_nitro** | Hardcoded ESX eruit; qbx_core wrapper + `CreateUseableItem`. Dode ESX items-tabel-registratie (SqlFunc) weg. 3 nitro-shots + 3 flessen + iconen. Bijvul-no-op-bug gefixt. |
+| **renzu_itemback** | `@renzu_shield` weg. Kern was al ox_inventory-native. `esx:*`-events → `QBCore:Client:*`; `esx:add/removeInventoryItem` (vuren nooit op Qbox) → `ox_inventory:itemCount`. Dode html/components.json-refs weg. |
+| **renzu_bag** | `@renzu_shield` + ongebruikte ui_page/html weg (client is 100% ox_lib). ESX getSharedObject weg. Ontbrekende `renzu_bag:Notify`-handler toegevoegd. `bag`-item (`client.export`) + 4 iconen. |
+| **renzu_engine** | framework/init+main naar qbx_core (wrappers, `CreateUseableItem`, ox_inventory). Use-callback-signatuur gefixt (`(source,item,data)`→`(source,data)`; qbx geeft `cb(source,data)`, oude 3e arg was nil = crash). `@oxmysql` weg (KVP). `enginegago`-item. |
 
-Svelte overwogen en **bewust niet gedaan**: de motel-UI is al 100% ox_lib-native
-menus; de enige NUI is een 89-regel deurgeluid/-video. Svelte = een npm/Vite-build
+Svelte overwogen en **bewust niet gedaan**: de UI's zijn al ox_lib-native menus;
+de enige NUI's zijn kleine geluid/effect-overlays. Svelte = een npm/Vite-build
 toevoegen voor niets. "Modern Qbox" is hier juist ox_lib, wat er al staat.
 
-## OPEN — resterende 7 renzu-scripts (nog om te bouwen)
-
-| # | Prio | Fase | Wat |
-|---|---|---|---|
-| 50 | MED | — | **renzu_customs** staat al als Qbox-rewrite v2.0.0 in `[standalone]` maar is nooit getest/gecontroleerd. Verifiëren + testen. Let op mogelijke overlap met engine/turbo/nitro/stancer (allemaal voertuig-tuning). |
-| 51 | MED | — | **renzu_stancer** (877 LOC) — heeft al Standalone-modus, item-gebaseerd; makkelijkste. |
-| 52 | MED | — | **renzu_turbo** (579 LOC) — nette framework-wrapper, qbx-branch toevoegen. |
-| 53 | MED | — | **renzu_nitro** (741 LOC) — **hardcoded ESX**, geen wrapper; inline herschrijven. |
-| 54 | MED | — | **renzu_engine** (5679 LOC, ~80% audio/data) — engine-swaps met geluid; framework-wrapper aanwezig. |
-| 55 | MED | — | **renzu_itemback** (1386 LOC) — hardcoded ESX + dode `@renzu_shield`-dependency (manifest-regel eruit); ESX herschrijven. |
-| 56 | MED | — | **renzu_bag** (469 LOC) — hardcoded ESX + dode `@renzu_shield` + **`html/`-map ontbreekt in de repo** (level-up UI opnieuw bouwen). |
-
-`renzu_shield` bestaat niet meer en geeft errors — bij itemback en bag is dat
-alleen een manifest-regel; de code zelf is leesbaar (niet versleuteld).
+**Aandachtspunten voor de test:**
+- Overlap voertuig-tuning: customs, engine, turbo, nitro, stancer werken allemaal
+  op voertuigen. In-game checken dat ze elkaar niet in de weg zitten.
+- Alle tuning-items (stancerkit, turbo's, nitro's, enginegago) zijn nog **nergens
+  te koop** — voeg ze toe aan een shop/job-supply of geef ze als admin om te testen.
+- renzu_bag heeft een eigen shop (Config.Shopcoord); renzu_nitro een bijvulstation.
+- `renzu_shield` is dood — bij itemback en bag was dat één manifest-regel (weg).
 
 ## Gereedschap
 
