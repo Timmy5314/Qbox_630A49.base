@@ -3460,6 +3460,58 @@ return {
         client = { image = "key.png" }
     },
 
+    -- Nitro-shots (renzu_nitro). Gebruik in een voertuig om nitro te installeren
+    -- (verbruikt). Zwaardere shot = meer boost. Bijvullen met een nitro_bottle.
+    ['nitro50shot'] = {
+        label = 'Nitro 50 Shot',
+        weight = 1500,
+        stack = true,
+        close = true,
+        description = 'Nitro-installatiekit, 50 shot.',
+        client = { image = 'nitro50shot.png' },
+    },
+    ['nitro100shot'] = {
+        label = 'Nitro 100 Shot',
+        weight = 1500,
+        stack = true,
+        close = true,
+        description = 'Nitro-installatiekit, 100 shot.',
+        client = { image = 'nitro100shot.png' },
+    },
+    ['nitro200shot'] = {
+        label = 'Nitro 200 Shot',
+        weight = 1500,
+        stack = true,
+        close = true,
+        description = 'Nitro-installatiekit, 200 shot.',
+        client = { image = 'nitro200shot.png' },
+    },
+    -- Nitro-flessen (renzu_nitro): bepalen de voorraad/hervulcapaciteit.
+    ['nitro_bottle'] = {
+        label = 'Nitro Bottle 10LB',
+        weight = 500,
+        stack = true,
+        close = true,
+        description = 'Nitro-fles, 10 lb.',
+        client = { image = 'nitro_bottle.png' },
+    },
+    ['nitro_bottle2'] = {
+        label = 'Nitro Bottle 20LB',
+        weight = 900,
+        stack = true,
+        close = true,
+        description = 'Nitro-fles, 20 lb.',
+        client = { image = 'nitro_bottle2.png' },
+    },
+    ['nitro_bottle3'] = {
+        label = 'Nitro Bottle 30LB',
+        weight = 1300,
+        stack = true,
+        close = true,
+        description = 'Nitro-fles, 30 lb.',
+        client = { image = 'nitro_bottle3.png' },
+    },
+
     -- Turbo-kits (renzu_turbo). Gebruik het item in een voertuig om de turbo te
     -- installeren; wordt daarbij verbruikt. Zwaardere kit = meer vermogen.
     ['turbostreet'] = {
