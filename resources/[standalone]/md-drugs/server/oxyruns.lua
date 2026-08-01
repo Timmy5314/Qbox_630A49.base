@@ -50,7 +50,10 @@ RegisterServerEvent('md-drugs:server:giveoxybox', function()
 	local cash = math.random(50, 200)
 	local itemchance = math.random(1,100)
 	local item = Config.Oxy.itemList[math.random(1, #Config.Oxy.itemList)]
-	Bridge.Framework.AddAccountBalance(src, 'cash', cash)
+	-- Oxy-run zit in de drugs-resource -> illegaal inkomen als black_money,
+	-- consistent met wholesale/cornerselling (SERVER-OVERHAUL 6.7). Klein bedrag;
+	-- wil je oxy als legale koeriersgig, zet dit terug op 'cash'.
+	Bridge.Framework.AddAccountBalance(src, 'black_money', cash)
 	if itemchance <= Config.Oxy.prices.itemChance then 
 		Bridge.Inventory.AddItem(src, item.item, item.amount)
 	end

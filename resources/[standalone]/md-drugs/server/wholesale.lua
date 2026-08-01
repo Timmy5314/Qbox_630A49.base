@@ -91,7 +91,10 @@ RegisterNetEvent('md-drugs:server:SuccessSale', function(entity)
             return
         end
     end
-    Bridge.Framework.AddAccountBalance(src, 'cash', totalPrice)
+    -- Bulk gang-verkoop is illegaal inkomen: black_money, niet clean cash.
+    -- Anders omzeilt de grootste drugsopbrengst het hele witwas-model
+    -- (s4t4n667_moneywash wast alleen black_money). Zie SERVER-OVERHAUL 6.7.
+    Bridge.Framework.AddAccountBalance(src, 'black_money', totalPrice)
 end)
 
 RegisterNetEvent('md-drugs:server:CleanupWholesale', function()

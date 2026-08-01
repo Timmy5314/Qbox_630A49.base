@@ -134,8 +134,8 @@ Config.Cornerselling = {
         ["cupofdextro"] =               {rep = 1,min = 18, max = 40},
     },
     config = {
-        MarkedBills = false, -- if you want to use qb markedbills for selling set to true, if you want to use a custom item or cash set to false
-        CustomItem = '', -- If you want to use a custom item for selling, put the item name here, if not leave it blank '' 
+        MarkedBills = false, -- 'markedbills' bestaat NIET in ox_inventory op deze server; niet aanzetten.
+        CustomItem = 'black_money', -- Straatverkoop is illegaal inkomen -> black_money (witwasbaar). Leeg = clean cash, dat willen we niet.
         --- if MarkedBills is false and CustomItem is blank it will pay cash
         policeRequired = 0, -- if you want cops to be required to sell set this to a number above 0
         robChance = 20, -- Chance To Be Robbed 1 = 1%

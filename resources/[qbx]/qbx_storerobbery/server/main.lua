@@ -89,7 +89,8 @@ RegisterNetEvent('qbx_storerobbery:server:registerOpened', function(isDone)
     if #(coords - sharedConfig.registers[closestRegisterIndex].coords) > 2 then return end
     if not startedRegister[source] then return end
 
-    player.Functions.AddMoney('cash', math.random(config.registerReward.min, config.registerReward.max))
+    -- Kassa-overval is illegaal inkomen -> black_money (witwasbaar), niet clean cash.
+    player.Functions.AddMoney('black_money', math.random(config.registerReward.min, config.registerReward.max))
 
     TriggerClientEvent('qbx_storerobbery:client:updatedRobbables', -1, sharedConfig.registers, sharedConfig.safes)
     if config.registerReward.chanceAtSticky > math.random(0, 100) then
@@ -149,12 +150,10 @@ RegisterNetEvent('qbx_storerobbery:server:safeCracked', function()
     if not closestSafeIndex then return end
     if not startedSafe[source] then return end
 
-    local billsMeta = {
-        worth = worthMarkedBills,
-        description = locale('text.value', { value = worthMarkedBills })
-    }
-
-    player.Functions.AddItem('markedbills', numMarkedBills, false, billsMeta)
+    -- 'markedbills' bestaat NIET in ox_inventory op deze server -> AddItem faalde
+    -- stil en de kluis leverde niets op. Illegaal inkomen loopt via black_money
+    -- (witwasbaar), consistent met de rest. Bedrag = aantal x waarde per biljet.
+    player.Functions.AddMoney('black_money', numMarkedBills * worthMarkedBills)
 
     if config.safeReward.chanceAtSpecial > math.random(0, 100) then
         player.Functions.AddItem('rolex', math.random(config.safeReward.rolexAmount.min, config.safeReward.rolexAmount.max))
