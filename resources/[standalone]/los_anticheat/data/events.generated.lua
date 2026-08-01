@@ -3,7 +3,7 @@
 ---
 ---Elk server-side RegisterNetEvent dat een client kan triggeren, met de
 ---resource waar het vandaan komt. Dit is de aanvalsoppervlakte van de server.
----Gegenereerd op 2026-08-01 uit 465 server-side bestanden.
+---Gegenereerd op 2026-08-01 uit 467 server-side bestanden.
 
 KnownServerEvents = {
     ['baseevents:enteredVehicle'] = 'ps_lib',
@@ -135,6 +135,7 @@ KnownServerEvents = {
     ['pma-voice:setPlayerRadio'] = 'pma-voice',
     ['pma-voice:setTalkingOnRadio'] = 'pma-voice',
     ['police:server:JailPlayer'] = 'xt-prison',
+    ['police:server:policeAlert'] = 'los_policebridge',
     ['prison:server:SetJailStatus'] = 'xt-prison',
     ['ps_lib:craftItem'] = 'ps_lib',
     ['ps_lib:server:noCallback'] = 'ps_lib',
