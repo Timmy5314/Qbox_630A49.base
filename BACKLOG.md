@@ -15,7 +15,7 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 | Fase | Punten | Af | Openstaand |
 |---|---|---|---|
 | 1 Anti-cheat | 6 | **6** | — |
-| 2 Shops, kleding, economie | 7 | **6** | cw-crafting (**geparkeerd door Tim**); economie: model ligt klaar in ECONOMY.md, wacht op akkoord |
+| 2 Shops, kleding, economie | 7 | **6½** | cw-crafting (**geparkeerd door Tim**); economie-model **goedgekeurd + doorgevoerd** (jobs/premies/dirty-money/voertuig-cap); resterend: renzu_shops per-item repricing (subjectief) + drugs $/uur (in-game meten) |
 | 3 Gangs, drugs, illegaal | 7 | **7** | — |
 | 4 Hulpdiensten, medisch | 7 | **7** | — |
 | 5 Voertuigen, sleutels | 5 | **5** | — |
@@ -198,6 +198,46 @@ Breed gedraaid over `[standalone]`, `[qbx]`, `[ps]` en `[ox]`:
 
 ---
 
+## AFGEROND — controle- en economiepas (sessie aug 2026)
+
+Fresh statische audit + economie doorgevoerd. Server niet gedraaid (kan niet vanaf
+deze machine); alles statisch geverifieerd + syntax-gecheckt.
+
+**Economie (ECONOMY.md goedgekeurd door Tim):**
+
+| Sev | Item | Fix |
+|---|---|---|
+| — | Loon-model $600/$1.200/$1.500 per uur | `qbx_core/shared/jobs.lua` herschreven: instap $100/strook, ervaren $200, hulpdienst $150→$250, werkloos $25. **Politie was $500/strook ($3000/uur)** — ver boven model, teruggebracht naar $250 top. |
+| — | Verzekeringspremies halveren | `los_insurance/shared/config.lua`: medical $12→$6, vehicle $8→$4. Comments bijgewerkt. |
+| — | Voertuigprijzen "$300-500k top" | renzu_vehicleshop lag al goed (median $36k, p95 $210k, 1 uitschieter). `vxr` $900k→$475k. |
+| MED | Shop-consumables uitschieters | tabak (redw/marlboro) $1000→$45, latte $280→$25 in storeitems.lua. Volledige per-item pas nog open (#49). |
+
+**Dirty-money consistentie (SERVER-OVERHAUL 6.7 — ALLE illegaal inkomen = black_money):**
+
+| Sev | Resource | Item | Fix |
+|---|---|---|---|
+| **HIGH** | md-drugs | wholesale (gang bulk) betaalde clean **cash** → grootste drugsopbrengst omzeilde het witwasmodel | `wholesale.lua` → black_money |
+| **HIGH** | md-drugs | cornerselling fallback betaalde clean cash; `markedbills`-tak verwees naar niet-bestaand item | `CustomItem='black_money'` in DrugData/cornerselling.lua |
+| MED | md-drugs | oxyruns betaalde clean cash | `oxyruns.lua` → black_money (met comment: terug naar cash als je oxy legaal wilt) |
+| **HIGH** | qbx_storerobbery | kluis gaf **`markedbills`** — dat item bestaat NIET in ox_inventory → kluis leverde stil niets op | `safeCracked` → black_money (aantal × waarde) |
+| MED | qbx_storerobbery | kassa gaf clean cash | `AddMoney('black_money', ...)` |
+
+> Al consistent (geverifieerd): qbx_bankrobbery, qbx_truckrobbery, stevo_chopshop,
+> stevo_cayocrates, renzu_jobs turfs gebruiken al black_money.
+
+**Overige bevindingen:**
+
+| Sev | Resource | Item | Fix |
+|---|---|---|---|
+| MED | los_wipe | `Config.startingMoney` miste **`crypto`** (qbx_core kent cash/bank/crypto/black_money). Na een wipe zou de money-JSON een sleutel missen die qbx_core verwacht | `crypto = 0` toegevoegd + comment |
+| LOW | los_billing | `install/01_check_tables.sql` controleert `los_billing_invoices` niet (staat wel in README stap 9) | zie #50 |
+
+**Geverifieerd schoon / geen actie:**
+- Syntax: 114 los_*/geconverteerde bestanden + alle bewerkte bestanden — 0 echte fouten.
+- los_billing volledig gelezen: `return Config` aanwezig, insurance-exports bestaan, `billing.sql` heeft juiste defaults (interest/status). Sound.
+- los_anticheat event-whitelist: was NIET stale (regen gaf 1-regel dateverschil). los_billing/discord/wipe gebruiken lib.callback/lib.addCommand, geen client-triggerbare RegisterNetEvent — correct afwezig.
+- `ps-dispatch:server:notify` → los_discord: werkt (ps-dispatch client vuurt het af, is net-event).
+
 ## OPEN
 
 | # | Sev | Fase | Item |
@@ -227,6 +267,10 @@ Breed gedraaid over `[standalone]`, `[qbx]`, `[ps]` en `[ox]`:
 | 48 | MED | 6 | **De modelnamen in `los_hygiene/shared/config.lua` zijn niet geverifieerd.** Toiletten, douches en wastafels hangen aan modelhashes die ik niet op deze server heb kunnen controleren. Werkt er een niet: `/hygienemodel` meldt het model van het object waar je naar kijkt. |
 | 42 | **HIGH** | — | **De `require`-valkuil is generiek.** Elk nieuw config-bestand dat via `require` wordt geladen moet eindigen op `return Config`, anders krijg je boolean `true` terug en crasht de eerste index. Dit heeft `los_aidoctor` en `los_insurance` allebei stukgemaakt. Controleer dit bij elke nieuwe resource. |
 | 17 | ~~MED~~ | — | ~~community_bridge dead weight~~ — **ONJUIST.** md-drugs gebruikt het op ruim 800 aanroepen over 30 API's. **Laten staan.** |
+| 49 | MED | 2 | **renzu_shops per-item repricing.** Catalogus is grotendeels redelijk, maar er is een patroon van luie `$1000`-defaults (phone, radio, garden_shovel/pitcher, e.a.) en per-shop bestanden (ownedshops/) zijn niet langs de $10-60 meetlat gelegd. Duidelijke consumable-uitschieters (tabak, latte) zijn gefixt; de rest is een subjectieve per-item pas — beste met Tims input per categorie. |
+| 50 | LOW | 6 | **`install/01_check_tables.sql` mist `los_billing_invoices`.** README stap 9 draait `billing.sql` altijd, dus gedekt — maar de pre-flight check waarschuwt niet als je stap 9 overslaat. Voeg de tabel toe aan de check-lijst. |
+| 51 | MED | 7 | **los_discord dode listeners.** `los_discord` is bedoeld als centrale rate-limited logger, maar `los_anticheat` en `los_wipe` posten naar hun **eigen** webhook en vuren `los_anticheat:flag` / `los_wipe:announced` nooit af → die twee los_discord-kanalen zijn dood. Functioneel werkt Discord (via directe webhooks), maar een flag-storm kan Discord's rate limit raken zonder throttling. Advies: route beide via `exports.los_discord:Log(...)` (guard met `GetResourceState('los_discord')`), óf verwijder de dode handlers als self-posting de bedoeling is. Design-keuze — niet blind doorgevoerd. Volledig gated op Tims webhook-config. |
+| 52 | LOW | 3 | **Drugs $/uur-calibratie.** Prijsstructuur klopt (straat laag, bulk hoog met quantity-bonus), maar de absolute magnitudes op een exact $/uur afstellen vraagt in-game meting van deal-duur — statisch niet te doen. Meet met een paar spelers en stel de wholesale `Price` min/max bij. |
 
 ## AFGEROND — fase 5
 
