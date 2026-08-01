@@ -3460,6 +3460,41 @@ return {
         client = { image = "key.png" }
     },
 
+    -- Turbo-kits (renzu_turbo). Gebruik het item in een voertuig om de turbo te
+    -- installeren; wordt daarbij verbruikt. Zwaardere kit = meer vermogen.
+    ['turbostreet'] = {
+        label = 'Turbo Street',
+        weight = 1050,
+        stack = true,
+        close = true,
+        description = 'Instap-turbo. Lichte vermogenswinst.',
+        client = { image = 'turbostreet.png' },
+    },
+    ['turbosports'] = {
+        label = 'Turbo Sports',
+        weight = 1100,
+        stack = true,
+        close = true,
+        description = 'Sport-turbo. Merkbare vermogenswinst.',
+        client = { image = 'turbosports.png' },
+    },
+    ['turboracing'] = {
+        label = 'Turbo Racing',
+        weight = 1120,
+        stack = true,
+        close = true,
+        description = 'Race-turbo. Flinke vermogenswinst.',
+        client = { image = 'turboracing.png' },
+    },
+    ['turboultimate'] = {
+        label = 'Turbo Ultimate',
+        weight = 1140,
+        stack = true,
+        close = true,
+        description = 'Topturbo. Maximale vermogenswinst.',
+        client = { image = 'turboultimate.png' },
+    },
+
     -- Stancekit (renzu_stancer). Gebruik het item in een voertuig om de
     -- stance/vering aanpasbaar te maken; wordt daarbij verbruikt. Daarna open
     -- je de stance-editor met het commando /stance.
