@@ -34,8 +34,8 @@ return {
 		{ lvl = 1, name = 'hotdog', price = 55 , category = 'ingredients'},
 		{ lvl = 1, name = 'fishingrod', price = 200 , category = 'fishing'},
 		{ lvl = 1, name = 'fishbait', price = 50, category = 'fishing'},
-		{ lvl = 1, name = 'garden_shovel', price = 1000 , category = 'seeds'},
-		{ lvl = 1, name = 'garden_pitcher', price = 1000, category = 'seeds'},
+		{ lvl = 1, name = 'garden_shovel', price = 150 , category = 'seeds'},
+		{ lvl = 1, name = 'garden_pitcher', price = 120, category = 'seeds'},
 		{ lvl = 1, name = 'pickle_seed', price = 100 , category = 'seeds'},
 		{ lvl = 1, name = 'potato_seed', price = 100 , category = 'seeds'},
 		{ lvl = 1, name = 'tomato_seed', price = 100 , category = 'seeds'},
@@ -123,14 +123,17 @@ return {
 	-- BlackMarketArms removed
 
 	LiquorStore = {
-		{ name = 'water', price = 350, category = 'drinks' },
-		{ name = 'sanmig', price = 1011, category = 'drinks' },
-		{ name = 'burger', price = 151, category = 'food' },
-		{ name = 'panties', 500 , category = 'misc'},
-		{ name = 'marlboro', price = 351, category = 'Cigarrete' },
-		{ name = 'frog_grilled', price = 1251, category = 'food' },
-		{ name = 'lapulapu_grilled', price = 1251, category = 'food' },
-		{ name = 'galungong_grilled', price = 1251, category = 'food' },
+		-- Prijzen langs het ECONOMY.md-model: eten/drinken $10-60. Stonden op
+		-- $350-1251 (25-100x te hoog). 'panties' miste bovendien `price =` -> was
+		-- prijsloos; nu een echte prijs.
+		{ name = 'water', price = 20, category = 'drinks' },
+		{ name = 'sanmig', price = 35, category = 'drinks' },
+		{ name = 'burger', price = 55, category = 'food' },
+		{ name = 'panties', price = 40, category = 'misc'},
+		{ name = 'marlboro', price = 45, category = 'Cigarrete' },
+		{ name = 'frog_grilled', price = 60, category = 'food' },
+		{ name = 'lapulapu_grilled', price = 60, category = 'food' },
+		{ name = 'galungong_grilled', price = 60, category = 'food' },
 	},
 
 	PoliceArmoury = { -- PoliceArmoury
@@ -342,28 +345,28 @@ return {
 
 	},
 
-	PondCafe = { -- PondCafe 
-		{ category = 'Cupcake',  name = 'strawberry_cupcake', price = 1500, },
-		{ category = 'Cupcake',  name = 'double_cupcake', price = 1500, },
-		{ category = 'Cupcake',  name = 'vanilla_cupcake', price = 1500},
-		{ category = 'Juice',  name = 'orangejuice', price = 1500},
-		{ category = 'Juice',  name = 'mangojuice', price = 1500},
-		{ category = 'Coffee',  name = 'cappuccino', price = 3500},
-		{ category = 'Coffee',  name = 'latte', price = 3500},
-		{ category = 'Coffee',  name = 'espresso', price = 3500},
-		{ category = 'Tea',  name = 'milkteacafe', price = 2500},
-		{ category = 'Tea',  name = 'milktea2', price = 2500},
+	PondCafe = { -- PondCafe  (eten/drinken $10-60, stond op $1500-3500)
+		{ category = 'Cupcake',  name = 'strawberry_cupcake', price = 35, },
+		{ category = 'Cupcake',  name = 'double_cupcake', price = 35, },
+		{ category = 'Cupcake',  name = 'vanilla_cupcake', price = 35},
+		{ category = 'Juice',  name = 'orangejuice', price = 25},
+		{ category = 'Juice',  name = 'mangojuice', price = 25},
+		{ category = 'Coffee',  name = 'cappuccino', price = 30},
+		{ category = 'Coffee',  name = 'latte', price = 30},
+		{ category = 'Coffee',  name = 'espresso', price = 28},
+		{ category = 'Tea',  name = 'milkteacafe', price = 28},
+		{ category = 'Tea',  name = 'milktea2', price = 28},
 
 	},
 
-	['Balls8'] = { -- 8Balls 
-		{ category = 'Meals',  name = 'sisig', price = 1500, },
-		{ category = 'Meals',  name = 'liempo', price = 1500, },
-		{ category = 'Meals',  name = 'barberq', price = 1500},
-		{ category = 'Drinks',  name = 'red_horse', price = 1500},
-		{ category = 'Drinks',  name = 'sprite', price = 1500},
-		{ category = 'Drinks',  name = 'grapejuice', price = 3500},
-		{ category = 'Drinks',  name = 'sanmig', price = 3500},
+	['Balls8'] = { -- 8Balls  (eten/drinken $10-60, stond op $1500-3500)
+		{ category = 'Meals',  name = 'sisig', price = 55, },
+		{ category = 'Meals',  name = 'liempo', price = 55, },
+		{ category = 'Meals',  name = 'barberq', price = 50},
+		{ category = 'Drinks',  name = 'red_horse', price = 35},
+		{ category = 'Drinks',  name = 'sprite', price = 20},
+		{ category = 'Drinks',  name = 'grapejuice', price = 25},
+		{ category = 'Drinks',  name = 'sanmig', price = 35},
 
 	},
 
