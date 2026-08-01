@@ -3460,6 +3460,17 @@ return {
         client = { image = "key.png" }
     },
 
+    -- Stancekit (renzu_stancer). Gebruik het item in een voertuig om de
+    -- stance/vering aanpasbaar te maken; wordt daarbij verbruikt. Daarna open
+    -- je de stance-editor met het commando /stance.
+    ['stancerkit'] = {
+        label = 'Stance Kit',
+        weight = 1500,
+        stack = true,
+        close = true,
+        description = 'Maakt de vering/stance van een voertuig aanpasbaar.',
+    },
+
     -- Deelbare motelsleutel (renzu_motels). De metadata draagt het motel, het
     -- deurnummer (serial) en de eigenaar; daarom stack = false (twee sleutels
     -- voor verschillende kamers zijn niet inwisselbaar). Wordt gegenereerd via
