@@ -3460,6 +3460,20 @@ return {
         client = { image = "key.png" }
     },
 
+    -- Deelbare motelsleutel (renzu_motels). De metadata draagt het motel, het
+    -- deurnummer (serial) en de eigenaar; daarom stack = false (twee sleutels
+    -- voor verschillende kamers zijn niet inwisselbaar). Wordt gegenereerd via
+    -- de callback renzu_motels:motelkey en gelezen met ox_inventory:Search.
+    -- Geen eigen afbeelding: key.png staat er al.
+    ['keys'] = {
+        label = 'Motel Key',
+        weight = 30,
+        stack = false,
+        close = true,
+        description = 'Geeft toegang tot een gehuurde motelkamer.',
+        client = { image = 'key.png' }
+    },
+
     -- ============================================================
     --  murderface-pets
     --  Elk huisdier is een uniek item met metadata (naam, level, XP,
