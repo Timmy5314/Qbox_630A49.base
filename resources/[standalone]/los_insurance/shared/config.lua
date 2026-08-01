@@ -29,26 +29,26 @@ Config.account = 'bank'
     je door; stopt de betaling, dan verloopt de polis vanzelf.
 
     qbx_core betaalt elke `paycheckTimeout` minuten uit (standaard 10). De
-    lonen op deze server liggen tussen $50 en $150 per uitbetaling, met een
-    enkele uitschieter naar $500.
+    lonen op deze server liggen tussen $100 (instap) en $250 (hulpdienst top)
+    per uitbetaling — zie het loon-model in qbx_core/shared/jobs.lua.
 
     De bedragen hieronder zijn VASTE bedragen per loonstrook, geen percentages.
-    Bij een gemiddeld loon van $100 komt dat neer op ongeveer 20% voor beide
-    verzekeringen samen, zoals gevraagd. Een vast bedrag is voorspelbaar: je
-    weet wat je betaalt, ook als je die week meer verdient.
+    Premies gehalveerd naar $6/$4 (besluit Tim, aug 2026): bij een instaploon
+    van ~$100 per strook is dat samen 10%, met belasting erbij rond de 18%. Een
+    vast bedrag is voorspelbaar: je weet wat je betaalt, ook als je meer verdient.
 
     Er wordt nooit meer ingehouden dan er binnenkomt - zie Config.deductions.
 ]]
 Config.policies = {
     medical = {
         label = 'Medical insurance',
-        premium = 12,
+        premium = 6,
         description = 'Covers ambulance callouts and hospital treatment.',
     },
 
     vehicle = {
         label = 'Vehicle insurance',
-        premium = 8,
+        premium = 4,
         description = 'Covers recovery and repair costs for one vehicle.',
 
         -- Deel van de schade dat de verzekeraar dekt.
@@ -64,12 +64,12 @@ Config.policies = {
     je verdient en daarna wat eraf gaat.
 
     RICHTLIJN bij een loon van $100 met een auto op naam:
-        zorgverzekering      $12
-        autoverzekering      $8
+        zorgverzekering      $6
+        autoverzekering      $4
         inkomstenbelasting   $8   (8%)
         motorrijtuigenbel.   $3   per voertuig
         ------------------------------
-        totaal               $31  oftewel ongeveer 30%
+        totaal               $21  oftewel ongeveer 21%
 
     HARDE GRENS: de inhouding is nooit hoger dan het loon zelf. Wie weinig
     verdient betaalt naar rato en houdt altijd iets over.

@@ -1,10 +1,21 @@
 # Economisch model — Los Balos RP
 
-> **Dit is een voorstel. Er is nog niets doorgevoerd.**
+> **STATUS: goedgekeurd door Tim (aug 2026) en grotendeels doorgevoerd.**
 >
-> SERVER-OVERHAUL §6.4 vraagt om eerst een model en dat aan Tim voor te leggen
-> vóór er waardes worden aangepast. Dit bestand is dat model. Zeg per onderdeel
-> of je het eens bent, dan pas gaan de getallen de configs in.
+> Beslissingen (zie §8):
+> - Uurloon-model **$600 / $1.200 / $1.500** — doorgevoerd in `qbx_core/shared/jobs.lua`.
+> - Supercars/top **sneller haalbaar, $300-500k top** — renzu_vehicleshop lag al goed
+>   (median $36k, p95 $210k); enige uitschieter van $900k (vxr) naar $475k.
+> - Verzekeringspremies **halveren naar $6 / $4** — doorgevoerd in `los_insurance/shared/config.lua`.
+> - Illegaal **1,5x tot 2x** legaal (kleiner verschil) — leidend voor de drugs/crime-marges.
+>
+> Wat nog handmatig moet (per-item, subjectief — zie §7 en BACKLOG):
+> - renzu_shops food/beverage/gadget catalogus volledig langs de $10-60 meetlat
+>   (nu alleen de duidelijke uitschieters gefixt: tabak $1000->$45, latte $280->$25).
+> - Drugs-prijsmagnitudes fijn afstellen op $/uur — kan alleen met in-game meting
+>   van deal-duur. De STRUCTUUR (straat laag, bulk hoog) klopt al.
+> - Dirty-money consistentie is wél volledig gefixt: alle illegale inkomsten lopen
+>   nu via black_money (wholesale, cornerselling, oxyruns, kassa- en kluisoverval).
 
 ---
 
@@ -125,12 +136,11 @@ In volgorde van impact. Niets hiervan is doorgevoerd.
    onderkant en een bovenkant is.
 5. **Winkelprijzen** langs de meetlat van §3 leggen.
 
-## 8. Wat ik hiervoor van jou nodig heb
+## 8. Beslissingen van Tim (aug 2026)
 
-- Klopt **$600/$1.200/$1.500** per uur met wat je voor ogen hebt?
-- Is een supercar op "een project van weken" goed, of mag dat sneller?
-- Akkoord met de premies halveren?
-- Illegaal op **2× tot 3×** legaal — te laag, te hoog?
+- Uurloon **$600 / $1.200 / $1.500** — akkoord. Doorgevoerd.
+- Supercar/top: **sneller haalbaar, $300-500k top** (niet "project van weken").
+- Premies **halveren** ($12->$6, $8->$4) — akkoord. Doorgevoerd.
+- Illegaal op **1,5x tot 2x** legaal (kleiner verschil dan het 2-3x voorstel).
 
-Zeg het per punt, dan voer ik het door. Doe ik het zonder, dan verzin ik een
-economie voor jouw server en dat is precies wat de opdracht niet vraagt.
+Deze vier zijn leidend voor alle verdere prijsaanpassingen.

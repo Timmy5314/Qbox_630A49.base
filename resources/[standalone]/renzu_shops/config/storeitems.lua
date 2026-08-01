@@ -7,12 +7,12 @@ return {
 		{ lvl = 1, name = 'donut', price = 65 , category = 'food'},
 		{ lvl = 1, name = 'sandwich', price = 65 , category = 'food'},
 		{ lvl = 2, name = 'lighter', price = 20 , category = 'misc'},
-		{ lvl = 2, name = 'redw', price = 1000 , category = 'TOBACCO'},
-		{ lvl = 2, name = 'marlboro', price = 1000 , category = 'TOBACCO'},
+		{ lvl = 2, name = 'redw', price = 45 , category = 'TOBACCO'},
+		{ lvl = 2, name = 'marlboro', price = 45 , category = 'TOBACCO'},
 
 		{ lvl = 2, name = 'phone', price = 1000 , category = 'gadget'},
 		{ lvl = 2, name = 'radio', price = 1000 , category = 'gadget'},
-		{ lvl = 2, name = 'latte', price = 280 , category = 'beverages'},
+		{ lvl = 2, name = 'latte', price = 25 , category = 'beverages'},
 
 		{ lvl = 1, name = 'tomatosauce', price = 35 , category = 'ingredients'},
 		{ lvl = 1, name = 'burgerpatty', price = 35 , category = 'ingredients'},
