@@ -108,7 +108,7 @@ end
 local function getSocietyMoney(job)
     if not Config.UseSociety then return 0 end
     local ok, money = pcall(function()
-        return exports[Config.SocietyResource]:GetAccountMoney(societyAccount(job))
+        return exports[Config.SocietyResource]:GetAccount(societyAccount(job))
     end)
     return ok and tonumber(money) or 0
 end
