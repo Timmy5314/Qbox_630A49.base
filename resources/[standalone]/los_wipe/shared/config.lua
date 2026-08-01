@@ -59,9 +59,13 @@ Config.wipe = {
 }
 
 --- Waar geld op terugkomt na een wipe.
+--- MOET alle vier de money types van qbx_core bevatten (cash/bank/crypto/black_money,
+--- zie qbx_core/config/server.lua). Ontbreekt er een, dan schrijft de wipe een
+--- onvolledige money-JSON weg en mist die kolom een sleutel die qbx_core verwacht.
 Config.startingMoney = {
     cash = 500,
     bank = 5000,
+    crypto = 0,
     black_money = 0,
 }
 
