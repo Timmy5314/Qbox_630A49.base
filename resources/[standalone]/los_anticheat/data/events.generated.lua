@@ -34,6 +34,7 @@ KnownServerEvents = {
     ['esx_property:enter'] = 'community_bridge',
     ['esx_property:leave'] = 'community_bridge',
     ['garbagejob:server:payShift'] = 'qbx_garbagejob',
+    ['hospital:server:emergencyAlert'] = 'los_policebridge',
     ['hospital:server:SetDeathStatus'] = 'qbx_radialmenu',
     ['hud:server:GainStress'] = 'qbx_hud',
     ['hud:server:RelieveStress'] = 'qbx_hud',

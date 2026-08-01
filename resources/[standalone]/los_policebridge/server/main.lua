@@ -20,6 +20,7 @@
 ]]
 
 local lastAlert = {}
+local lastEmsAlert = {}
 
 --- Platte melding aan alle agenten op dienst (geen kaartblip). Fallback voor het
 --- geval er geen geldige bron-speler is: de huisoverval vuurt het event uitgesteld
@@ -58,8 +59,23 @@ RegisterNetEvent('police:server:policeAlert', function(message, _, explicitSourc
     TriggerClientEvent('los_policebridge:alert', src, text)
 end)
 
+--- Handmatige EMS-oproep uit qbx_radialmenu (hospital:server:emergencyAlert).
+--- Zelfde probleem als bij de politie: nergens afgevangen -> de EMS-knop in het
+--- radiaalmenu deed niets. Bron = de beller (TriggerServerEvent vanaf de client).
+RegisterNetEvent('hospital:server:emergencyAlert', function()
+    local src = source
+    if not src or src == 0 or GetPlayerName(src) == nil then return end
+
+    local now = os.time()
+    if lastEmsAlert[src] and now - lastEmsAlert[src] < 5 then return end
+    lastEmsAlert[src] = now
+
+    TriggerClientEvent('los_policebridge:emsalert', src)
+end)
+
 AddEventHandler('playerDropped', function()
     lastAlert[source] = nil
+    lastEmsAlert[source] = nil
 end)
 
 --- Voedt qbx_bankrobbery's CurrentCops (police:SetCopCount). GetDutyCountType
