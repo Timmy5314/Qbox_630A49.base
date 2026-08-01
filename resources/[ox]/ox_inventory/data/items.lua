@@ -3460,6 +3460,17 @@ return {
         client = { image = "key.png" }
     },
 
+    -- Motorblok (renzu_engine). Uniek per stuk: de metadata draagt het
+    -- engine-model/geluid en label. Gebruik in een voertuig om de motor + het
+    -- motorgeluid te wisselen; wordt daarbij verbruikt.
+    ['enginegago'] = {
+        label = 'Engine',
+        weight = 0,
+        stack = false,
+        close = true,
+        description = 'Een motorblok dat in een voertuig geplaatst kan worden.',
+    },
+
     -- Tas/opbergitem (renzu_bag). Uniek per stuk: de metadata draagt het
     -- serienummer, aantal slots, model en label. Gebruik het item om de tas op
     -- de grond te plaatsen (wordt een aparte stash) of te dragen. stack = false
