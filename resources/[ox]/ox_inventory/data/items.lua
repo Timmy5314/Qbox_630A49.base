@@ -3460,6 +3460,22 @@ return {
         client = { image = "key.png" }
     },
 
+    -- Tas/opbergitem (renzu_bag). Uniek per stuk: de metadata draagt het
+    -- serienummer, aantal slots, model en label. Gebruik het item om de tas op
+    -- de grond te plaatsen (wordt een aparte stash) of te dragen. stack = false
+    -- omdat elke tas een eigen inhoud/serienummer heeft.
+    ['bag'] = {
+        label = 'Bag',
+        weight = 1000,
+        stack = false,
+        close = true,
+        description = 'Een draagbare opbergtas.',
+        client = {
+            image = 'bag.png',
+            export = 'renzu_bag.useItem',
+        },
+    },
+
     -- Nitro-shots (renzu_nitro). Gebruik in een voertuig om nitro te installeren
     -- (verbruikt). Zwaardere shot = meer boost. Bijvullen met een nitro_bottle.
     ['nitro50shot'] = {
