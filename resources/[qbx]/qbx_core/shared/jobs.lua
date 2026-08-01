@@ -8,6 +8,12 @@
 --   Hulpdienst  $250/strook = $1.500/uur (top grade), recruit $150 = $900/uur
 --   Werkloos    $25/strook  = $150/uur (overlevingsvloer, geen wage)
 -- Netto ligt ~20% lager door belasting + verzekering (los_insurance).
+--
+-- GANGS KRIJGEN BEWUST GEEN LOON. Ballas, Vagos, Families, Marabunta, Mafia enz.
+-- staan in shared/gangs.lua (de gang-slot, PlayerData.gang) en hebben daar GEEN
+-- `payment`. De loonstrook-lus (server/loops.lua) betaalt alleen PlayerData.job.
+-- Voeg dus NOOIT een gang als job met een `payment` toe: gangs verdienen via
+-- drugs/turfs/overvallen, niet via een uurloon.
 return {
     ['unemployed'] = {
         label = 'Civilian',
