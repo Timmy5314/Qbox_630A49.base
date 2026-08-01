@@ -429,6 +429,35 @@ Doe **eerst punt 1**, anders kan niemand een huisdier kopen.
 | 10 | Check je verzekering (ps-mdt of het radial menu). | Werkt. Crashte hiervoor op dezelfde fout. |
 | 11 | `resmon 1` bij los_wanted, zonder sterren. | Idle ≈ 0.00 ms. De ped-scan draait alleen met sterren én in de stand `passive`. |
 
+## AFGEROND — renzu-scripts omzetten naar Qbox (sessie aug 2026)
+
+Tim wil 8 oude renzu-scripts (motels, customs, stancer, turbo, engine, nitro,
+itemback, bag) — allemaal oud ESX/QB — werkend maken op Qbox/ox. Afspraak:
+**grondig, één script per sessie**. Volgorde op Tims verzoek: motels eerst.
+
+| Prio | Wat | Hoe |
+|---|---|---|
+| **DONE** | **renzu_motels** volledig omgebouwd naar Qbox/ox | Was al bridge-gebaseerd (ox_lib-menus, ox_target, ox_inventory). ESX/QB/quasar/qb-target/qb-inventory bridges verwijderd; nieuwe `bridge/framework/*/qbx.lua` via `exports.qbx_core`. config Qbox-only, `wardrobe=renzu_clothes` (export gecorrigeerd naar `:openWardrobe` — `OpenClotheInventory` bestond niet), `target=true`. `keys`-item toegevoegd aan ox_inventory (ontbrak; motelkey faalde stil). Laadt via `ensure [standalone]`. **Niet in-game getest** — testplan bij Tim. |
+
+Svelte overwogen en **bewust niet gedaan**: de motel-UI is al 100% ox_lib-native
+menus; de enige NUI is een 89-regel deurgeluid/-video. Svelte = een npm/Vite-build
+toevoegen voor niets. "Modern Qbox" is hier juist ox_lib, wat er al staat.
+
+## OPEN — resterende 7 renzu-scripts (nog om te bouwen)
+
+| # | Prio | Fase | Wat |
+|---|---|---|---|
+| 50 | MED | — | **renzu_customs** staat al als Qbox-rewrite v2.0.0 in `[standalone]` maar is nooit getest/gecontroleerd. Verifiëren + testen. Let op mogelijke overlap met engine/turbo/nitro/stancer (allemaal voertuig-tuning). |
+| 51 | MED | — | **renzu_stancer** (877 LOC) — heeft al Standalone-modus, item-gebaseerd; makkelijkste. |
+| 52 | MED | — | **renzu_turbo** (579 LOC) — nette framework-wrapper, qbx-branch toevoegen. |
+| 53 | MED | — | **renzu_nitro** (741 LOC) — **hardcoded ESX**, geen wrapper; inline herschrijven. |
+| 54 | MED | — | **renzu_engine** (5679 LOC, ~80% audio/data) — engine-swaps met geluid; framework-wrapper aanwezig. |
+| 55 | MED | — | **renzu_itemback** (1386 LOC) — hardcoded ESX + dode `@renzu_shield`-dependency (manifest-regel eruit); ESX herschrijven. |
+| 56 | MED | — | **renzu_bag** (469 LOC) — hardcoded ESX + dode `@renzu_shield` + **`html/`-map ontbreekt in de repo** (level-up UI opnieuw bouwen). |
+
+`renzu_shield` bestaat niet meer en geeft errors — bij itemback en bag is dat
+alleen een manifest-regel; de code zelf is leesbaar (niet versleuteld).
+
 ## Gereedschap
 
 `bash tools/luacheck.sh <bestanden>` — syntaxcheck die CfxLua-uitbreidingen
