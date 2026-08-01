@@ -29,10 +29,12 @@ local MIME = {
 }
 
 SetHttpHandler(function(req, res)
-    -- req.path is relatief aan de resource, bv. "/clothes/x.png".
+    -- req.path is meestal "/clothes/x.png", maar sommige FiveM-builds laten de
+    -- resourcenaam in het pad staan ("/carmap/clothes/x.png"). Beide afvangen.
     local path = req.path or ''
     path = path:gsub('%?.*$', '')            -- querystring eraf
     path = path:gsub('%%20', ' ')            -- simpele url-decode voor spaties
+    path = path:gsub('^/' .. RESOURCE .. '/', '/') -- optionele resourcenaam-prefix eraf
 
     -- Padbeveiliging: geen directory-traversal.
     if path:find('%.%.') or path:find('\\') then
