@@ -285,6 +285,9 @@
             tile.innerHTML =
                 (carted ? '<span class="tile__flag tile__flag--cart" title="In your cart"></span>'
                     : isWorn ? '<span class="tile__flag tile__flag--worn" title="You are wearing this"></span>' : '') +
+                // carmap-thumbnail; faalt hij (niet in de pack / URL onbereikbaar) dan
+                // verwijdert onerror hem en blijft het nummer als terugval staan.
+                (item.image ? '<img class="tile__img" src="' + item.image + '" loading="lazy" onerror="this.remove()">' : '') +
                 '<span class="tile__num">' + item.drawable + '</span>' +
                 '<span class="tile__price">' + money(item.variants[0].price) + '</span>';
 

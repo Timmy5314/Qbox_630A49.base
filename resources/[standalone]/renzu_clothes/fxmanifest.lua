@@ -19,6 +19,11 @@ shared_scripts {
 
 client_scripts {
     'client/bridge.lua',
+    -- NameHash-database van het originele renzu_clothes: koppelt
+    -- model/component/drawable/texture -> NameHash (= bestandsnaam in
+    -- carmap/clothes). Levert het globale `Components`. Groot (2,6 MB) maar
+    -- laadt eenmalig; zonder deze regel vallen de grid-tegels terug op nummers.
+    'legacy/components_old.lua',
     'client/wardrobe.lua',
     'client/nui.lua',
     'client/shop.lua',

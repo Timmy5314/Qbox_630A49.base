@@ -563,6 +563,36 @@ kbd {
 
 .tile.is-active .tile__num { color: var(--accent); }
 
+/* carmap-thumbnail vult de tegel; nummer en prijs liggen er leesbaar overheen.
+   Faalt de afbeelding (niet in de pack / URL onbereikbaar), dan haalt onerror
+   hem weg en ziet de tegel er weer uit als vanouds - alleen nummer en prijs. */
+.tile__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 0.15rem;
+    border-radius: var(--radius-sm);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.tile:has(.tile__img) .tile__num {
+    position: absolute;
+    top: 0.2rem;
+    left: 0.35rem;
+    font-size: 0.72rem;
+    opacity: 0.75;
+}
+
+.tile__num,
+.tile__price {
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
 .tile__price {
     font-size: 0.66rem;
     font-variant-numeric: tabular-nums;

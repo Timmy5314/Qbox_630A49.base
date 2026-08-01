@@ -219,6 +219,32 @@ local function buildCategories()
     return list
 end
 
+-- ── Grid-thumbnails (carmap) ───────────────────────────────────────────────
+-- Basis-URL uit de replicated convar carmap:baseurl (zie carmap/server.lua).
+-- Leeg = geen afbeeldingen -> de grid valt terug op het nummer.
+local clothesBase = GetConvar('carmap:baseurl', '')
+if clothesBase ~= '' then clothesBase = clothesBase:gsub('/+$', '') .. '/clothes/' end
+
+--- Zoekt de GTA NameHash (bv. DLC_MP_APA_F_FEET_3_2) voor een kledingstuk op in
+--- de database van het originele renzu_clothes (legacy/components_old.lua). Dat
+--- is exact de bestandsnaam van de afbeelding in carmap/clothes.
+---@param data table slot-config (component, isProp)
+---@param drawable integer
+---@param texture integer
+---@return string? url
+local function imageFor(data, drawable, texture)
+    if clothesBase == '' or type(Components) ~= 'table' then return nil end
+
+    local tbl = data.isProp and Components.Props or Components.ComponentVariations
+    local model = tbl and tbl[GetEntityModel(cache.ped)]
+    local comp = model and model[tostring(data.component)]
+    local draw = comp and comp[tostring(drawable)]
+    local tex = draw and draw[tostring(texture)]
+    local hash = tex and tex.NameHash
+
+    return hash and (clothesBase .. hash .. '.png') or nil
+end
+
 --- One page of garments. Paging keeps the payload small and the UI usable -
 --- sending 400 items at once made the list unclickable.
 ---@param slot string
@@ -256,6 +282,7 @@ local function buildPage(slot, page)
             drawable = drawable,
             label = ('%s #%d'):format(data.label, drawable),
             variants = variants,
+            image = imageFor(data, drawable, 0), -- thumbnail voor de eerste textuur
         }
     end
 
