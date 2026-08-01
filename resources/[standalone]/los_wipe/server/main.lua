@@ -155,6 +155,16 @@ local function announce(message)
         exports.qbx_core:Notify(tonumber(players[i]), message, 'error', 15000)
     end
 
+    -- Discord: bij voorkeur via de centrale logger (los_discord), zodat alle
+    -- meldingen door één rate-limited wachtrij lopen. Draait los_discord niet,
+    -- dan valt hij terug op de eigen webhook-convar.
+    if GetResourceState('los_discord') == 'started' then
+        local ok = pcall(function()
+            exports.los_discord:Log('wipe', 'Maandelijkse wipe', message)
+        end)
+        if ok then return end
+    end
+
     local webhook = GetConvar(config.webhookConvar, '')
     if webhook == '' then return end
 

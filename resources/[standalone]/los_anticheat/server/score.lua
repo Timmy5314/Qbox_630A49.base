@@ -43,9 +43,20 @@ end
 
 ---Stuurt een flag naar Discord. Faalt stil: een kapotte webhook mag nooit de
 ---anti-cheat blokkeren.
+---
+---Bij voorkeur via de centrale, rate-limited logger (los_discord): een flag-storm
+---mag Discord's rate limit niet raken. Draait los_discord niet, dan valt hij terug
+---op de eigen webhook-convar. Configureer het kanaal in los_discord/shared/config.
 ---@param title string
 ---@param description string
 local function sendWebhook(title, description)
+    if GetResourceState('los_discord') == 'started' then
+        local ok = pcall(function()
+            exports.los_discord:Log('anticheat', title, description)
+        end)
+        if ok then return end
+    end
+
     local url = GetConvar(Config.webhookConvar, '')
     if url == '' then return end
 

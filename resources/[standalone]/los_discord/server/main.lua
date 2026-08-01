@@ -116,19 +116,12 @@ AddEventHandler('ps-dispatch:server:notify', function(data)
     })
 end)
 
---- Anti-cheat. los_anticheat vuurt dit af bij elke flag.
-AddEventHandler('los_anticheat:flag', function(src, check, detail)
-    local name = src and GetPlayerName(src) or 'onbekend'
-
-    log('anticheat', ('Flag: %s'):format(check or '?'), detail, {
-        { name = 'Speler', value = ('%s (%s)'):format(name, src or '-'), inline = true },
-    })
-end)
-
---- Wipe.
-AddEventHandler('los_wipe:announced', function(message)
-    log('wipe', 'Maandelijkse wipe', message)
-end)
+--- Anti-cheat en wipe loggen NIET via een event maar rechtstreeks via de
+--- Log-export hierboven (exports.los_discord:Log). los_anticheat/score.lua en
+--- los_wipe/main.lua roepen die aan zodra deze resource draait, met een eigen
+--- webhook als terugval. Zo lopen ze door dezelfde rate-limited wachtrij.
+--- Vroeger stonden hier handlers voor 'los_anticheat:flag' en
+--- 'los_wipe:announced' die door niemand werden afgevuurd - dode listeners.
 
 -- =========================================================================
 --  Rol-sync
