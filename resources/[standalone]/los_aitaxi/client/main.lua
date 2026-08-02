@@ -72,10 +72,35 @@ end
 
 ---@param model number
 ---@return boolean
+--[[
+    lib.requestModel GOOIT een error als het model niet op tijd laadt: hij loopt
+    via lib.streamingRequest -> lib.waitFor, en die doet error() bij een timeout.
+
+    Dat werd hier niet afgevangen. Een model dat niet laadde brak daarmee de hele
+    startRide-handler af: geen taxi, en ook geen rideFailed, dus de speler kreeg
+    zelfs geen afmelding. Stil kapot.
+
+    Nu in een pcall, met een tweede poging. De log noemt bij falen precies welk
+    model het betreft, zodat het de volgende keer geen zoekwerk is.
+]]
 local function loadModel(model)
-    if not IsModelValid(model) then return false end
-    lib.requestModel(model, 10000)
-    return HasModelLoaded(model)
+    if not IsModelValid(model) then
+        lib.print.error(('los_aitaxi: ongeldig model %s'):format(model))
+        return false
+    end
+
+    for attempt = 1, 2 do
+        local ok, err = pcall(lib.requestModel, model, 10000)
+
+        if ok and HasModelLoaded(model) then return true end
+
+        lib.print.warn(('los_aitaxi: model %s laadde niet (poging %d/2): %s')
+            :format(model, attempt, ok and 'timeout' or tostring(err)))
+
+        Wait(500)
+    end
+
+    return false
 end
 
 ---Waar de taxi vandaan komt: het dichtstbijzijnde depot, of anders een

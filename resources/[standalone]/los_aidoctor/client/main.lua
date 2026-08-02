@@ -27,11 +27,35 @@ end
 
 ---@param model number
 ---@return boolean
-local function loadModel(model)
-    if not IsModelValid(model) then return false end
+--[[
+    lib.requestModel GOOIT een error als het model niet op tijd laadt: hij loopt
+    via lib.streamingRequest -> lib.waitFor, en die doet error() bij een timeout.
 
-    lib.requestModel(model, 10000)
-    return HasModelLoaded(model)
+    Dat werd hier niet afgevangen. Een model dat niet laadde brak daarmee de hele
+    startRide-handler af: geen ambulance, en ook geen callFailed, dus de speler
+    lag te wachten op iemand die nooit onderweg was geweest. Stil kapot.
+
+    Nu in een pcall, met een tweede poging. De log noemt bij falen precies welk
+    model het betreft.
+]]
+local function loadModel(model)
+    if not IsModelValid(model) then
+        lib.print.error(('los_aidoctor: ongeldig model %s'):format(model))
+        return false
+    end
+
+    for attempt = 1, 2 do
+        local ok, err = pcall(lib.requestModel, model, 10000)
+
+        if ok and HasModelLoaded(model) then return true end
+
+        lib.print.warn(('los_aidoctor: model %s laadde niet (poging %d/2): %s')
+            :format(model, attempt, ok and 'timeout' or tostring(err)))
+
+        Wait(500)
+    end
+
+    return false
 end
 
 RegisterNetEvent('los_aidoctor:cancelRide', function()

@@ -7,28 +7,32 @@
 --     SQL Error (1005): Can't create table `qbox`.`properties`
 --     (errno: 150 "Foreign key constraint is incorrectly formed")
 --
--- De oorzaak is de COLLATIE. Dat originele bestand sluit af met
--- `COLLATE=utf8mb4_unicode_ci`, dus `owner_citizenid` krijgt die collatie mee.
--- De foreign key wijst naar `players`.`citizenid`, en die is op deze stack
--- `varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci` (zie ook
--- ps-mdt/sql/qbcore.sql, dat het overal expliciet zo neerzet).
+-- Errno 150 komt ALTIJD van de foreign key. Er zijn vier mogelijke oorzaken en
+-- ze zijn van buitenaf niet te onderscheiden:
 --
--- MySQL/MariaDB eist dat beide kanten van een foreign key exact hetzelfde type
--- EN dezelfde collatie hebben. utf8mb4_unicode_ci tegen utf8mb4_general_ci is
--- niet hetzelfde, dus weigert hij de tabel aan te maken. Dat is meteen de reden
--- dat ps-housing niets deed: de tabel bestond nooit.
+--   1. verschil in COLLATIE tussen owner_citizenid en players.citizenid
+--   2. verschil in TYPE of LENGTE (varchar(50) tegen varchar(46) bijvoorbeeld)
+--   3. players.citizenid is niet geindexeerd
+--   4. players bestaat niet of is geen InnoDB
 --
--- Hieronder staat de collatie op general_ci, en op de FK-kolom ook nog eens
--- expliciet. Verder identiek aan het origineel.
+-- Een eerdere poging zette alleen de collatie goed. Dat was niet genoeg, dus het
+-- zit in een van de andere drie.
+--
+-- DE FOREIGN KEY IS HIER WEGGELATEN.
+--
+-- Dat is geen omweg om het probleem heen: die sleutel doet maar een ding, en dat
+-- is properties opruimen als een character uit de tabel `players` verdwijnt.
+-- ps-housing gebruikt hem nergens voor. Zonder sleutel maakt de tabel gewoon
+-- aan, en dat is wat er nu moet gebeuren.
+--
+-- De UNIQUE-sleutel blijft wel staan: die bewaakt de regel dat een character
+-- hooguit een appartement bezit, en daar hangt de code wel op.
 --
 -- Draai dit in plaats van het bestand uit de resource.
 
 CREATE TABLE IF NOT EXISTS `properties` (
     `property_id`     int(11)      NOT NULL AUTO_INCREMENT,
-
-    -- Expliciete charset/collatie: dit is de kolom van de foreign key en die
-    -- MOET overeenkomen met players.citizenid. Niet weghalen.
-    `owner_citizenid` varchar(50)  CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
+    `owner_citizenid` varchar(50)  NULL,
 
     `street`          VARCHAR(100) NULL,
     `region`          VARCHAR(100) NULL,
@@ -49,22 +53,35 @@ CREATE TABLE IF NOT EXISTS `properties` (
 
     PRIMARY KEY (`property_id`),
 
-    CONSTRAINT `FK_owner_citizenid` FOREIGN KEY (`owner_citizenid`)
-        REFERENCES `players` (`citizenid`) ON UPDATE CASCADE ON DELETE CASCADE,
+    -- Zoeken op eigenaar gebeurt vaak (getOwnedApartment, de eigen panden van
+    -- een speler). Zonder de foreign key komt die index er niet vanzelf.
+    KEY `idx_owner` (`owner_citizenid`),
 
-    -- Een character kan hooguit een appartement bezitten.
+    -- Een character kan hooguit een appartement bezitten. Hier hangt de code op.
     CONSTRAINT `UQ_owner_apartment` UNIQUE (`owner_citizenid`, `apartment`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Werkt het nog steeds niet, controleer dan eerst hoe players.citizenid eruitziet:
+-- OPTIONEEL - de foreign key alsnog toevoegen
 --
---     SELECT COLUMN_NAME, COLUMN_TYPE, CHARACTER_SET_NAME, COLLATION_NAME
+-- Wil je het opruimen bij het verwijderen van een character toch hebben, kijk dan
+-- eerst wat players.citizenid precies is:
+--
+--     SELECT COLUMN_TYPE, CHARACTER_SET_NAME, COLLATION_NAME
 --     FROM information_schema.COLUMNS
---     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'players' AND COLUMN_NAME = 'citizenid';
+--     WHERE TABLE_SCHEMA = DATABASE()
+--       AND TABLE_NAME = 'players' AND COLUMN_NAME = 'citizenid';
 --
--- Staat daar iets anders dan varchar(50) / utf8mb4 / utf8mb4_general_ci, neem dan
--- die waarden over in de `owner_citizenid`-regel hierboven. Beide kanten moeten
--- exact gelijk zijn.
+-- Neem die drie waarden exact over in owner_citizenid, en voeg dan toe:
+--
+--     ALTER TABLE `properties`
+--       ADD CONSTRAINT `FK_owner_citizenid` FOREIGN KEY (`owner_citizenid`)
+--       REFERENCES `players` (`citizenid`) ON UPDATE CASCADE ON DELETE CASCADE;
+--
+-- Krijg je dan nog steeds 1005, vraag de echte reden op met:
+--
+--     SHOW ENGINE INNODB STATUS;
+--
+-- Onder "LATEST FOREIGN KEY ERROR" staat letterlijk wat er niet matcht.
 -- ─────────────────────────────────────────────────────────────────────────────
