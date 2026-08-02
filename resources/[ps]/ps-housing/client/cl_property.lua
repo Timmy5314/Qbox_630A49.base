@@ -243,9 +243,11 @@ function Property:RegisterPropertyEntrance()
 
     local size = vector3(door.length, door.width, 2.5)
     self.entranceTarget = Framework.AddEntrance(door, size, door.h, self.property_id, enter, raid, showcase, showData)
-    if self.owner or self.has_access then
-        self:CreateBlip()
-    end
+
+    -- CreateBlip beslist zelf of er een blip hoort en welke. Stond hier eerst
+    -- achter `if self.owner or self.has_access`, waardoor een huis dat TE KOOP
+    -- stond juist geen blip kreeg en niemand het op de kaart kon vinden.
+    self:CreateBlip()
 end
 
 function Property:UnregisterPropertyEntrance()
@@ -662,7 +664,30 @@ function getCenter(zone)
     return {x = centerX, y = centerY, z = centerZ}
 end
 
+--[[
+    Twee soorten blip, en nooit allebei:
+
+      TE KOOP  groen, lange afstand, zichtbaar voor IEDEREEN die het pand nog
+               niet bezit. Zo zie je op de kaart wat er te koop staat en loop
+               je naar de deur om het te kopen.
+      EIGEN    het oude huis-icoon, alleen voor de eigenaar en wie sleutels
+               heeft.
+
+    Zodra iemand het pand koopt verdwijnt de te-koop-blip vanzelf: de eigenaar
+    is dan geen koper meer en iedereen anders ziet `for_sale = false`.
+
+    RemoveBlip() vooraf is nodig omdat UpdateOwner() deze functie opnieuw
+    aanroept. Zonder dat bleef de oude blip staan en kreeg je er bij elke
+    eigendomswissel een blip bij.
+]]
 function Property:CreateBlip()
+    self:RemoveBlip()
+
+    local isOwner = self.owner or self.has_access
+    local forSale = self.propertyData.for_sale and not isOwner
+
+    if not isOwner and not forSale then return end
+
     local door_data = self.propertyData.door_data
     if door_data.x == nil then
         local zone_data = self.propertyData.zone_data
@@ -672,16 +697,27 @@ function Property:CreateBlip()
         door_data = getCenter(zone_data.points)
     end
     local blip = AddBlipForCoord(door_data.x, door_data.y, door_data.z)
-    if self.propertyData.garage_data.x ~= nil then
-        SetBlipSprite(blip, 492)
+
+    if forSale then
+        SetBlipSprite(blip, 374)
+        SetBlipColour(blip, 2)
+        -- Bewust NIET short range: een huis dat te koop staat moet je van de
+        -- andere kant van de kaart kunnen zien.
+        SetBlipAsShortRange(blip, false)
     else
-        SetBlipSprite(blip, 40)
+        if self.propertyData.garage_data.x ~= nil then
+            SetBlipSprite(blip, 492)
+        else
+            SetBlipSprite(blip, 40)
+        end
+        SetBlipColour(blip, 2)
+        SetBlipAsShortRange(blip, true)
     end
+
     SetBlipScale(blip, 0.8)
-    SetBlipColour(blip, 2)
-    SetBlipAsShortRange(blip, true)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString(self.propertyData.street .. " " .. self.property_id)
+    AddTextComponentString(
+        (forSale and "For sale: " or "") .. self.propertyData.street .. " " .. self.property_id)
     EndTextCommandSetBlipName(blip)
     self.blip = blip
 end
@@ -825,6 +861,11 @@ end
 
 function Property:UpdateForSale(forSale)
     self.propertyData.for_sale = forSale
+
+    -- Anders blijft een verkocht pand als "te koop" op de kaart staan tot je
+    -- opnieuw inlogt, en verschijnt een pand dat net in de verkoop gaat pas na
+    -- een herstart.
+    self:CreateBlip()
 end
 
 function Property:UpdateShell(newShell)

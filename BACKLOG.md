@@ -48,7 +48,7 @@ te vinden. Prioriteit: eerst schoon booten, dan functionele breuk, dan ontwerp.
 | R4 | **HIGH** | **ps-housing werkt niet.** Ziet álle appartementen, kan met de lift naar appartementen die hij niet bezit. | breuk |
 | R5 | **HIGH** | **AI-dokter (los_aidoctor) komt niet opdagen** als je down bent. Hangt deels aan R2 (death-flow). | breuk |
 | R6 | **HIGH** | **AI-taxi (los_aitaxi) werkt niet + staat niet in npwd-contacten.** | breuk |
-| R7 | MED | **Black market: SMS naar 4040 werkt niet.** Wens: black market NIET via SMS maar in de **telefoon-darkchat/IRC** (de illegale chat). | breuk + ontwerp |
+| R7 | MED | **Black market moet via de NPWD DarkChat/IRC-app** (Tim: "dit is de black market app van npwd"), NIET via SMS 4040. Nu: md-drugs TravellingMerchant gebruikt `npwd:onMessage`/`emitMessage` op een nummer. NPWD heeft een **DarkChat**-app (anonieme IRC-chat) — daar moet de black market naartoe. Te doen: onderzoek NPWD DarkChat server-API en herbedraad md-drugs erheen. Taxi blijft een **contact** (AI taxi, nr 4747) — dat is los van de black market. | ontwerp |
 | R8 | MED | **Shop-peds spawnen te laat en op onbekende plek** (clothes, vehicleshop). **renzu_shops-ped draait niet mee** met de speler. Wens: pre-spawn in de winkel + meedraaien zoals clothes. | breuk |
 | R9 | **HIGH** | **renzu_clothes: kopen kan nog op verschillende ox_target-plekken** (per kledingrek). Moet: **alles alleen bij de kassa** afrekenen. Kassa-menu "doet raar". | ontwerp/breuk |
 | R10 | MED | **Housing-herbouw (wens).** Geen ps-realtor meer. Huizen op de map zien → kopen → na aankoop ziet **alleen de eigenaar** het huis op de map. | ontwerp |
@@ -74,11 +74,42 @@ te vinden. Prioriteit: eerst schoon booten, dan functionele breuk, dan ontwerp.
   verkoopt nog steeds precies wat hij had (juwelier = alleen sieraden, masker = maskers).
 - **R11 (kleding-afbeeldingen):** zie boven — GitHub HTTPS.
 - **bob74_ipl parse-fout:** gefixt (interieurs laden weer).
+- **R4 (lift naar appartement dat je niet bezit) — GEFIXT (deels):** de **vreemde**
+  liften zaten in `s4t4n667_elevators`. Vier appartementstorens (Del Perro Heights,
+  4 Integrity Way, Richard Majestic, Tinsel Towers, uit qbx_properties) gaven IEDEREEN
+  via ox_target een gratis lift naar appartementverdiepingen, los van eigendom.
+  Verwijderd; alleen de publieke liften (Mission Row, Mount Zonah) blijven. ps-housing
+  regelt toegang tot z'n eigen panden zelf. **Nog te doen:** "ik kan geen huizen kopen"
+  — properties.sql staat er wél in (Tim bevestigt), dus de koop-/map-flow van ps-housing
+  zelf moet nagelopen worden (staan huizen te koop op de map, werkt de koop-actie).
+  Evt. meer locaties uit qbx_properties / ps-housing GitHub toevoegen (wens Tim).
 
 > **Let op — qbx_radialmenu:** met qbx_medical uit verandert de `qbx_medical:deathState`
 > statebag niet meer, dus het radiaal-menu wordt niet automatisch geblokkeerd terwijl
 > je down bent. ND's BlockActions zet ox_target/inventory al uit; het radiaalmenu open
 > kunnen tijdens down is klein. Eventueel later: ND de death-bag laten spiegelen.
+
+### Onderzocht deze sessie (code blijkt correct)
+
+- **AI-dokter (R5) & AI-taxi (R6):** volledige code-audit gedaan. Beide zijn correct
+  bedraad: los_aidoctor hangt aan `ND_Ambulance:signalSent` (ND vuurt dat écht af),
+  `GetDutyCountJob` bestaat; los_aitaxi's contact-insert gebruikt het juiste event
+  (`QBCore:Server:PlayerLoaded`, dat qbx_core afvuurt), de juiste tabelkolommen
+  (`npwd_phone_contacts`: identifier/number/display/avatar) en de juiste identifier
+  (citizenid, exact wat qbx_npwd bij NPWD registreert). **Conclusie:** het "werkt niet"
+  kwam hoogstwaarschijnlijk door de qbx_medical death-botsing (nu weg). Test-flow:
+  - **Dokter:** ga down, geen medic on duty, druk **G** (noodsignaal) → na ~25s komt de AI.
+  - **Taxi:** nummer is **4747** (NIET 4040 — dat is de black market), je **belt** het.
+    Contact kan één relog nodig hebben (NPWD cachet contacten bij het laden).
+- **Housing (R4) — diagnose:** ps-housing "apartments" zijn bewust **gedeelde** lobby's
+  (iedereen kan de lift/lobby in; de individuele unit is wél op slot). Dat verklaart
+  "ik zie alle appartementen en kan met de lift omhoog". Losse **huizen** in ps-housing
+  worden door de **realtor** aangemaakt/verkocht; als de `properties`-tabel leeg is
+  (properties.sql niet geïmporteerd, of nog geen enkele property door een realtor
+  aangemaakt) staat er niks te koop → "ik kan geen huizen kopen". **Te verifiëren:**
+  is `ps-housing/README - INSTALL INSTRUCTIONS/QBOX/properties.sql` geïmporteerd en
+  staan er rijen in `properties`/`apartments`? Realtor blijft (wens Tim); fix richt
+  zich op: huizen koopbaar + op de map + toegang alleen voor eigenaar.
 
 ### Console-log triage (F8-boot, aug 2026)
 
@@ -550,3 +581,63 @@ bestand ongecontroleerd.
 ## Te draaien SQL
 
 Volledig runbook in **[install/README.md](install/README.md)**. Maak eerst een dump.
+
+---
+
+# Sessie 2 augustus 2026 — reparatieronde na Tims testronde
+
+Tim meldde dat vrijwel niets werkte. Hieronder wat er daadwerkelijk aan de hand
+was. Rode draad: **niet één grote fout, maar losse fouten die elk stil faalden.**
+
+## Opgelost
+
+| Klacht | Oorzaak |
+|---|---|
+| ox_fuel deed niets | `config.lua` had een C-stijl `/* */` commentaar. Lua parst dat niet, resource startte nooit. |
+| bob74_ipl deed niets | `[.Enable(false)` — restant van een kapotte edit. Zelfde verhaal. |
+| Kleding kon niet afgerekend worden | De kassa-refactor haalde het punt weg dat `atRegister` zette. `html/app.js:458` zet de afrekenknop uit zonder die vlag. |
+| Kleding bleef aan na passen | Pasgoed werd pas teruggezet bij het verlaten van de winkelZONE. Met één kassapunt loop je daar niet meer uit. |
+| Taxi: "kan locatie niet bereiken" | `TaskVehicleDriveToCoordLongrange` stond in een lus en werd elke 500 ms opnieuw gegeven. Die native herstart dan het pathfinden — de auto kwam nooit ergens. |
+| AI-ambulance kwam niet | Zelfde fout, plus een eerste rijopdracht naar `0,0,0`. |
+| Auto's stelen met lockpick | qbx_vehiclekeys wacht op `lockpicks:UseLockpick` uit de QBCore-resource `lockpicks`. Die draait hier niet en het item had geen koppeling. De twee minigames (deur + motor) bestonden al. |
+| Instappen bij andere auto's | renzu_garage zette server-side élk voertuig op slot (`LockAllLocalVehicle`) zonder de `doorslockstate` statebag te vullen waar qbx_vehiclekeys op stuurt. Ontgrendelen stond uit, vergrendelen niet. |
+| `/pee` en `/poo` ontbraken | Bestonden nooit; los_hygiene had alleen ox_target op toiletprops. |
+| Geen huizen op de kaart | `cl_property.lua` maakte alleen een blip voor panden die je al bezit. Te koop = geen blip. |
+
+## Nog open — vergt de serverlog of de database
+
+Deze zijn **niet** opgelost en waarschijnlijk geen codefout:
+
+1. **los_insurance geeft een error.** De code leest `los_insurance_policies`.
+   Een ontbrekende tabel geeft bij oxmysql een exception, geen nil. Sterke
+   verdenking dat `install/README.md` stap 2 nooit gedraaid is.
+2. **renzu_garage werkt niet.** Vereist extra kolommen in `player_vehicles`
+   (`install/02_renzu_garage_columns.sql`).
+3. **Geen huizen te koop.** ps-housing leest de tabel `properties`. Die is leeg
+   of ontbreekt. Panden worden aangemaakt door een makelaar (ps-realtor), ze
+   staan er niet vanzelf in. De blip-fix hierboven maakt ze zichtbaar zodra er
+   panden ín staan.
+4. **Wapen kan niet geequipt worden.** Geen oorzaak gevonden in de code.
+   `canUseItem` in ox_inventory eist onder meer `not PlayerData.dead`, en die
+   statebag komt van ND_Ambulance. Vergt de clientconsole (F8) op het moment
+   dat het misgaat.
+
+## Nog te bouwen
+
+- **Chopshop-keten.** Gevraagd: gestolen auto naar de shop, eigenaar krijgt
+  verzekeringsuitkering + melding + auto terug in de garage, ps-dispatch-melding
+  bij diefstal, nette meldingen in de chopshop. Raakt stevo_chopshop,
+  los_insurance, renzu_garage en ps-dispatch. Nog niets aan gedaan.
+- **Key search uitzetten.** Tim wil dat alleen de lockpick werkt.
+  `findKeysChance` in `qbx_vehiclekeys/config/shared.lua` staat op 0.5.
+- **renzu_motels naar ox_target.** Draait nog op markers.
+- **renzu_jobs met ND_Police / ND_Ambulance.** Nooit gecontroleerd.
+- **339 items hebben nergens een afbeelding.** Lijst in
+  [install/ONTBREKENDE-ITEM-AFBEELDINGEN.md](install/ONTBREKENDE-ITEM-AFBEELDINGEN.md).
+  Dat is content, geen code.
+
+## Bijvangst
+
+- `data/items.lua` had 39 dubbel gedefinieerde items. Lua neemt stil de laatste.
+  Meestal wint de rijkere definitie, dus meestal ongevaarlijk — maar `lockpick`
+  stond er twee keer en dat is nu samengevoegd. De rest is niet aangeraakt.
