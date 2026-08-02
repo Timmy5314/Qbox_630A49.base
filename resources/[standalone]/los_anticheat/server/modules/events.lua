@@ -62,10 +62,27 @@ local function attachObservers()
         return
     end
 
+    --[[
+        RegisterNetEvent, NIET AddEventHandler.
+
+        Hier stond AddEventHandler. Een resource mag een binnenkomend NET event
+        alleen afhandelen als hij het zelf met RegisterNetEvent heeft aangemeld.
+        Deed je dat niet, dan logde FiveM bij ELKE trigger:
+
+            event <naam> was not safe for net
+
+        en sloeg de handler over. Twee gevolgen: de serverconsole liep vol met
+        die regel voor elk gemonitord event, en de monitoring zelf deed niets -
+        `track` werd nooit aangeroepen.
+
+        Dit raakt de doel-resource niet: elke resource beslist zelf of hij een
+        net event accepteert. Het aanmelden hier laat alleen los_anticheat
+        meekijken en verandert niets aan wie het event verder afhandelt.
+    ]]
     local attached = 0
     for eventName in pairs(KnownServerEvents) do
         if not Config.events.ignore[eventName] then
-            AddEventHandler(eventName, function()
+            RegisterNetEvent(eventName, function()
                 track(source, eventName)
             end)
             attached = attached + 1

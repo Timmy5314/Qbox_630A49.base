@@ -209,6 +209,36 @@ RegisterNetEvent('los_aitaxi:startRide', function(data)
     SetEntityInvincible(vehicle, true)
     SetBlockingOfNonTemporaryEvents(driver, true)
     SetDriverAbility(driver, 1.0)
+
+    --[[
+        De chauffeur zag instappen als een carjacking: hij schrok, stapte uit en
+        rende weg. SetBlockingOfNonTemporaryEvents alleen is daar niet genoeg
+        voor - dat blokkeert omgevingsprikkels, maar niet de reactie op iemand
+        die zijn portier opentrekt.
+
+        Wat hier bij moet:
+          251  gaat niet op de vlucht voor een gewapende speler
+          281  reageert niet paniekerig op een dreiging
+          17   blijft in het voertuig zitten in plaats van eruit te springen
+          SetPedCanBeDraggedOut  je kunt hem er niet uit trekken
+          SetPedFleeAttributes(0) hij vlucht sowieso nergens voor
+          RelationshipGroup op PLAYER: hij ziet je als vriend, niet als bedreiging
+    ]]
+    SetPedCanBeDraggedOut(driver, false)
+    SetPedFleeAttributes(driver, 0, false)
+    SetPedCombatAttributes(driver, 17, true)
+    SetPedConfigFlag(driver, 251, true)
+    SetPedConfigFlag(driver, 281, true)
+    SetPedDiesWhenInjured(driver, false)
+    SetPedCanRagdoll(driver, false)
+    SetPedRelationshipGroupHash(driver, `PLAYER`)
+
+    -- Alle stoelen behalve die van de chauffeur vrijgeven, anders staat de
+    -- passagierskant "bezet" en kun je alleen aan de bestuurderskant proberen -
+    -- en juist dat leest de game als een poging tot autodiefstal.
+    SetVehicleDoorsLocked(vehicle, 1)
+    SetVehicleDoorsLockedForAllPlayers(vehicle, false)
+    SetVehicleDoorsLockedForPlayer(vehicle, PlayerId(), false)
     SetDriverAggressiveness(driver, 0.0)
     SetVehicleDoorsLocked(vehicle, 1)
 

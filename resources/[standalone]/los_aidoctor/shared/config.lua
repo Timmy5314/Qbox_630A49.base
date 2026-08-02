@@ -29,7 +29,7 @@ Config.emsJobs = { 'ambulance' }
 
 --- Seconden tussen het noodsignaal en het uitrijden van de ambulance.
 --- Bewust geen nul: het hoort te voelen als wachten op hulp.
-Config.responseDelay = 25
+Config.responseDelay = 10
 
 --- Seconden waarna een rit wordt afgebroken als de ambulance er niet komt
 --- (vast in het verkeer, speler verplaatst, wat dan ook).
