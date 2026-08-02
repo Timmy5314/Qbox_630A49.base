@@ -715,6 +715,41 @@ MotelOwner = function(data)
 end
 
 MotelRentalPoints = function(data)
+    --[[
+        De receptie was het laatste punt dat nog een marker met [E] gebruikte,
+        ook met config.target aan. Alle andere interacties in deze resource gaan
+        via ox_target, dus dit voelde als een los eind - en op deze server is
+        ox_target de standaard (zie CLAUDE.md).
+
+        De aanroeper doet `point:remove()`, dus de target-variant geeft een
+        objectje terug dat dat ook kan.
+    ]]
+    if config.target and GetResourceState('ox_target') ~= 'missing' then
+        local id = exports.ox_target:addBoxZone({
+            coords = data.rentcoord,
+            size = vec3(2.0, 2.0, 2.0),
+            rotation = 45,
+            debug = false,
+            options = {
+                {
+                    name = 'renzu_motels:rent:' .. tostring(data.motel),
+                    icon = 'fas fa-hotel',
+                    label = 'Motel Rent',
+                    distance = 2.5,
+                    onSelect = function()
+                        MotelRentalMenu(data)
+                    end,
+                },
+            },
+        })
+
+        return {
+            remove = function()
+                pcall(function() exports.ox_target:removeZone(id) end)
+            end,
+        }
+    end
+
     local point = lib.points.new(data.rentcoord, 5, data)
 
     function point:onEnter() 

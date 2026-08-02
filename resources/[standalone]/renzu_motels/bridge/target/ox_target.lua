@@ -1,4 +1,14 @@
-if GetResourceState('ox_target') ~= 'started' or not config.target then return end
+--[[
+    Hier stond `GetResourceState('ox_target') ~= 'started'`. Dit bestand wordt
+    geladen tijdens het opstarten, en dan staat ox_target vaak nog op 'starting'.
+    De hele bridge keerde dan terug en MotelFunction/ShellTargets bleven nil -
+    er kwam geen enkele target, en bridge/zones.lua slaat zichzelf over zolang
+    config.target aan staat. Netto: de motels deden helemaal niets.
+
+    Alleen 'missing' is een betrouwbaar oordeel op laadmoment. Zelfde correctie
+    als in renzu_garage/client/keys.lua, waar dit al eerder misging.
+]]
+if GetResourceState('ox_target') == 'missing' or not config.target then return end
 
 MotelFunction = function(data)
 	if not data.Mlo and data.type ~= 'door' then return end
