@@ -78,10 +78,32 @@ Config.GarageKeysCommand = 'garagekeys' -- command to call garagekeys UI
 
 -- Vehicle Keys --
 Config.VehicleKeysCommand = 'vehiclekeys' -- command to call vehiclekeys ui
-Config.EnableKeySystem = false -- slot/hotwire komt weer van qbx_vehiclekeys
-Config.LockAllLocalVehicle = true -- lock all vehicles in area if not unlocked state (This are not looped, its being locked only when you Press F) (if you are using F Keybind in other script, this might not work properly) ex. in renzu_hud, F is being used, you may need to disable it there.
-Config.LockParkedLocalVehiclesOnly = true -- if this is true and Config.LockAllLocalVehicle is true, its useless, this is useful if Config.LockAllLocalVehicle is false and this is true
-Config.EnableLockpick = true -- enable lock pick item and command function
+--[[
+    ── SLOTEN EN SLEUTELS ZIJN VAN qbx_vehiclekeys ──────────────────────────
+
+    Deze vier stonden aan terwijl `EnableKeySystem` al uit stond. Dat is de
+    slechtst mogelijke combinatie: het ONTGRENDELEN was uitgezet, maar het
+    VERGRENDELEN niet.
+
+    Wat er gebeurde: server/keys.lua ServerEntityCreated deed bij elk voertuig
+    dat spawnde `SetVehicleDoorsLocked(entity, 2)` - dus al het verkeer en elke
+    geparkeerde auto ging server-side op slot, zonder de `doorslockstate`
+    statebag te zetten waar qbx_vehiclekeys op stuurt. qbx_vehiclekeys zag een
+    voertuig zonder die statebag, rolde zijn eigen kans en zette hem open of
+    dicht - en vocht daarmee tegen een serverslot dat het niet kende.
+
+    Resultaat: je kwam nergens in, en een geslaagde lockpick van
+    qbx_vehiclekeys deed niets omdat renzu de deur alweer op slot had.
+
+    Alles wat met sloten, lockpicken of hotwiren te maken heeft staat nu uit.
+    renzu_garage doet vanaf hier alleen nog waar hij voor is: voertuigen in en
+    uit de garage halen. Zie ook CLAUDE.md: voertuigsleutels via
+    exports.qbx_vehiclekeys.
+]]
+Config.EnableKeySystem = false -- slot/hotwire komt van qbx_vehiclekeys
+Config.LockAllLocalVehicle = false -- qbx_vehiclekeys bepaalt wat er op slot staat
+Config.LockParkedLocalVehiclesOnly = false -- idem
+Config.EnableLockpick = false -- qbx_vehiclekeys heeft de lockpick
 Config.EnableDuplicateKeys = true -- Carlock Purpose and to bypass hotwired
 Config.GiveKeystoMissionEntity = true -- important if you dont want to hotwire mission vehicle, eg. trucker, taxi, delivery vehicles. (this will give car lock too)
 Config.RequestDuplicateCoord = {
@@ -89,7 +111,7 @@ Config.RequestDuplicateCoord = {
 }
 Config.RemoveKeys = true -- sleutel wordt ingeleverd zodra de auto in de garage wordt gezet
 --Hotwire
-Config.EnableHotwire = true -- enable hotwire if keys is not present in state
+Config.EnableHotwire = false -- qbx_vehiclekeys heeft de hotwire
 Config.HotwireLevel = 5 -- how many pins to complete (renzu_lockgame) https://github.com/renzuzu/renzu_lockgame
 -- Lockpick
 Config.EnableLockpickCommand = false -- qbx_vehiclekeys heeft eigen lockpick

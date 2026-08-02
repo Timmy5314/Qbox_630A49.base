@@ -557,9 +557,17 @@ return {
     label = 'Lockpick',
     weight = 160,
     -- Had client.export = 'ars_policejob.breakCuffs'. Die resource bestaat niet
-    -- op deze server, dus het gebruik van een lockpick riep een dode export
-    -- aan. Lockpicks worden door qbx_vehiclekeys zelf afgehandeld (het script
-    -- controleert op het item en verbruikt het), niet via een use-export.
+    -- op deze server, dus het gebruik van een lockpick riep een dode export aan.
+    --
+    -- Daarna stond hier dat qbx_vehiclekeys het item zelf afhandelt. Dat klopte
+    -- niet: die resource wacht op het event `lockpicks:UseLockpick` uit de losse
+    -- QBCore-resource `lockpicks`, en die draait hier niet. Er was dus NIETS dat
+    -- een lockpick met een voertuig verbond, en een auto stelen was onmogelijk.
+    --
+    -- Buiten een voertuig opent dit de deur, erin start het de motor.
+    client = {
+        export = 'qbx_vehiclekeys.UseLockpick',
+    },
 },
 
 ['medicalbag'] = {
@@ -669,10 +677,9 @@ return {
         }
     },
 
-    ['lockpick'] = {
-        label = 'Lockpick',
-        weight = 160,
-    },
+    -- Dit was de TWEEDE ['lockpick'] in dit bestand. Lua neemt bij een dubbele
+    -- sleutel stil de laatste, dus deze overschreef de definitie hierboven.
+    -- Samengevoegd tot een: de koppeling naar qbx_vehiclekeys staat daar.
 
     ['phone'] = {
         label = 'Phone',
@@ -790,6 +797,9 @@ return {
     ['advancedlockpick'] = {
         label = 'Advanced Lockpick',
         weight = 500,
+        client = {
+            export = 'qbx_vehiclekeys.UseLockpick',
+        },
     },
 
     ['screwdriverset'] = {

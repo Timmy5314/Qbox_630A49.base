@@ -106,8 +106,33 @@ for type, data in pairs(lib.load('data.weapons') or {}) do
 	end
 end
 
+--[[
+    ── Terugval op carmap voor items zonder afbeelding ──────────────────────
+
+    Van de items in data/items.lua had het merendeel geen bestand in
+    web/images. De NUI vraagt dan `<imagepath>/<naam>.png` op, krijgt een 404
+    en laat een leeg vakje zien - vandaar de lege plekken in renzu_shops en de
+    inventory.
+
+    Voor de namen in data/carmap_items.lua bestaat er wel een afbeelding in de
+    carmap-repo. Die krijgen hier een absolute URL. setImagePath() laat een
+    pad met een schema (https://) ongemoeid, dus dat werkt zonder verdere
+    aanpassing.
+
+    Alleen als het item nog GEEN eigen client.image heeft: een expliciete
+    keuze in items.lua wint altijd.
+]]
+local carmapItems = lib.load('data.carmap_items') or {}
+local carmapBase = GetConvar('carmap:baseurl', ''):gsub('/+$', '')
+
 for k, v in pairs(lib.load('data.items') or {}) do
 	v.name = k
+
+	if carmapBase ~= '' and carmapItems[k] and not v.client?.image then
+		v.client = v.client or {}
+		v.client.image = ('%s/items/%s.png'):format(carmapBase, k)
+	end
+
 	local success, response = pcall(newItem, v)
 
     if not success then

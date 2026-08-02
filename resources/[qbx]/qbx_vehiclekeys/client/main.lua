@@ -185,7 +185,10 @@ RegisterNetEvent('QBCore:Client:VehicleInfo', function(data)
     isTakingKeys = false
 end)
 
-RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
+---Een lockpick gebruiken. Buiten een voertuig opent dit de deur, erin start het
+---de motor. Dat zijn de twee minigames van een autodiefstal.
+---@param isAdvanced boolean? true bij een advancedlockpick
+local function useLockpick(isAdvanced)
     local vehicle = cache.vehicle
     if vehicle then
         if GetKeySearchEnabled() then
@@ -198,6 +201,27 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
     else
         LockpickDoor(isAdvanced)
     end
+end
+
+RegisterNetEvent('lockpicks:UseLockpick', useLockpick)
+
+--[[
+    ── ox_inventory-koppeling ───────────────────────────────────────────────
+
+    Deze resource wachtte op `lockpicks:UseLockpick`, een event uit de losse
+    QBCore-resource `lockpicks`. Die draait hier niet, en het lockpick-item in
+    ox_inventory had geen enkele koppeling. Een lockpick gebruiken deed dus
+    letterlijk niets, en daarmee was een auto stelen onmogelijk.
+
+    ox_inventory roept een `client.export` aan als
+    `export(data, { name, slot, metadata })`. `isAdvanced` mag NIET uit een
+    truthy tabel komen: dat bepaalt de moeilijkheid van de skillcheck EN welk
+    item verbruikt wordt bij het breken. Daarom kijken we naar de itemnaam.
+
+    Zie ox_inventory/data/items.lua -> ['lockpick'] en ['advancedlockpick'].
+]]
+exports('UseLockpick', function(_, slot)
+    useLockpick(slot?.name == 'advancedlockpick')
 end)
 
 RegisterNetEvent('qbx_vehiclekeys:client:OnLostKeys', function()

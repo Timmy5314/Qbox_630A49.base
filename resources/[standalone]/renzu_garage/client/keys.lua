@@ -290,14 +290,31 @@ lib.onCache('vehicle', function(value)
     end
 end)
 
-RegisterCommand('entervehicleg', function()
-	isVehicleUnlocked()
-end, false)
+--[[
+    F (entervehicleg) en J (keyless) horen bij het eigen sleutelsysteem van
+    renzu_garage. Dat systeem staat uit (Config.EnableKeySystem), maar de
+    keybinds stonden er nog, en die doen wel degelijk iets:
 
-CreateThread(function()
-	RegisterKeyMapping('entervehicleg', Message[54], 'keyboard', 'F')
-	return
-end)
+      - isVehicleUnlocked() geeft `havekeys`, `hotwired` en `unlock` weg aan
+        ELK voertuig in de buurt waarvan de motor draait en waar niemand in
+        zit. Dat is een gratis sleutel op een draaiende auto, buiten
+        qbx_vehiclekeys om.
+      - Keyless() is een tweede vergrendel-/ontgrendelknop naast de key fob
+        van qbx_vehiclekeys (L). Twee knoppen die dezelfde deur anders
+        bijhouden gaat altijd mis.
+
+    Allebei alleen nog actief als je het renzu-sleutelsysteem bewust aanzet.
+]]
+if Config.EnableKeySystem then
+    RegisterCommand('entervehicleg', function()
+        isVehicleUnlocked()
+    end, false)
+
+    CreateThread(function()
+        RegisterKeyMapping('entervehicleg', Message[54], 'keyboard', 'F')
+        return
+    end)
+end
 
 function SetVehicleOwned(vehicle)
     while not DoesEntityExist(vehicle) do Wait(1) end
@@ -546,14 +563,16 @@ function Keyless()
     Config.Notify( 'info', Message[57])
 end
 
-RegisterCommand('keyless'..Config.CarlockKey, function()
-	Keyless()
-end, false)
+if Config.EnableKeySystem then
+    RegisterCommand('keyless'..Config.CarlockKey, function()
+        Keyless()
+    end, false)
 
-CreateThread(function()
-	RegisterKeyMapping('keyless'..Config.CarlockKey, Message[58], 'keyboard', Config.CarlockKey)
-	return
-end)
+    CreateThread(function()
+        RegisterKeyMapping('keyless'..Config.CarlockKey, Message[58], 'keyboard', Config.CarlockKey)
+        return
+    end)
+end
 
 -- LOCKPICK
 CreateThread(function()
@@ -569,7 +588,14 @@ RegisterNetEvent('renzu_garage:lockpick', function()
     LockPick()
 end)
 
-exports('lockpick', LockPick)
+-- LET OP: `exports('lockpick', LockPick)` stond hier, boven de definitie van
+-- LockPick (die staat een stuk verderop in dit bestand). Op dit punt is de
+-- globale LockPick nog nil, dus dit registreerde een lege export. De wrapper
+-- leest de functie pas op het moment dat hij aangeroepen wordt.
+exports('lockpick', function(...)
+    if not Config.EnableLockpick then return end
+    return LockPick(...)
+end)
 
 function HotWireVehicle(veh)
     SetVehicleNeedsToBeHotwired(veh,false)
