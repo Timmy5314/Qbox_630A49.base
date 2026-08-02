@@ -584,6 +584,26 @@ RegisterNetEvent("ND_Ambulance:revivePlayer", function()
     end
 end)
 
+-- txAdmin's "heal player" / "heal all" fires this on the healed client. A downed
+-- player is already at max health (setDead resurrects them into a down-animation
+-- loop), so a plain heal changes nothing and the loop keeps forcing them to the
+-- ground -- exactly the "admin/txadmin heal doet niks, ik blijf liggen"-bug.
+-- Treat any heal received while down as a full revive so admins can get players up.
+RegisterNetEvent("txcl:heal", function()
+    if source == "" then return end
+    if not deathState and not knockedOut then return end
+    dbg("txAdmin heal received while down -> reviving")
+    resetDeathState()
+end)
+
+-- qbx_adminmenu's revive-knop stuurt dit (server: TriggerClientEvent, of lokaal
+-- TriggerEvent). qbx_medical is gestopt, dus zonder deze handler doet die knop
+-- niks. ND vangt hem nu op zodat de admin-menu revive gewoon werkt.
+RegisterNetEvent("qbx_medical:client:playerRevived", function()
+    dbg("qbx_medical revive-event ontvangen -> ND resetDeathState")
+    resetDeathState()
+end)
+
 -- triggered by shared/bridge.lua when qbx finishes loading the character.
 AddEventHandler("ND_Ambulance:characterLoaded", function()
     Wait(4000)

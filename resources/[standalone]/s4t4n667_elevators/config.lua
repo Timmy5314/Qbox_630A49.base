@@ -61,85 +61,16 @@ return {
             },
         },
 
-        -- ── Appartementstorens ───────────────────────────────────────────
-        -- Coordinaten uit qbx_properties (config/shared.lua). Die resource
-        -- draait hier niet meer, maar de appartementsdata klopt: elk
-        -- appartement heeft een entry op straatniveau en een exit op de
-        -- verdieping. Dat zijn precies de twee haltes van een lift.
-        --
-        -- LET OP: de hoge coordinaten komen uit de appartementdefinitie, niet
-        -- uit een opgemeten liftbordes. Controleer in-game of je op de gang
-        -- uitkomt en niet in iemands woonkamer. Dat kan ik niet zien.
-        ['Del Perro Heights'] = {
-            {
-                floorTitle = 'Lobby',
-                label = 'Ground floor.',
-                icon = 'fa-solid fa-door-open',
-                coords = vec3(-1447.35, -537.84, 34.74),
-                heading = 125.0,
-            },
-            {
-                floorTitle = 'Floor 4',
-                label = 'Apartment 7.',
-                coords = vec3(-1458.5, -520.89, 56.93),
-                heading = 35.0,
-            },
-            {
-                floorTitle = 'Floor 7',
-                label = 'Apartment 4.',
-                coords = vec4(-1453.02, -539.5, 74.04, 35.33),
-            },
-        },
-
-        ['4 Integrity Way'] = {
-            {
-                floorTitle = 'Lobby',
-                label = 'Ground floor.',
-                icon = 'fa-solid fa-door-open',
-                coords = vec3(-59.4, -616.29, 37.36),
-                heading = 250.0,
-            },
-            {
-                floorTitle = 'Floor 28',
-                label = 'Apartment 28.',
-                coords = vec4(-30.58, -595.4, 80.03, 246.95),
-            },
-            {
-                floorTitle = 'Floor 30',
-                label = 'Apartment 30.',
-                coords = vec4(-17.41, -588.17, 90.11, 338.23),
-            },
-        },
-
-        ['Richard Majestic'] = {
-            {
-                floorTitle = 'Lobby',
-                label = 'Ground floor.',
-                icon = 'fa-solid fa-door-open',
-                coords = vec3(-936.15, -378.91, 38.96),
-                heading = 115.0,
-            },
-            {
-                floorTitle = 'Apartment 2',
-                label = 'Top floor.',
-                coords = vec4(-913.99, -365.81, 114.27, 115.17),
-            },
-        },
-
-        ['Tinsel Towers'] = {
-            {
-                floorTitle = 'Lobby',
-                label = 'Ground floor.',
-                icon = 'fa-solid fa-door-open',
-                coords = vec3(-614.58, 46.52, 43.59),
-                heading = 91.0,
-            },
-            {
-                floorTitle = 'Apartment 42',
-                label = 'Top floor.',
-                coords = vec4(-604.06, 58.99, 98.2, 91.45),
-            },
-        },
+        -- ── APPARTEMENTSTOREN-LIFTEN VERWIJDERD (aug 2026) ──────────────────
+        -- Del Perro Heights, 4 Integrity Way, Richard Majestic en Tinsel Towers
+        -- kwamen uit qbx_properties en gaven IEDEREEN via ox_target een gratis lift
+        -- naar appartementverdiepingen - los van eigendom. Dat was precies de
+        -- "ik kan met de lift naar een appartement dat ik niet bezit"-bug.
+        -- ps-housing regelt de toegang tot zijn eigen panden zelf (ox_target ->
+        -- teleport, alleen voor de eigenaar/keyholder), dus deze losse liften
+        -- moesten weg. Alleen de publieke/utility-liften (Mission Row Police
+        -- Station, Mount Zonah Hospital) hierboven blijven. Wil je later liften bij
+        -- de ECHTE ps-housing-panden, gebruik dan de psHousing-sectie hieronder.
     },
 
     -- ── ps-housing appartementen ─────────────────────────────────────────

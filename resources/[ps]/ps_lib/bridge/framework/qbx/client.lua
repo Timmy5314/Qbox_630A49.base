@@ -67,11 +67,10 @@ function ps.getVehicleLabel(model)
 end
 
 function ps.isDead()
-    local isDead = exports.qbx_medical:IsDead()
-    local inLaststand = exports.qbx_medical:IsLaststand()
-
-    if isDead or inLaststand then return true end
-    return false
+    -- ND_Ambulance is het death-systeem op deze server; qbx_medical draait niet
+    -- meer (zie server.cfg). LocalPlayer.state.dead dekt zowel "knocked" als
+    -- "eliminated". Als ND onverhoopt niet draait is de statebag nil -> false.
+    return LocalPlayer.state.dead == true
 end
 
 function ps.getJob()
