@@ -29,26 +29,28 @@ Config.account = 'bank'
     je door; stopt de betaling, dan verloopt de polis vanzelf.
 
     qbx_core betaalt elke `paycheckTimeout` minuten uit (standaard 10). De
-    lonen op deze server liggen tussen $100 (instap) en $250 (hulpdienst top)
+    lonen op deze server liggen tussen $300 (instap) en $750 (hulpdienst top)
     per uitbetaling — zie het loon-model in qbx_core/shared/jobs.lua.
 
     De bedragen hieronder zijn VASTE bedragen per loonstrook, geen percentages.
-    Premies gehalveerd naar $6/$4 (besluit Tim, aug 2026): bij een instaploon
-    van ~$100 per strook is dat samen 10%, met belasting erbij rond de 18%. Een
-    vast bedrag is voorspelbaar: je weet wat je betaalt, ook als je meer verdient.
+    Meegegroeid met de loonsverhoging van augustus 2026 (loon x3, premies x2):
+    bij een instaploon van $300 per strook is dat samen 7%, met belasting erbij
+    rond de 21%. Een vast bedrag is voorspelbaar: je weet wat je betaalt, ook als
+    je meer verdient. Het aandeel daalt naarmate je meer verdient, en dat is de
+    bedoeling: vaste lasten horen minder te knellen als je carriere maakt.
 
     Er wordt nooit meer ingehouden dan er binnenkomt - zie Config.deductions.
 ]]
 Config.policies = {
     medical = {
         label = 'Medical insurance',
-        premium = 6,
+        premium = 12,
         description = 'Covers ambulance callouts and hospital treatment.',
     },
 
     vehicle = {
         label = 'Vehicle insurance',
-        premium = 4,
+        premium = 8,
         description = 'Covers recovery and repair costs for one vehicle.',
 
         -- Deel van de schade dat de verzekeraar dekt.
@@ -63,13 +65,16 @@ Config.policies = {
     uitbetaald. De melding komt kort na de loonmelding, zodat je eerst ziet wat
     je verdient en daarna wat eraf gaat.
 
-    RICHTLIJN bij een loon van $100 met een auto op naam:
-        zorgverzekering      $6
-        autoverzekering      $4
-        inkomstenbelasting   $8   (8%)
-        motorrijtuigenbel.   $3   per voertuig
+    RICHTLIJN bij een instaploon van $300 met een auto op naam:
+        zorgverzekering      $12
+        autoverzekering      $8
+        inkomstenbelasting   $36   (12%)
+        motorrijtuigenbel.   $6    per voertuig
         ------------------------------
-        totaal               $21  oftewel ongeveer 21%
+        totaal               $62   oftewel ongeveer 21%
+
+    Bij een ervaren loon van $600 met een auto:
+        $12 + $8 + $72 + $6 = $98, oftewel 16%.
 
     HARDE GRENS: de inhouding is nooit hoger dan het loon zelf. Wie weinig
     verdient betaalt naar rato en houdt altijd iets over.
@@ -83,14 +88,15 @@ Config.deductions = {
     --[[
         Maximaal deel van het loon dat in totaal ingehouden mag worden.
 
-        Vaste premies pakken laag inkomen relatief zwaarder: bij een loon van
-        $50 zou de volle inhouding 54% zijn, bij $500 nog maar 13%. Dit plafond
-        vangt de onderkant af. Op 0.35 betaalt niemand meer dan een derde:
+        Vaste premies pakken laag inkomen relatief zwaarder. Dit plafond vangt
+        de onderkant af: op 0.35 betaalt niemand meer dan een derde. Met de
+        huidige lonen bindt het plafond nergens meer - het is er voor jobs
+        zonder loon en voor wie in de laagste grade begint:
 
-            loon $50   ->  $17  (35%, afgetopt)
-            loon $100  ->  $31  (31%)
-            loon $150  ->  $35  (23%)
-            loon $500  ->  $63  (13%)
+            loon $50   ->  $17   (35%, afgetopt)
+            loon $300  ->  $62   (21%)
+            loon $600  ->  $98   (16%)
+            loon $750  ->  $116  (15%)
     ]]
     maxShareOfPaycheck = 0.35,
 
@@ -98,10 +104,10 @@ Config.deductions = {
         enabled = true,
 
         -- Percentage inkomstenbelasting over de loonstrook.
-        incomeRate = 0.08,
+        incomeRate = 0.12,
 
         -- Vast bedrag per voertuig op naam, per loonstrook.
-        perVehicle = 3,
+        perVehicle = 6,
 
         -- Voertuigbelasting alleen over de eerste zoveel auto's, zodat een
         -- verzamelaar niet onbetaalbaar uitkomt.
@@ -199,7 +205,7 @@ Config.theft = {
     --- Wat het ophalen kost als je NIET verzekerd bent.
     --- Verzekerd betaal je hiervan alleen het deel dat de polis niet dekt:
     ---   recoveryFee * (1 - policies.vehicle.coverage)
-    recoveryFee = 12000,
+    recoveryFee = 3500,
 
     --- Nummer waarvandaan de SMS komt. Zelfde afzender als de waarschuwingen.
     senderNumber = '1500',

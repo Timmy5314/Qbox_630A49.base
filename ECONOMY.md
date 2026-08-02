@@ -144,3 +144,58 @@ In volgorde van impact. Niets hiervan is doorgevoerd.
 - Illegaal op **1,5x tot 2x** legaal (kleiner verschil dan het 2-3x voorstel).
 
 Deze vier zijn leidend voor alle verdere prijsaanpassingen.
+
+---
+
+## Herijking augustus 2026 — loon omhoog
+
+Tim: spelers verdienen te weinig en kunnen nooit dure spullen kopen (auto's,
+sieraden). Inhoudingen en belasting mogen iets omhoog, de ophaalkosten bij de
+chopshop waren te duur.
+
+### Wat er is gewijzigd
+
+| | Was | Nu |
+|---|---|---|
+| Instapjob, per loonstrook | $100 | **$300** |
+| Ervaren job | $200 | **$600** |
+| Hulpdienst top | $250 | **$750** |
+| Zorgverzekering | $6 | **$12** |
+| Autoverzekering | $8 | **$8** (was al) |
+| Inkomstenbelasting | 8% | **12%** |
+| Motorrijtuigenbelasting | $3 | **$6** per voertuig |
+| Ophaalkosten chopshop, onverzekerd | $12.000 | **$3.500** |
+| Ophaalkosten, verzekerd (25% eigen risico) | $3.000 | **$875** |
+
+Loon maal drie, inhoudingen ongeveer maal twee. Netto komt een speler er dus
+flink op vooruit, terwijl de vaste lasten wel zwaarder meetellen dan eerst.
+
+### Wat dat netto betekent
+
+Zes loonstroken per uur, met een auto op naam:
+
+| | Bruto/uur | Inhouding | Netto/uur |
+|---|---|---|---|
+| Instap | $1.800 | 21% | **~$1.430** |
+| Ervaren | $3.600 | 16% | **~$3.010** |
+| Hulpdienst | $4.500 | 15% | **~$3.830** |
+
+Was: instap ~$420/uur netto.
+
+### Prijzen in uren werk (instap, netto)
+
+| Categorie | Prijs | Was | Nu |
+|---|---|---|---|
+| Sieraad | $2.000 – $25.000 | 5 – 60 uur | **1,5 – 17 uur** |
+| Gewone auto | $15.000 – $45.000 | 35 – 105 uur | **10 – 31 uur** |
+| Sportwagen | $120.000 – $400.000 | maanden | **84 – 280 uur** |
+| Supercar | $475.000 | een project | **een project** |
+| Woning | $150.000+ | een project | **105+ uur** |
+
+Een sieraad is nu een avond spelen in plaats van een week. Een gewone auto een
+stuk of vier sessies. De bovenkant blijft een project - dat was en is het punt
+van "geen grind, wel schaarste".
+
+De prijzen zelf zijn NIET aangepast. Alleen het loon, en daarmee schuift alles
+in verhouding mee. Blijkt iets alsnog te duur of juist te goedkoop, dan is dat
+nu een gerichte aanpassing per categorie in plaats van aan de knop van het loon.

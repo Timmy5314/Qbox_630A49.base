@@ -22,7 +22,7 @@ return {
         grades = {
             [0] = {
                 name = 'Freelancer',
-                payment = 25
+                payment = 75
             },
         },
     },
@@ -34,25 +34,25 @@ return {
         grades = {
             [0] = {
                 name = 'Recruit',
-                payment = 150
+                payment = 450
             },
             [1] = {
                 name = 'Officer',
-                payment = 175
+                payment = 525
             },
             [2] = {
                 name = 'Sergeant',
-                payment = 200
+                payment = 600
             },
             [3] = {
                 name = 'Lieutenant',
-                payment = 225
+                payment = 675
             },
             [4] = {
                 name = 'Chief',
                 isboss = true,
                 bankAuth = true,
-                payment = 250
+                payment = 750
             },
         },
     },
@@ -64,25 +64,25 @@ return {
         grades = {
             [0] = {
                 name = 'Recruit',
-                payment = 150
+                payment = 450
             },
             [1] = {
                 name = 'Officer',
-                payment = 175
+                payment = 525
             },
             [2] = {
                 name = 'Sergeant',
-                payment = 200
+                payment = 600
             },
             [3] = {
                 name = 'Lieutenant',
-                payment = 225
+                payment = 675
             },
             [4] = {
                 name = 'Chief',
                 isboss = true,
                 bankAuth = true,
-                payment = 250
+                payment = 750
             },
         },
     },
@@ -94,25 +94,25 @@ return {
         grades = {
             [0] = {
                 name = 'Recruit',
-                payment = 150
+                payment = 450
             },
             [1] = {
                 name = 'Officer',
-                payment = 175
+                payment = 525
             },
             [2] = {
                 name = 'Sergeant',
-                payment = 200
+                payment = 600
             },
             [3] = {
                 name = 'Lieutenant',
-                payment = 225
+                payment = 675
             },
             [4] = {
                 name = 'Chief',
                 isboss = true,
                 bankAuth = true,
-                payment = 250
+                payment = 750
             },
         },
     },
@@ -124,25 +124,25 @@ return {
         grades = {
             [0] = {
                 name = 'Recruit',
-                payment = 150
+                payment = 450
             },
             [1] = {
                 name = 'Paramedic',
-                payment = 175
+                payment = 525
             },
             [2] = {
                 name = 'Doctor',
-                payment = 200
+                payment = 600
             },
             [3] = {
                 name = 'Surgeon',
-                payment = 225
+                payment = 675
             },
             [4] = {
                 name = 'Chief',
                 isboss = true,
                 bankAuth = true,
-                payment = 250
+                payment = 750
             },
         },
     },
@@ -154,25 +154,25 @@ return {
         grades = {
             [0] = {
                 name = 'Recruit',
-                payment = 100
+                payment = 300
             },
             [1] = {
                 name = 'House Sales',
-                payment = 125
+                payment = 375
             },
             [2] = {
                 name = 'Business Sales',
-                payment = 150
+                payment = 450
             },
             [3] = {
                 name = 'Broker',
-                payment = 175
+                payment = 525
             },
             [4] = {
                 name = 'Manager',
                 isboss = true,
                 bankAuth = true,
-                payment = 200
+                payment = 600
             },
         },
     },
@@ -183,25 +183,25 @@ return {
         grades = {
             [0] = {
                 name = 'Recruit',
-                payment = 100
+                payment = 300
             },
             [1] = {
                 name = 'Driver',
-                payment = 125
+                payment = 375
             },
             [2] = {
                 name = 'Event Driver',
-                payment = 150
+                payment = 450
             },
             [3] = {
                 name = 'Sales',
-                payment = 175
+                payment = 525
             },
             [4] = {
                 name = 'Manager',
                 isboss = true,
                 bankAuth = true,
-                payment = 200
+                payment = 600
             },
         },
     },
@@ -212,7 +212,7 @@ return {
         grades = {
             [0] = {
                 name = 'Driver',
-                payment = 100
+                payment = 300
             },
         },
     },
@@ -223,25 +223,25 @@ return {
         grades = {
             [0] = {
                 name = 'Recruit',
-                payment = 100
+                payment = 300
             },
             [1] = {
                 name = 'Showroom Sales',
-                payment = 125
+                payment = 375
             },
             [2] = {
                 name = 'Business Sales',
-                payment = 150
+                payment = 450
             },
             [3] = {
                 name = 'Finance',
-                payment = 175
+                payment = 525
             },
             [4] = {
                 name = 'Manager',
                 isboss = true,
                 bankAuth = true,
-                payment = 200
+                payment = 600
             },
         },
     },
@@ -253,25 +253,25 @@ return {
         grades = {
             [0] = {
                 name = 'Recruit',
-                payment = 100
+                payment = 300
             },
             [1] = {
                 name = 'Novice',
-                payment = 125
+                payment = 375
             },
             [2] = {
                 name = 'Experienced',
-                payment = 150
+                payment = 450
             },
             [3] = {
                 name = 'Advanced',
-                payment = 175
+                payment = 525
             },
             [4] = {
                 name = 'Manager',
                 isboss = true,
                 bankAuth = true,
-                payment = 200
+                payment = 600
             },
         },
     },
@@ -281,9 +281,9 @@ judge = {
     defaultDuty = true,
     offDutyPay = false,
     grades = {
-        ['0'] = { name = 'Clerk', payment = 125 },
-        ['1'] = { name = 'Magistrate', payment = 175 },
-        ['2'] = { name = 'Judge', isboss = true, payment = 200 },
+        ['0'] = { name = 'Clerk', payment = 375 },
+        ['1'] = { name = 'Magistrate', payment = 525 },
+        ['2'] = { name = 'Judge', isboss = true, payment = 600 },
     },
 },
 lawyer = {
@@ -292,9 +292,9 @@ lawyer = {
     defaultDuty = true,
     offDutyPay = false,
     grades = {
-        ['0'] = { name = 'Paralegal', payment = 100 },
-        ['1'] = { name = 'Associate', payment = 150 },
-        ['2'] = { name = 'Partner', isboss = true, payment = 200 },
+        ['0'] = { name = 'Paralegal', payment = 300 },
+        ['1'] = { name = 'Associate', payment = 450 },
+        ['2'] = { name = 'Partner', isboss = true, payment = 600 },
     },
 },
     ['reporter'] = {
@@ -304,7 +304,7 @@ lawyer = {
         grades = {
             [0] = {
                 name = 'Journalist',
-                payment = 100
+                payment = 300
             },
         },
     },
@@ -315,7 +315,7 @@ lawyer = {
         grades = {
             [0] = {
                 name = 'Driver',
-                payment = 100
+                payment = 300
             },
         },
     },
@@ -326,7 +326,7 @@ lawyer = {
         grades = {
             [0] = {
                 name = 'Driver',
-                payment = 100
+                payment = 300
             },
         },
     },
@@ -337,7 +337,7 @@ lawyer = {
         grades = {
             [0] = {
                 name = 'Collector',
-                payment = 100
+                payment = 300
             },
         },
     },
@@ -348,7 +348,7 @@ lawyer = {
         grades = {
             [0] = {
                 name = 'Picker',
-                payment = 100
+                payment = 300
             },
         },
     },
@@ -359,7 +359,7 @@ lawyer = {
         grades = {
             [0] = {
                 name = 'Sales',
-                payment = 100
+                payment = 300
             },
         },
     },
