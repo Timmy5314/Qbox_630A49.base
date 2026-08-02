@@ -114,7 +114,16 @@ exports('useItem', function(data, slot)
 
 		local bag = CreateObject(data.metadata.model, GetEntityCoords(cache.ped)+GetEntityForwardVector(cache.ped)*0.8, true, true)
 
-		while not DoesEntityExist(bag) do Wait(0) end
+		-- Begrensd, net als in renzu_itemback. Een onbegrensde lus hier houdt de
+		-- item-gebruik-callback van ox_inventory vast als het model niet spawnt.
+		local deadline = GetGameTimer() + 2000
+		while not DoesEntityExist(bag) and GetGameTimer() < deadline do Wait(0) end
+
+		if not DoesEntityExist(bag) then
+			lib.print.warn(('renzu_bag: kon het tasobject niet aanmaken (%s)')
+				:format(tostring(data.metadata.model)))
+			return
+		end
 
 		PlaceObjectOnGroundProperly(bag)
 

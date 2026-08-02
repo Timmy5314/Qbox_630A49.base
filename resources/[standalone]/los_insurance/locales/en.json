@@ -36,8 +36,10 @@
     "tax_income": "Income tax",
     "tax_vehicle": "Road tax (%s vehicles)",
     "premium_per_paycheck": "$%s per paycheck",
-    "theft_paid": "Your insurer paid out $%s for %s. The vehicle has been recovered and returned to your garage.",
-    "theft_uninsured": "%s was stripped at a chop shop. You were not insured, so there is no payout. The wreck has been returned to your garage.",
-    "theft_sms_insured": "Los Santos Insurance: claim settled for %s. $%s has been transferred to your account. Your vehicle is back in your garage.",
-    "theft_sms_uninsured": "Los Santos Insurance: %s was reported stripped. You had no active policy on this vehicle, so we cannot pay out. Consider insuring it."
+    "theft_uninsured": "%s was stripped at a chop shop and towed to the impound. You had no policy, so recovery costs the full $%s.",
+    "theft_sms_insured": "Los Santos Insurance: %s has been recovered and is at the impound. Your policy applies; you owe $%s to release it.",
+    "theft_sms_uninsured": "Los Santos Insurance: %s has been recovered and is at the impound. No active policy was found, so the full $%s is due to release it.",
+    "theft_insured": "%s was stripped at a chop shop and towed to the impound. Your policy covers most of it - recovery costs $%s.",
+    "theft_impound_reason": "Recovered after chop shop theft",
+    "theft_impounder": "Los Santos Insurance"
 }

@@ -102,8 +102,35 @@ ItemBack = function(name)
 		lib.requestModel(model)
 		SetModelAsNoLongerNeeded(model)
 		local ent = CreateObject(GetHashKey(model), GetEntityCoords(cache.ped)-vec3(0.0,0.0,5.0), true, true, false)
-		while not DoesEntityExist(ent) do Wait(1) end
-		while not NetworkGetEntityIsNetworked(ent) do Wait(1) NetworkRegisterEntityAsNetworked(ent) end
+
+		--[[
+		    Deze twee lussen hadden GEEN uitweg.
+
+		    Dat is hier geen schoonheidsfoutje. `ox_inventory:currentWeapon` wordt
+		    synchroon afgehandeld, dus zolang deze functie blijft draaien staat de
+		    equip-routine van ox_inventory stil. Lukt het aanmaken of het
+		    netwerken van het rugprop-object niet - een model dat niet laadt,
+		    entity lockdown, de anticheat - dan draaide dit eeuwig door en kreeg je
+		    het WAPEN NIET IN JE HANDEN, terwijl het gewoon in je inventory zit.
+
+		    Nu met een grens. Lukt het niet, dan gaat het prop niet op je rug maar
+		    werkt je wapen wel. Dat is de goede kant om op te falen.
+		]]
+		local deadline = GetGameTimer() + 2000
+
+		while not DoesEntityExist(ent) and GetGameTimer() < deadline do Wait(0) end
+
+		if not DoesEntityExist(ent) then
+			lib.print.warn(('renzu_itemback: kon het rugprop voor %s niet aanmaken (%s)')
+				:format(itemname, model))
+			onback[itemname] = nil
+			return
+		end
+
+		while not NetworkGetEntityIsNetworked(ent) and GetGameTimer() < deadline do
+			Wait(0)
+			NetworkRegisterEntityAsNetworked(ent)
+		end
 		if not onback[itemname] then onback[itemname] = {} end
 		onback[itemname] = {net = NetworkGetNetworkIdFromEntity(ent), entity = ent}
 		save = true
@@ -118,9 +145,21 @@ ItemBack = function(name)
 						local bone = GetEntityBoneIndexByName(ent, v.bone)
 						lib.requestModel(v.model)
 						local componentEntity = CreateObjectNoOffset(v.model,GetEntityCoords(cache.ped)-vec3(0.0,0.0,5.0), true, true)
-						while not DoesEntityExist(componentEntity) do Wait(1) end
+
+						-- Zelfde verhaal als bij het wapenprop hierboven: begrensd,
+						-- anders houdt een attachment dat niet spawnt de hele
+						-- equip-routine van ox_inventory tegen.
+						local compDeadline = GetGameTimer() + 1000
+
+						while not DoesEntityExist(componentEntity) and GetGameTimer() < compDeadline do Wait(0) end
+
+						if not DoesEntityExist(componentEntity) then goto nextComponent end
+
 						NetworkRegisterEntityAsNetworked(componentEntity)
-						while not NetworkGetEntityIsNetworked(componentEntity) do Wait(1) NetworkRegisterEntityAsNetworked(componentEntity) end
+						while not NetworkGetEntityIsNetworked(componentEntity) and GetGameTimer() < compDeadline do
+							Wait(0)
+							NetworkRegisterEntityAsNetworked(componentEntity)
+						end
 						if onback[itemname]['components'] == nil then
 							onback[itemname]['components'] = {}
 						end
@@ -128,6 +167,7 @@ ItemBack = function(name)
 						SetEntityCollision(componentEntity, false, false)
 						AttachEntityToEntity(componentEntity, ent, bone, 0.0 , 0.0 , 0.00, 0.0 , 0.0 , 0.0, true, true, false, false, 1, true)
 					end
+					::nextComponent::
 				end
 			end
 		end
@@ -165,8 +205,13 @@ AddEventHandler('ox_inventory:currentWeapon', function(cw)
 				ReqAndDelete(onback[v.name].entity)
 				onback[v.name] = nil
 			end
-			lastweapon = v.name
 		end
+
+		-- `lastweapon = v.name` stond IN de lus hierboven, buiten de if. Daardoor
+		-- eindigde het op de naam van het laatste item in de tabel in plaats van
+		-- het wapen dat je net pakte, en ging bij de volgende wissel het verkeerde
+		-- prop op je rug.
+		lastweapon = currentWeapon.name
 	elseif currentWeapon and GetHashKey(currentWeapon.name) == GetHashKey('WEAPON_UNARMED') then
 		ItemBack(lastweapon)
 		lastweapon = currentWeapon.name

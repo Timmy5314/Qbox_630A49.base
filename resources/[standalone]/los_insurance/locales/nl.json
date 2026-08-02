@@ -36,8 +36,10 @@
     "tax_income": "Inkomstenbelasting",
     "tax_vehicle": "Motorrijtuigenbelasting (%s voertuigen)",
     "premium_per_paycheck": "$%s per loonstrook",
-    "theft_paid": "Je verzekeraar heeft $%s uitgekeerd voor %s. Het voertuig is teruggevonden en staat weer in je garage.",
-    "theft_uninsured": "%s is gestript bij een chopshop. Je was niet verzekerd, dus er volgt geen uitkering. Het wrak staat weer in je garage.",
-    "theft_sms_insured": "Los Santos Verzekeringen: schade afgehandeld voor %s. $%s is overgemaakt naar je rekening. Je voertuig staat weer in je garage.",
-    "theft_sms_uninsured": "Los Santos Verzekeringen: %s is als gestript gemeld. Je had geen lopende polis op dit voertuig, dus we kunnen niet uitkeren. Overweeg een verzekering."
+    "theft_uninsured": "%s is gestript bij een chopshop en naar de impound gesleept. Je had geen polis, dus ophalen kost het volle bedrag van $%s.",
+    "theft_sms_insured": "Los Santos Verzekeringen: %s is teruggevonden en staat bij de impound. Je polis geldt; je betaalt $%s om hem vrij te krijgen.",
+    "theft_sms_uninsured": "Los Santos Verzekeringen: %s is teruggevonden en staat bij de impound. Geen lopende polis gevonden, dus het volle bedrag van $%s is verschuldigd.",
+    "theft_insured": "%s is gestript bij een chopshop en naar de impound gesleept. Je polis dekt het grootste deel - ophalen kost $%s.",
+    "theft_impound_reason": "Teruggevonden na diefstal en chopshop",
+    "theft_impounder": "Los Santos Verzekeringen"
 }
