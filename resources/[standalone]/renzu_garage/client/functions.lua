@@ -1231,7 +1231,14 @@ function OpenGarage(garageid,garage_type,jobonly,default)
                 if cat ~= nil and totalcats > 0 and v.brand:upper() == cat:upper() and not ImpoundedLostVehicle or totalcats == 1 and not ImpoundedLostVehicle or cat == nil and not ImpoundedLostVehicle 
                 or cat ~= nil and totalcats > 0 and v.brand:upper() == cat:upper() and ImpoundedLostVehicle and v.stored or totalcats == 1 and ImpoundedLostVehicle and v.stored or cat == nil and ImpoundedLostVehicle and v.stored then
                     cars = cars + 1
-                    if string.find(v.garage_id, "impound") or v.garage_id == nil then
+                    -- Stond als `string.find(v.garage_id, "impound") or v.garage_id == nil`.
+                    -- Lua evalueert van links naar rechts, dus bij een lege
+                    -- garage_id knalde string.find eruit VOORDAT de nil-check
+                    -- aan de beurt was:
+                    --   bad argument #1 to 'find' (string expected, got nil)
+                    -- Daarmee brak de hele garagelijst af en zag je geen auto's.
+                    -- Een voertuig zonder garage hoort gewoon in A te belanden.
+                    if v.garage_id == nil or string.find(v.garage_id, "impound") then
                         v.garage_id = 'A'
                     end
                     if vehtable[v.garage_id] == nil then

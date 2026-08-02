@@ -99,9 +99,27 @@ local function pickSpawn(depots, coords)
         return best
     end
 
-    -- Geen depot ingesteld. Zoek een wegknooppunt buiten beeld. Nodes worden
-    -- van dichtbij naar ver genummerd, dus we lopen op tot we ver genoeg zitten.
-    for n = 1, 60 do
+    --[[
+        Geen depot ingesteld. Zoek een wegknooppunt buiten beeld.
+
+        HIER GING HET MIS. Dit keek naar de 60 dichtstbijzijnde knooppunten en
+        eiste dat er een tussen spawnMinDistance (150 m) en spawnMaxDistance
+        (350 m) lag. In de stad liggen die 60 dichtstbijzijnde nodes allemaal
+        ruim binnen 150 m - Los Santos zit vol wegen. Er kwam dus niets uit,
+        `spawn` was nil, en startRide brak meteen af met rideFailed. Dat is de
+        "de taxi kan je locatie niet bereiken" waar nooit een auto bij kwam.
+
+        Nu drie dingen anders:
+          - veel verder zoeken (400 nodes in plaats van 60)
+          - de BESTE kandidaat onthouden in plaats van de eerste die past
+          - en als er echt niets in de band ligt, alsnog de verste node pakken
+            die we gevonden hebben. Liever een taxi die iets te dichtbij of te
+            ver spawnt dan helemaal geen taxi.
+    ]]
+    local best, bestDist
+    local farthest, farthestDist
+
+    for n = 1, 400 do
         local found, node, heading = GetNthClosestVehicleNodeWithHeading(coords.x, coords.y, coords.z, n, 1, 3.0, 0)
 
         if found then
@@ -110,7 +128,34 @@ local function pickSpawn(depots, coords)
             if dist >= config.spawnMinDistance and dist <= config.spawnMaxDistance then
                 return vec4(node.x, node.y, node.z, heading)
             end
+
+            -- Buiten de band, maar bruikbaar als er niets beters komt.
+            if not farthestDist or dist > farthestDist then
+                farthest, farthestDist = vec4(node.x, node.y, node.z, heading), dist
+            end
+
+            -- Te ver is minder erg dan te dichtbij: dan rijdt hij tenminste
+            -- nog een stuk. Onthoud de dichtstbijzijnde die boven het minimum ligt.
+            if dist > config.spawnMaxDistance and (not bestDist or dist < bestDist) then
+                best, bestDist = vec4(node.x, node.y, node.z, heading), dist
+            end
         end
+    end
+
+    if best then
+        if config.debug then
+            lib.print.info(('los_aitaxi: geen node binnen %d-%d m, uitgeweken naar %.0f m')
+                :format(config.spawnMinDistance, config.spawnMaxDistance, bestDist))
+        end
+        return best
+    end
+
+    if farthest then
+        if config.debug then
+            lib.print.info(('los_aitaxi: alleen dichtbijgelegen nodes gevonden, spawn op %.0f m')
+                :format(farthestDist))
+        end
+        return farthest
     end
 end
 
