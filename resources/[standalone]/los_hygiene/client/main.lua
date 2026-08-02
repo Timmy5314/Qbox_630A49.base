@@ -55,6 +55,49 @@ local function perform(action, label, anim)
     end
 end
 
+--[[
+    ── /pee en /poo — in het wild ───────────────────────────────────────────
+
+    Alleen als de nood echt hoog is (config.wild.allowAbove). De server
+    controleert dat opnieuw; deze check is er om meteen te kunnen zeggen
+    waarom het niet mag in plaats van stil te falen.
+]]
+
+---@param status 'bladder'|'bowel'
+---@param action string
+---@param label string
+---@param anim table
+local function relieveOutside(status, action, label, anim)
+    if config.wild.blockInVehicle and cache.vehicle then
+        return lib.notify({ description = locale('not_in_vehicle'), type = 'error' })
+    end
+
+    if IsEntityDead(cache.ped) then return end
+
+    if statuses[status] < config.wild.allowAbove then
+        return lib.notify({ description = locale('no_urge_yet'), type = 'error' })
+    end
+
+    perform(action, label, anim)
+end
+
+RegisterCommand('pee', function()
+    relieveOutside('bladder', 'peeWild', locale('doing_pee'), {
+        dict = 'misscarsteal2peeing',
+        clip = 'peeing_loop',
+    })
+end, false)
+
+RegisterCommand('poo', function()
+    -- Gehurkt. Er is geen nette "poepen buiten"-animatie in de basisgame; dit
+    -- is de laagste hurkhouding die er wel is. Bevalt hij niet, dan is dit de
+    -- enige plek waar hij staat.
+    relieveOutside('bowel', 'pooWild', locale('doing_poo'), {
+        dict = 'amb@world_human_bum_wash@male@low@idle_a',
+        clip = 'idle_a',
+    })
+end, false)
+
 local function addTargets(models, options)
     if not models or #models == 0 then return end
     exports.ox_target:addModel(models, options)

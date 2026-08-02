@@ -11,5 +11,7 @@
     "need_to_pee": "You really need to find a toilet.",
     "need_to_poo": "Your stomach is not happy.",
     "no_object": "Look at an object first.",
-    "object_model": "Model hash: %s"
+    "object_model": "Model hash: %s",
+    "no_urge_yet": "You don't need to go badly enough to do that out here.",
+    "not_in_vehicle": "Not from inside a vehicle."
 }

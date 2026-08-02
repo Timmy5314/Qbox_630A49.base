@@ -91,6 +91,33 @@ Config.actions = {
     washHands = { duration = 4000, hygiene = 15 },
     pee = { duration = 6000 },
     poo = { duration = 12000 },
+
+    -- In het wild. Zelfde handeling, maar je wordt er vies van. Zie Config.wild.
+    peeWild = { duration = 6000 },
+    pooWild = { duration = 12000 },
+}
+
+--[[
+    ── IN HET WILD (/pee en /poo) ───────────────────────────────────────────
+
+    Een toilet is de nette weg. Staat er geen in de buurt en is de nood echt
+    hoog, dan mag het buiten - met een hygiëneboete, zodat het geen gratis
+    alternatief voor het toilet wordt.
+
+    De drempel wordt op de SERVER gecontroleerd, niet alleen in de client. De
+    client checkt hem ook, maar puur om meteen een nette melding te kunnen
+    geven in plaats van een stille weigering.
+]]
+Config.wild = {
+    --- Vanaf deze blaas- of darmwaarde mag het buiten. Gelijk aan de drempel
+    --- waarop je aandrang krijgt: zodra je de melding krijgt, mag het ook.
+    allowAbove = Config.effects.urgeAbove,
+
+    --- Hygiëneboete. Buiten je behoefte doen is geen schone bezigheid.
+    hygienePenalty = -15,
+
+    --- Niet vanuit een voertuig.
+    blockInVehicle = true,
 }
 
 --[[

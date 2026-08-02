@@ -11,5 +11,7 @@
     "need_to_pee": "Je moet echt een toilet vinden.",
     "need_to_poo": "Je maag is niet blij.",
     "no_object": "Kijk eerst naar een object.",
-    "object_model": "Modelhash: %s"
+    "object_model": "Modelhash: %s",
+    "no_urge_yet": "Zo hoog is de nood nog niet - zoek een toilet.",
+    "not_in_vehicle": "Niet vanuit een voertuig."
 }
