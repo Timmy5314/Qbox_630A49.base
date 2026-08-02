@@ -223,6 +223,15 @@ end
 ---@param vehicle number The entity number of the vehicle.
 local function hotwireSuccessCallback(vehicle)
     TriggerServerEvent('qbx_vehiclekeys:server:hotwiredVehicle', VehToNet(vehicle))
+
+    -- Een GESLAAGDE hotwire is het moment waarop de auto daadwerkelijk gestolen
+    -- wordt. Er ging alleen een melding uit bij een MISLUKTE poging, dus wie het
+    -- in een keer goed deed reed weg zonder dat de meldkamer iets hoorde - precies
+    -- omgekeerd aan wat je wilt.
+    --
+    -- Loopt via dezelfde kansberekening als de rest (overdag vaker dan 's nachts)
+    -- en via los_policebridge naar ps-dispatch.
+    SendPoliceAlertAttempt('steal', vehicle)
 end
 
 ---Operations done after the LockpickDoor quickevent done.

@@ -49,7 +49,22 @@ return {
     ---@param crime string
     ---@param vehicle number entity
     alertPolice = function(crime, vehicle)
-        TriggerServerEvent('police:server:policeAlert', locale("info.vehicle_theft") .. crime)
+        -- `crime` is een interne sleutel ('steal', 'carjack'). Die kaal achter de
+        -- tekst plakken gaf meldingen als "Vehicle theft in progress. Type: steal".
+        -- De meldkamer heeft meer aan het kenteken en het model.
+        local label = ({
+            steal   = locale('info.crime_steal'),
+            carjack = locale('info.crime_carjack'),
+        })[crime] or crime
+
+        local plate = DoesEntityExist(vehicle)
+            and GetVehicleNumberPlateText(vehicle):gsub('%s+$', '')
+            or nil
+
+        local message = locale('info.vehicle_theft') .. label
+        if plate then message = ('%s (%s)'):format(message, plate) end
+
+        TriggerServerEvent('police:server:policeAlert', message)
     end,
 
     vehicleAlarmDuration = 10000,

@@ -18,7 +18,15 @@ return {
             shared = false,
             removeNormalLockpickChance = 0.4,
             removeAdvancedLockpickChance = 0.2,
-            findKeysChance = 0.5,
+
+            -- Sleutels zoeken (H in de bestuurdersstoel) staat uit. Op verzoek:
+            -- een auto stelen hoort via de lockpick te gaan en niet via gratis
+            -- rondtasten. Op 0.0 verschijnt de "zoek sleutels"-hint niet meer
+            -- en doet de toets niets.
+            --
+            -- Dit raakt de lockpick NIET: Hotwire() heeft een eigen skillcheck
+            -- en kijkt niet naar deze waarde.
+            findKeysChance = 0.0,
         },
         ---@type table<VehicleClass, VehicleConfig>
         classes = {
