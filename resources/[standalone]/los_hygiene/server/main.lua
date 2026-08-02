@@ -140,20 +140,19 @@ lib.callback.register('los_hygiene:finishAction', function(src, action)
         -- Poepen leegt ook de blaas; dat scheelt een tweede handeling.
         set(src, 'bladder', 0)
 
-    -- In het wild (/pee en /poo). De client checkt de drempel ook, maar hier
-    -- is het bindend: anders kan iedereen zijn blaas legen door het commando
-    -- te spammen zonder ooit een toilet op te zoeken.
+    -- In het wild (/pee en /poo). Werkt altijd; alleen een lege blaas of darm
+    -- weigert, want dan valt er niets te legen.
     elseif action == 'peeWild' then
-        if get(player, 'bladder') < config.wild.allowAbove then return false end
+        if get(player, 'bladder') < config.wild.minimum then return false end
 
         set(src, 'bladder', 0)
-        add(src, 'hygiene', config.wild.hygienePenalty)
+        if config.wild.hygieneChange ~= 0 then add(src, 'hygiene', config.wild.hygieneChange) end
     elseif action == 'pooWild' then
-        if get(player, 'bowel') < config.wild.allowAbove then return false end
+        if get(player, 'bowel') < config.wild.minimum then return false end
 
         set(src, 'bowel', 0)
         set(src, 'bladder', 0)
-        add(src, 'hygiene', config.wild.hygienePenalty)
+        if config.wild.hygieneChange ~= 0 then add(src, 'hygiene', config.wild.hygieneChange) end
     else
         return false
     end

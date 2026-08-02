@@ -1932,3 +1932,29 @@ lib.callback.register('ox_inventory:getVehicleData', function(netid)
 		return GetEntityModel(entity), GetVehicleClass(entity)
 	end
 end)
+
+--[[
+    ── Itemafbeelding voor andere resources ─────────────────────────────────
+
+    renzu_shops (en wat er verder nog itemplaatjes toont) bouwde zijn eigen URL
+    en wees daarbij hardcoded naar `cfx-nui-ox_inventory/web/images`. Daarmee
+    negeerde het de convar `inventory:imagepath` volledig, en zag je in de shop
+    een leeg vakje voor elk item waarvan het plaatje niet toevallig lokaal
+    stond.
+
+    Deze export past dezelfde regels toe als de inventory zelf: carmap tenzij
+    de afbeelding alleen lokaal bestaat. Altijd een browser-bruikbare URL.
+
+    Zonder argument levert hij de basis-URL, voor NUI's die er zelf
+    `<naam>.png` achter plakken.
+]]
+exports('ItemImage', function(itemName)
+    local base = client.imagepath:gsub('/+$', ''):gsub('^nui://', 'https://cfx-nui-')
+
+    if not itemName then return base end
+
+    local item = Items(itemName)
+    local image = item and item.client and item.client.image
+
+    return image or ('%s/%s.png'):format(base, itemName)
+end)

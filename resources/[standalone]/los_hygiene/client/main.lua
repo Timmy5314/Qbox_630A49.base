@@ -58,9 +58,9 @@ end
 --[[
     ── /pee en /poo — in het wild ───────────────────────────────────────────
 
-    Alleen als de nood echt hoog is (config.wild.allowAbove). De server
-    controleert dat opnieuw; deze check is er om meteen te kunnen zeggen
-    waarom het niet mag in plaats van stil te falen.
+    Werkt altijd, behalve als er niets te legen valt. De server controleert dat
+    opnieuw; deze check is er om meteen te kunnen zeggen waarom het niet mag in
+    plaats van stil te falen.
 ]]
 
 ---@param status 'bladder'|'bowel'
@@ -74,8 +74,8 @@ local function relieveOutside(status, action, label, anim)
 
     if IsEntityDead(cache.ped) then return end
 
-    if statuses[status] < config.wild.allowAbove then
-        return lib.notify({ description = locale('no_urge_yet'), type = 'error' })
+    if statuses[status] < config.wild.minimum then
+        return lib.notify({ description = locale('nothing_to_do'), type = 'error' })
     end
 
     perform(action, label, anim)

@@ -12,14 +12,20 @@ Gegenereerd op 2026-08-02. Vergelijking van de itemnamen in
 |---|---|
 | items totaal | 520 |
 | met lokale afbeelding | 151 |
-| alleen in carmap (nu opgelost via `data/carmap_items.lua`) | 30 |
+| met een carmap-afbeelding | 107 |
 | **zonder afbeelding, waar dan ook** | **339** |
 
+`inventory:imagepath` wijst nu naar carmap, dus alles komt daar vandaan. De 285
+afbeeldingen die alleen lokaal bestaan blijven van schijf komen; die staan in
+`ox_inventory/data/local_images.lua`.
+
 Die 339 tonen een leeg vakje in de inventory en in renzu_shops. Dat is geen
-codefout meer: de plaatjes bestaan simpelweg nergens. Ze moeten gemaakt of
-gedownload worden en in `web/images/` gezet, of met dezelfde naam in de
-carmap-repo onder `carmap/items/`. Zet je ze in carmap, voeg de naam dan ook
-toe aan `data/carmap_items.lua`.
+codefout: de plaatjes bestaan simpelweg nergens. Ze moeten met exact deze naam
+in de carmap-repo onder `carmap/items/` gezet worden.
+
+Voertuigafbeeldingen komen uit `carmap/vehicle/<model>.jpg`. Van de 169 modellen
+in `renzu_vehicleshop/vehicles.lua` heeft carmap er 31. De rest valt terug op het
+standaard-plaatje tot er artwork bijkomt.
 
 ## De 339
 

@@ -100,21 +100,24 @@ Config.actions = {
 --[[
     ── IN HET WILD (/pee en /poo) ───────────────────────────────────────────
 
-    Een toilet is de nette weg. Staat er geen in de buurt en is de nood echt
-    hoog, dan mag het buiten - met een hygiëneboete, zodat het geen gratis
-    alternatief voor het toilet wordt.
+    Werkt ALTIJD. De enige reden om te weigeren is dat er niets te legen valt:
+    een blaas op 0 hoef je niet te legen.
 
-    De drempel wordt op de SERVER gecontroleerd, niet alleen in de client. De
-    client checkt hem ook, maar puur om meteen een nette melding te kunnen
-    geven in plaats van een stille weigering.
+    Geen hygiëneboete. Je behoefte doen kost je niets; alleen niet douchen
+    maakt je vies, en dat loopt via de gewone verval-rate.
+
+    De server controleert de voorwaarde opnieuw. De client checkt hem ook,
+    maar puur om meteen een nette melding te kunnen geven in plaats van een
+    stille weigering.
 ]]
 Config.wild = {
-    --- Vanaf deze blaas- of darmwaarde mag het buiten. Gelijk aan de drempel
-    --- waarop je aandrang krijgt: zodra je de melding krijgt, mag het ook.
-    allowAbove = Config.effects.urgeAbove,
+    --- Onder deze waarde valt er niets te legen en weigert het commando.
+    --- Op 1 betekent dat: alleen een volledig lege blaas of darm weigert.
+    minimum = 1,
 
-    --- Hygiëneboete. Buiten je behoefte doen is geen schone bezigheid.
-    hygienePenalty = -15,
+    --- Hygiëneverandering na afloop. 0 = geen effect, en dat is de bedoeling.
+    --- Zet dit op een negatief getal als je het buiten toch wilt bestraffen.
+    hygieneChange = 0,
 
     --- Niet vanuit een voertuig.
     blockInVehicle = true,

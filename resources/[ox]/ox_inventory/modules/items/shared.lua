@@ -7,10 +7,35 @@ end
 local ItemList = {}
 local isServer = IsDuplicityVersion()
 
+--[[
+    ── Waar itemafbeeldingen vandaan komen ──────────────────────────────────
+
+    `inventory:imagepath` wijst naar de carmap-repo (zie ox.cfg). Alles komt
+    daar vandaan, ook wat renzu_shops, renzu_vehicleshop en renzu_garage tonen:
+    die lezen dezelfde itemdata.
+
+    Uitzondering: een paar honderd afbeeldingen staan wel in web/images maar
+    niet in carmap. Die zouden een leeg vakje geven terwijl het plaatje er
+    gewoon is. Voor die bestandsnamen valt dit terug op nui://. De lijst staat
+    in data/local_images.lua.
+
+    Een pad met een schema (https://, nui://) wordt nooit aangeraakt - dat is
+    een expliciete keuze in items.lua.
+]]
+local localImages = lib.load('data.local_images') or {}
+
 local function setImagePath(path)
-    if path then
-        return path:match('^[%w]+://') and path or ('%s/%s'):format(client.imagepath, path)
+    if not path then return end
+    if path:match('^[%w]+://') then return path end
+
+    -- Bewust https://cfx-nui- en niet nui://. Allebei werken binnen de NUI van
+    -- ox_inventory zelf, maar andere resources (renzu_shops) zetten deze string
+    -- rechtstreeks in een <img src> en daar werkt nui:// niet.
+    if localImages[path] then
+        return ('https://cfx-nui-ox_inventory/web/images/%s'):format(path)
     end
+
+    return ('%s/%s'):format(client.imagepath, path)
 end
 
 ---@param data OxItem
@@ -106,31 +131,23 @@ for type, data in pairs(lib.load('data.weapons') or {}) do
 	end
 end
 
---[[
-    ── Terugval op carmap voor items zonder afbeelding ──────────────────────
-
-    Van de items in data/items.lua had het merendeel geen bestand in
-    web/images. De NUI vraagt dan `<imagepath>/<naam>.png` op, krijgt een 404
-    en laat een leeg vakje zien - vandaar de lege plekken in renzu_shops en de
-    inventory.
-
-    Voor de namen in data/carmap_items.lua bestaat er wel een afbeelding in de
-    carmap-repo. Die krijgen hier een absolute URL. setImagePath() laat een
-    pad met een schema (https://) ongemoeid, dus dat werkt zonder verdere
-    aanpassing.
-
-    Alleen als het item nog GEEN eigen client.image heeft: een expliciete
-    keuze in items.lua wint altijd.
-]]
-local carmapItems = lib.load('data.carmap_items') or {}
-local carmapBase = GetConvar('carmap:baseurl', ''):gsub('/+$', '')
-
 for k, v in pairs(lib.load('data.items') or {}) do
 	v.name = k
 
-	if carmapBase ~= '' and carmapItems[k] and not v.client?.image then
+	--[[
+	    Heeft een item geen eigen client.image, dan bouwt de NUI zelf
+	    `<imagepath>/<naam>.png` - en die wijst nu naar carmap. Voor items
+	    waarvan de afbeelding alleen lokaal bestaat klopt dat niet, dus die
+	    krijgen hier alsnog een expliciete verwijzing. setImagePath() maakt er
+	    dan een nui://-pad van.
+
+	    Een client-tabel met alleen een image is onschadelijk: zonder usetime
+	    valt de gebruik-callback net zo door als bij een item helemaal zonder
+	    client-tabel.
+	]]
+	if not v.client?.image and localImages[k .. '.png'] then
 		v.client = v.client or {}
-		v.client.image = ('%s/items/%s.png'):format(carmapBase, k)
+		v.client.image = k .. '.png'
 	end
 
 	local success, response = pcall(newItem, v)

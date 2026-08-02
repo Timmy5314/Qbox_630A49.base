@@ -896,9 +896,29 @@ PopulateVehicleshop = function(k)
             if shoptype == 'boat' or shoptype == 'plane' then
                 pmult,tmult,handling, brake = 10,8,GetPerformanceStats(vehicleModel).handling * 0.1, GetPerformanceStats(vehicleModel).brakes * 0.1
             end
-            local img = 'https://cfx-nui-renzu_vehicleshop/imgs/uploads/'..value.model..'.jpg'
+            --[[
+                Voertuigafbeeldingen komen uit de carmap-repo, net als de
+                item- en kledingafbeeldingen. Zie de convar carmap:baseurl in
+                server.cfg; de bestanden heten daar <model>.jpg.
+
+                Hier stond `imgs/uploads/<model>.jpg` als basis, maar die map
+                bevat uitsluitend hash-genaamde bestanden (0x11962e49.jpg) die
+                bij geen enkel model uit vehicles.lua horen. En omdat
+                Config.CustomImg aan stond werd hij alsnog overschreven door
+                value['imglink'] - een kolom die in vehicles.lua nergens
+                bestaat. `img` was dus altijd nil en de HTML viel voor ELK
+                voertuig terug op het wiel-plaatje.
+
+                Heeft een model geen afbeelding in carmap, dan vangt de
+                onerror in html/script.js dat nog steeds op.
+            ]]
+            local carmapBase = GetConvar('carmap:baseurl', ''):gsub('/+$', '')
+            local img = carmapBase ~= ''
+                and ('%s/vehicle/%s.jpg'):format(carmapBase, value.model)
+                or ('https://cfx-nui-renzu_vehicleshop/imgs/uploads/%s.jpg'):format(value.model)
+
             local hashmodel = joaat(value.model)
-            if Config.CustomImg and not Config.use_renzu_vehthumb then
+            if Config.CustomImg and not Config.use_renzu_vehthumb and value[Config.CustomImgColumn] then
                 img = value[Config.CustomImgColumn]
             elseif Config.use_renzu_vehthumb and gstate[tostring(hashmodel)] then
                 img = gstate[tostring(hashmodel)]

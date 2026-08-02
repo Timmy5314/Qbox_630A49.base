@@ -151,7 +151,25 @@ if not IsDuplicityVersion() then
 			})
 		end
 	end
+	--[[
+	    Wees hardcoded naar cfx-nui-ox_inventory/web/images en negeerde daarmee
+	    de convar `inventory:imagepath`. Sinds die naar carmap wijst kwam de
+	    shop dus nog steeds bij de lokale map uit, en zag je een leeg vakje voor
+	    elk item waarvan het plaatje daar niet stond - het merendeel.
+
+	    ox_inventory lost het nu op, met dezelfde regels als de inventory zelf:
+	    carmap tenzij de afbeelding alleen lokaal bestaat.
+	]]
 	self.ImagesPath = function(item)
+		local ok, path = pcall(function()
+			return exports.ox_inventory:ItemImage(item)
+		end)
+
+		if ok and path then
+			return item and path or (path .. '/')
+		end
+
+		-- Terugval als ox_inventory nog niet gestart is.
 		if item then
 			return 'https://cfx-nui-ox_inventory/web/images/'..item..'.png'
 		end
