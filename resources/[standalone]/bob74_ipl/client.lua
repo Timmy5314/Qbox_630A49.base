@@ -39,7 +39,7 @@ CreateThread(function()
     Graffitis.Enable(true)
 
     -- UFO
-   [.Enable(false) -- 2490.47729, 3774.84351, 2414.035
+    UFO.Hippie.Enable(false) -- 2490.47729, 3774.84351, 2414.035
     UFO.Chiliad.Enable(false) -- 501.52880000, 5593.86500000, 796.23250000
     UFO.Zancudo.Enable(false) -- -2051.99463, 3237.05835, 1456.97021
 
