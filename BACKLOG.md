@@ -604,23 +604,39 @@ was. Rode draad: **niet één grote fout, maar losse fouten die elk stil faalden
 | `/pee` en `/poo` ontbraken | Bestonden nooit; los_hygiene had alleen ox_target op toiletprops. |
 | Geen huizen op de kaart | `cl_property.lua` maakte alleen een blip voor panden die je al bezit. Te koop = geen blip. |
 
-## Nog open — vergt de serverlog of de database
+## Wat de query-historie leerde
 
-Deze zijn **niet** opgelost en waarschijnlijk geen codefout:
+Tim leverde zijn HeidiSQL-config aan. De query-historie daarin gaf drie antwoorden:
 
-1. **los_insurance geeft een error.** De code leest `los_insurance_policies`.
-   Een ontbrekende tabel geeft bij oxmysql een exception, geen nil. Sterke
-   verdenking dat `install/README.md` stap 2 nooit gedraaid is.
-2. **renzu_garage werkt niet.** Vereist extra kolommen in `player_vehicles`
-   (`install/02_renzu_garage_columns.sql`).
-3. **Geen huizen te koop.** ps-housing leest de tabel `properties`. Die is leeg
-   of ontbreekt. Panden worden aangemaakt door een makelaar (ps-realtor), ze
-   staan er niet vanzelf in. De blip-fix hierboven maakt ze zichtbaar zodra er
+1. **`impound` is nooit aangemaakt op `player_vehicles`.** renzu_garage verwijst
+   er 131 keer naar in zijn serverqueries. Elke garage-query faalde dus op
+   "Unknown column". Dat was de kapotte garage. Opgelost met een idempotente
+   controle bij het opstarten (`renzu_garage/server/00_migrate.lua`), want de
+   kolommenlijst is meermaals met de hand toegevoegd en weer weggegooid — de
+   laatste DDL in de historie is een DROP van `type`, `job`, `stored`,
+   `metadata`, `mileage` en `pound`, zonder dat er iets na komt.
+2. **De insurance-tabellen bestaan wel** (aangemaakt 1 aug 15:46). De error komt
+   dus ergens anders vandaan. Nog niet gevonden.
+3. **`properties` bestaat, maar er is nooit een INSERT geweest.** Geen huizen te
+   koop is dus geen bug: er staan simpelweg geen panden in. Ze worden aangemaakt
+   door een makelaar via ps-realtor. De blip-fix maakt ze zichtbaar zodra er
    panden ín staan.
-4. **Wapen kan niet geequipt worden.** Geen oorzaak gevonden in de code.
-   `canUseItem` in ox_inventory eist onder meer `not PlayerData.dead`, en die
-   statebag komt van ND_Ambulance. Vergt de clientconsole (F8) op het moment
-   dat het misgaat.
+
+## Nog open
+
+1. **los_insurance geeft een error.** Tabellen bestaan, config is compleet, de
+   code leest goed. Vergt de serverlog met de echte foutregel.
+2. **Wapen kan niet geequipt worden.** Geen oorzaak in de code. `canUseItem` in
+   ox_inventory eist onder meer `not PlayerData.dead`, `not invBusy` en
+   `PlayerData.loaded`. Vergt de clientconsole (F8) op het moment dat het misgaat.
+3. **Chopshop-keten.** Het diefstal-deel is af (lockpick werkt, sleutels zoeken
+   uit, ps-dispatch-melding bij geslaagde diefstal). Wat nog ontbreekt: auto
+   inleveren bij de chopshop, eigenaar een verzekeringsuitkering + melding geven,
+   en het voertuig terugzetten in zijn garage. Raakt stevo_chopshop,
+   los_insurance en renzu_garage.
+4. **renzu_jobs-menu heeft dode knoppen.** `config/jobs.lua` bevat items met
+   `unimplemented = true` (`police:identity_card`, `police:search`). ND_Police
+   heeft die functies zelf. Cosmetisch, niet brekend.
 
 ## Nog te bouwen
 
@@ -628,13 +644,20 @@ Deze zijn **niet** opgelost en waarschijnlijk geen codefout:
   verzekeringsuitkering + melding + auto terug in de garage, ps-dispatch-melding
   bij diefstal, nette meldingen in de chopshop. Raakt stevo_chopshop,
   los_insurance, renzu_garage en ps-dispatch. Nog niets aan gedaan.
-- **Key search uitzetten.** Tim wil dat alleen de lockpick werkt.
-  `findKeysChance` in `qbx_vehiclekeys/config/shared.lua` staat op 0.5.
-- **renzu_motels naar ox_target.** Draait nog op markers.
-- **renzu_jobs met ND_Police / ND_Ambulance.** Nooit gecontroleerd.
 - **339 items hebben nergens een afbeelding.** Lijst in
   [install/ONTBREKENDE-ITEM-AFBEELDINGEN.md](install/ONTBREKENDE-ITEM-AFBEELDINGEN.md).
   Dat is content, geen code.
+
+## Gecontroleerd en in orde
+
+- **renzu_jobs x ND_Police x ND_Ambulance.** Delen dezelfde dienststatus:
+  `Bridge.setDuty` schrijft via `SetJobDuty` naar qbx_core, en beide ND-resources
+  lezen `PlayerData.job.onduty`. ND_Police matcht op jobnaam
+  (`police`/`bcso`/`sasp`), ND_Ambulance op naam OF type (`ambulance`/`ems`).
+  Alle vier bestaan in `qbx_core/shared/jobs.lua`. Geen actie nodig.
+- **ps-dispatch bij voertuigdiefstal.** `los_policebridge` vertaalt
+  `police:server:policeAlert` correct naar een ps-dispatch CustomAlert met
+  `jobs = {'leo'}` op jobtype. Werkte al goed.
 
 ## Bijvangst
 
