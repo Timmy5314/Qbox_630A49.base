@@ -196,6 +196,42 @@ Een sieraad is nu een avond spelen in plaats van een week. Een gewone auto een
 stuk of vier sessies. De bovenkant blijft een project - dat was en is het punt
 van "geen grind, wel schaarste".
 
-De prijzen zelf zijn NIET aangepast. Alleen het loon, en daarmee schuift alles
-in verhouding mee. Blijkt iets alsnog te duur of juist te goedkoop, dan is dat
-nu een gerichte aanpassing per categorie in plaats van aan de knop van het loon.
+### Voertuigprijzen herijkt
+
+Ook na de loonsverhoging bleef een MEDIANE auto 27 uur werk en de top 332 uur.
+Dat was precies de klacht. Daarom een oplopende korting op
+`renzu_vehicleshop/vehicles.lua` (116 van de 169 voertuigen aangepast):
+
+| Prijsdeel | Korting |
+|---|---|
+| tot $20.000 | geen |
+| $20.000 – $100.000 | 45% over het deel boven $20.000 |
+| boven $100.000 | 65% over het deel boven $100.000 |
+
+Doorlopend en stijgend, dus de volgorde duur/goedkoop klapt nergens om.
+
+| | Was | Nu | Uren instapwerk |
+|---|---|---|---|
+| Instapper | $4.000 | $4.000 | 3 |
+| p25 | $18.000 | $18.000 | 13 |
+| Mediaan | $38.000 | **$30.000** | 27 -> **21** |
+| p75 | $60.000 | **$42.000** | 42 -> **29** |
+| p90 | $125.000 | **$73.000** | 87 -> **51** |
+| p95 | $220.000 | **$106.000** | 154 -> **74** |
+| Duurste | $475.000 | **$195.000** | 332 -> **136** |
+
+De goedkope kant is bewust ongemoeid gelaten: die was al haalbaar. De winst zit
+in het midden en de top, en dat is waar de klacht zat. Het duurste voertuig is
+nog steeds 136 uur werk - een project, maar wel een haalbaar project.
+
+### Sieraden
+
+Niet aangepast. De sieraad-items bestaan wel in `ox_inventory/data/items.lua`,
+maar geen enkele winkel in `renzu_shops` verkoopt ze met een prijs. Er valt dus
+niets te herijken; er moet eerst een juwelier komen die ze aanbiedt.
+
+### Wat NIET is aangepast
+
+Alle overige prijzen (eten, kleding, wapens, drugs) zijn ongemoeid gelaten. Die
+schuiven mee met het loon. Blijkt er alsnog iets scheef, dan is dat een gerichte
+aanpassing op die categorie in plaats van aan de loonknop draaien.
