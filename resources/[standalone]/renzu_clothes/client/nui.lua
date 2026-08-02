@@ -375,13 +375,37 @@ function Shop.open(shop, categories, opts)
             allowPaymentChoice = Config.AllowPaymentChoice,
             defaultAccount = Config.PaymentAccount,
             view = opts and opts.view or nil,
-            atRegister = opts and opts.view == 'cart' or false,
+            -- De winkel is kassa-only: het enige interactiepunt IS de kassa
+            -- (zie shop.lua buildShop). Stond dit op `opts.view == 'cart'`,
+            -- dan bleef de afrekenknop in de UI permanent uitgeschakeld
+            -- (html/app.js regel 458) en kon er dus nooit betaald worden.
+            atRegister = not (opts and opts.atRegister == false),
         },
     })
 end
 
---- Closes the UI but keeps the cart and everything you tried on, because you
---- are probably walking to the next rack.
+--- Zet de paskamer terug naar wat de speler echt bezit en draagt. De winkelwagen
+--- blijft staan: die is een lijst van wat je wilt kopen, niet iets wat je aanhebt.
+local function revertPreview()
+    for slot in pairs(previewed) do
+        revertSlot(slot)
+    end
+    previewed = {}
+
+    if savedAppearance then
+        Bridge.applySnapshot(cache.ped, savedAppearance)
+        savedAppearance = nil
+    end
+
+    Wardrobe.setPreview(false)
+end
+
+--- Sluit de UI. Het pasgoed gaat er meteen weer af.
+---
+--- Dit hing eerst aan het verlaten van de winkelZONE, uit de tijd dat je van rek
+--- naar rek liep en de pas-staat daartussen moest overleven. Met een kassa-only
+--- winkel bestaat dat lopen niet meer, en hield die opzet je dus onbetaalde
+--- kleding aan tot je het hele pand uit was - precies de "kleding blijft aan"-klacht.
 function Shop.close()
     if not isOpen then return end
     isOpen = false
@@ -394,24 +418,19 @@ function Shop.close()
     SetEntityInvincible(cache.ped, false)
     DisplayRadar(true)
 
+    revertPreview()
+
     currentShop = nil
     allowedSlots = nil
 end
 
---- Called when the player walks out of the store. This is where the cart and
---- the fitting-room preview are actually thrown away.
+--- Called when the player walks out of the store. Shop.close() heeft het pasgoed
+--- dan al teruggezet; hier gaat ook de winkelwagen leeg.
 function Shop.leave()
     if isOpen then Shop.close() end
 
     clearCart()
-    previewed = {}
-
-    if savedAppearance then
-        Bridge.applySnapshot(cache.ped, savedAppearance)
-        savedAppearance = nil
-    end
-
-    Wardrobe.setPreview(false)
+    revertPreview()
 end
 
 ---@return boolean
@@ -426,15 +445,8 @@ end
 function Shop.stopPreview()
     if isOpen then return false end
 
-    previewed = {}
-
-    if savedAppearance then
-        Bridge.applySnapshot(cache.ped, savedAppearance)
-        savedAppearance = nil
-    end
-
     -- Leaving preview re-applies the equipped clothing on top of the snapshot.
-    Wardrobe.setPreview(false)
+    revertPreview()
     return true
 end
 

@@ -175,27 +175,9 @@ local function spawnPed(shop)
 
     activePeds[#activePeds + 1] = ped
 
-    -- ox_target on the clerk itself: talk to them to open the register (or
-    -- the whole shop when there are no separate racks).
-    if useTarget then
-        local hasRacks = shop.racks and next(shop.racks) ~= nil
-
-        exports.ox_target:addLocalEntity(ped, {
-            {
-                name = ('renzu_clothes:ped:%s'):format(shop.name),
-                label = hasRacks and 'Register - pay for your cart' or shop.name,
-                icon = hasRacks and 'fa-solid fa-cash-register' or 'fa-solid fa-shirt',
-                distance = Config.ShopSettings.targetDistance,
-                onSelect = function()
-                    if hasRacks then
-                        Shop.open(shop, shop.categories, { view = 'cart' })
-                    else
-                        Shop.open(shop, shop.categories)
-                    end
-                end,
-            },
-        })
-    end
+    -- De verkoper is puur decoratief: het enige koop-punt is de kassa-zone
+    -- (zie buildShop). Zo is er precies één plek om te winkelen én af te rekenen,
+    -- geen losse target op elk kledingrek meer.
 
     -- The clerk turns to face you when you walk up, and turns back to the
     -- register once you leave (same behaviour as renzu_garage).
@@ -252,37 +234,46 @@ local function clearShop()
     Shop.leave()
 end
 
+--- Alle categorieën die een winkel verkoopt. Een expliciete `shop.categories`
+--- wint; anders de unie van de rekken (zodat een kledingwinkel álle kleding
+--- verkoopt, maar de juwelier/maskerwinkel beperkt blijft tot hun eigen rekken).
+--- nil = de hele catalogus.
+---@param shop table
+---@return table?
+local function resolveCategories(shop)
+    if shop.categories then return shop.categories end
+    if shop.racks and next(shop.racks) then
+        local seen, out = {}, {}
+        for _, rack in pairs(shop.racks) do
+            for _, cat in ipairs(rack.categories or {}) do
+                if not seen[cat] then
+                    seen[cat] = true
+                    out[#out + 1] = cat
+                end
+            end
+        end
+        -- Rekken zonder `categories` leveren een lege lijst op. Die als filter
+        -- doorgeven maakt de winkel leeg in plaats van compleet, dus dan liever
+        -- nil (= hele catalogus).
+        return out[1] and out or nil
+    end
+    return nil
+end
+
 ---@param shop table
 local function buildShop(shop)
     spawnPed(shop)
 
-    if shop.racks and next(shop.racks) then
-        for _, rack in pairs(shop.racks) do
-            createInteraction(shop, {
-                coord = rack.coord,
-                label = rack.label or shop.name,
-                categories = rack.categories,
-                kind = 'rack',
-            })
-        end
-
-        if shop.cashier then
-            createInteraction(shop, {
-                coord = shop.cashier,
-                label = 'Register - pay for your cart',
-                categories = shop.categories,
-                kind = 'register',
-                opts = { view = 'cart' },
-            })
-        end
-    else
-        createInteraction(shop, {
-            coord = shop.cashier or shop.coord,
-            label = shop.name,
-            categories = shop.categories,
-            kind = 'shop',
-        })
-    end
+    -- Kassa-only: één interactiepunt bij de kassa opent de hele winkel (bladeren
+    -- én afrekenen in de UI). Geen losse koop-target per kledingrek meer, en geen
+    -- aparte "cart"-only kassamenu (dat deed raar). De winkel verkoopt precies wat
+    -- hij in de rekken had staan (unie van de rek-categorieën).
+    createInteraction(shop, {
+        coord = shop.cashier or shop.coord,
+        label = shop.name,
+        categories = resolveCategories(shop),
+        kind = 'shop',
+    })
 
     if shop.wardrobe then
         createInteraction(shop, {

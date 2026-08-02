@@ -6,7 +6,11 @@ local MAX_CART = 24
 
 --- Hoe ver je van de kassa mag staan bij het afrekenen. Ruim genoeg voor de
 --- ped en de toonbank ertussen, te krap om vanaf een rek af te rekenen.
-local REGISTER_DISTANCE = 4.0
+--- Ruimer dan de ox_target-afstand (3.0), want de targetbox staat een meter
+--- boven de kassacoordinaat. Op 3.0 van de box kun je net over de 4.0 heen
+--- zitten ten opzichte van het kassapunt zelf, en dan weigert de server een
+--- aankoop die de speler wel degelijk bij de kassa doet.
+local REGISTER_DISTANCE = 5.0
 
 ---@param shopName string?
 ---@return table?

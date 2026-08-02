@@ -409,7 +409,7 @@
             }
 
             setCart(res.cart);
-            toast('Added — pay at the register', 'success');
+            toast('Added to your cart', 'success');
         });
     }
 
