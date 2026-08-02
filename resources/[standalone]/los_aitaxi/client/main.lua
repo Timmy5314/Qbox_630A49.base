@@ -160,19 +160,76 @@ RegisterNetEvent('los_aitaxi:startRide', function(data)
             TaskVehicleDriveToCoordLongrange(driver, vehicle, target.x, target.y, target.z, 20.0, 262588, config.arriveDistance)
         end
 
-        -- ── Naar de speler ────────────────────────────────────────────────
+        --[[
+            ── Naar de speler ────────────────────────────────────────────────
+
+            Hier zaten twee fouten die samen "de taxi kan je locatie niet
+            bereiken" opleverden:
+
+            1. De rijtaak werd elke 500 ms opnieuw gegeven.
+               TaskVehicleDriveToCoordLongrange begint bij ELKE aanroep opnieuw
+               met pathfinden. Vijf keer per seconde opnieuw opdragen betekent
+               dat de auto nooit verder komt dan de eerste meters, en na
+               pickupTimeout meldt de server keurig dat hij je niet kon
+               bereiken. De taak wordt nu een keer gegeven en alleen opnieuw
+               als de bestemming echt verschoven is of als hij vastzit.
+
+            2. Er werd gereden naar de coordinaten van de SPELER.
+               Sta je in een gebouw, op een steiger of tien meter van de weg,
+               dan bestaat er geen route naartoe. De taxi rijdt nu naar het
+               dichtstbijzijnde wegknooppunt, en dat telt ook als aangekomen.
+        ]]
+
+        --- Het dichtstbijzijnde punt waar een auto echt kan komen.
+        ---@param coords vector3
+        ---@return vector3
+        local function roadNear(coords)
+            local found, node = GetClosestVehicleNode(coords.x, coords.y, coords.z, 1, 3.0, 0)
+            return found and node or coords
+        end
+
+        local pickup = roadNear(playerCoords)
+        local taskedFor = pickup
+        local lastPos = GetEntityCoords(vehicle)
+        local lastMoved = GetGameTimer()
+
+        driveTo(pickup)
+
         while active and not arrived do
             Wait(500)
 
             if not DoesEntityExist(vehicle) or not DoesEntityExist(driver) then break end
 
-            local target = GetEntityCoords(cache.ped)
-            driveTo(target)
+            local playerPos = GetEntityCoords(cache.ped)
+            local vehPos = GetEntityCoords(vehicle)
 
-            if #(GetEntityCoords(vehicle) - target) <= config.arriveDistance then
+            -- Aangekomen: bij de speler zelf, of zo dicht bij het ophaalpunt als
+            -- de weg toelaat. Dat tweede is wat een speler binnen of naast de
+            -- weg alsnog een taxi bezorgt in plaats van een afgebroken rit.
+            if #(vehPos - playerPos) <= config.arriveDistance
+                or #(vehPos - pickup) <= config.nodeArriveDistance then
                 arrived = true
                 break
             end
+
+            -- Speler is doorgelopen: nieuw ophaalpunt, nieuwe opdracht.
+            if #(playerPos - taskedFor) > config.retaskDistance then
+                pickup = roadNear(playerPos)
+                taskedFor = pickup
+                driveTo(pickup)
+                lastMoved = GetGameTimer()
+
+            -- Vastgelopen (verkeer, hek, muur): opnieuw laten pathfinden.
+            elseif #(vehPos - lastPos) < 1.0 then
+                if GetGameTimer() - lastMoved > config.stuckSeconds * 1000 then
+                    driveTo(pickup)
+                    lastMoved = GetGameTimer()
+                end
+            else
+                lastMoved = GetGameTimer()
+            end
+
+            lastPos = vehPos
 
             if GetGameTimer() - started > config.pickupTimeout * 1000 then
                 TriggerServerEvent('los_aitaxi:rideFailed')
@@ -244,7 +301,17 @@ RegisterNetEvent('los_aitaxi:startRide', function(data)
         showMeter()
 
         -- ── Naar de bestemming ────────────────────────────────────────────
+        -- Zelfde verhaal als bij het ophalen: de rijtaak een keer geven, en
+        -- alleen opnieuw als de auto vastloopt. Ook hier naar het wegknooppunt
+        -- bij de waypoint, want een waypoint midden op een dak of in het water
+        -- heeft geen route.
         local rideStart = GetGameTimer()
+
+        destination = roadNear(destination)
+        driveTo(destination)
+
+        lastPos = GetEntityCoords(vehicle)
+        lastMoved = GetGameTimer()
 
         while active do
             Wait(500)
@@ -260,9 +327,20 @@ RegisterNetEvent('los_aitaxi:startRide', function(data)
             -- Zelfde som als de server hanteert: hemelsbreed vanaf het instappunt.
             updateMeter(#(GetEntityCoords(cache.ped) - boardedAt))
 
-            driveTo(destination)
+            local vehPos = GetEntityCoords(vehicle)
 
-            if #(GetEntityCoords(vehicle) - destination) <= config.dropoffDistance then
+            if #(vehPos - lastPos) < 1.0 then
+                if GetGameTimer() - lastMoved > config.stuckSeconds * 1000 then
+                    driveTo(destination)
+                    lastMoved = GetGameTimer()
+                end
+            else
+                lastMoved = GetGameTimer()
+            end
+
+            lastPos = vehPos
+
+            if #(vehPos - destination) <= config.dropoffDistance then
                 TaskVehicleTempAction(driver, vehicle, 1, 3000)
                 SetVehicleDoorsLocked(vehicle, 1)
 

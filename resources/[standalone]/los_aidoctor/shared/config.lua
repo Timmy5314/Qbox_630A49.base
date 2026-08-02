@@ -41,6 +41,18 @@ Config.arriveDistance = 12.0
 --- Hoe dicht de dokter bij de speler moet staan om te reanimeren.
 Config.treatDistance = 2.5
 
+--- Zo dicht bij het wegknooppunt naast de speler telt ook als aangekomen. Naar
+--- een speler die binnen of naast de weg ligt bestaat geen autoroute; de dokter
+--- parkeert dan zo dichtbij als het wegennet toelaat en loopt het laatste stuk.
+Config.nodeArriveDistance = 12.0
+
+--- Zoveel meter mag de speler verplaatst worden voordat de ambulance een nieuwe
+--- rijopdracht krijgt (brancard, gedragen worden).
+Config.retaskDistance = 30.0
+
+--- Staat de ambulance zo lang stil, dan krijgt hij een nieuwe rijopdracht.
+Config.stuckSeconds = 8
+
 --- Eén rit tegelijk per server. Meerdere AI-ambulances door elkaar wordt rommelig.
 Config.oneAtATime = true
 

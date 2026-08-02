@@ -78,6 +78,28 @@ Config.arriveDistance = 15.0
 --- Hoe dicht bij de bestemming de rit eindigt.
 Config.dropoffDistance = 25.0
 
+--[[
+    ── Waarom er een tweede aankomstmaat is ─────────────────────────────────
+
+    `arriveDistance` meet naar de SPELER. Sta je binnen, op een parkeerdek of
+    tien meter van de weg af, dan haalt een auto die afstand nooit en werd de
+    rit afgebroken met "de taxi kon je locatie niet bereiken".
+
+    De taxi rijdt daarom naar het dichtstbijzijnde wegknooppunt bij de speler.
+    Komt hij daar binnen `nodeArriveDistance`, dan is dat zo dichtbij als de weg
+    toelaat en telt hij als aangekomen. Je loopt dan het laatste stukje.
+]]
+Config.nodeArriveDistance = 10.0
+
+--- Zoveel meter mag de speler doorlopen voordat de taxi een nieuw ophaalpunt
+--- krijgt. Lager betekent vaker opnieuw pathfinden, en dat is juist wat de
+--- taxi eerder liet stilstaan.
+Config.retaskDistance = 30.0
+
+--- Staat de taxi zo lang stil (verkeer, hek, muur), dan krijgt hij een nieuwe
+--- rijopdracht zodat hij zich lostrekt.
+Config.stuckSeconds = 8
+
 Config.models = {
     vehicle = `taxi`,
     driver  = `a_m_m_indian_01`,
