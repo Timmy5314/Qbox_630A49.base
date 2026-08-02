@@ -22,6 +22,7 @@ server_scripts {
     'server/main.lua',
     'server/payroll.lua',
     'server/warnings.lua',
+    'server/theft.lua',
 }
 
 files {

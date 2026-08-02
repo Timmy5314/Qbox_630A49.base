@@ -78,9 +78,33 @@ lib.callback.register('stevo_chopshop:chopPart', function(source, data, _vehicle
 
     local choppingStage = Entity(vehicle).state.choppingStage
 
-    if Entity(vehicle).state.choppingStage == 11 then 
+    if Entity(vehicle).state.choppingStage == 11 then
+        --[[
+            Laatste onderdeel: de auto verdwijnt. Als dit een voertuig van een
+            speler was, is dat het moment om de verzekering in te lichten.
+
+            Kenteken UITLEZEN VOOR de DeleteEntity - daarna bestaat de entity
+            niet meer en krijg je een lege string terug.
+
+            los_insurance zoekt de eigenaar op, zet het voertuig terug in zijn
+            garage en keert uit als er een lopende polis is. Was het een
+            NPC-auto van straat, dan gebeurt er niets. Zie
+            los_insurance/server/theft.lua.
+
+            pcall omdat de chopshop niet stuk hoort te gaan aan een
+            verzekeringsdetail, en de resource ook zonder los_insurance moet
+            kunnen draaien.
+        ]]
+        local plate = GetVehicleNumberPlateText(vehicle)
+
         DeleteEntity(vehicle)
         giveRewards(source, data.name)
+
+        if plate and plate ~= '' then
+            pcall(function()
+                TriggerEvent('los_insurance:server:vehicleChopped', plate)
+            end)
+        end
 
         return true, locale("notify."..data.name)
     end

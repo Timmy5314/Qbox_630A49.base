@@ -18,71 +18,67 @@
       esx `entering`   -> ps-housing door_data (x, y, z)  de deur op straat
       esx `outside`    -> alleen gebruikt om de kijkrichting van de deur uit te
                           rekenen; ps-housing slaat die zelf niet op
-      esx `room_menu`  -> garage_data. In esx_property is dat het punt onder/naast
-                          het huis waar de oprit ligt. Zet een auto er niet netjes
-                          neer, dan is dat het veld om aan te passen.
+      esx `room_menu`  -> NIET gebruikt. Dat is de positie van het kamermenu
+                          binnen het pand, geen oprit.
+
+    GARAGE
+    garage_data staat voorlopig gelijk aan de deur. Dat is een plaatshouder: het
+    veld is gevuld en klopt qua pand, maar het is niet opgemeten. Meet de echte
+    oprit op en pas hem aan.
 
     Draai dit een keer. Bij een tweede keer worden bestaande adressen overgeslagen,
     dus je krijgt geen dubbele huizen.
 ]]
 
----@type { street: string, region: string, shell: string, price: number, enter: vector3, out: vector3, garage: vector3 }[]
+---@type { street: string, region: string, shell: string, price: number, enter: vector3, out: vector3 }[]
 local HOUSES = {
     {
         street = '2677 Whispymound Drive', region = 'Vinewood Hills',
         shell = '2 Floor House', price = 1500000,
         enter = vec3(119.384, 564.89, 182.959),
         out = vec3(119.249, 567.798, 182.131),
-        garage = vec3(118.748, 566.573, 175.697),
     },
     {
         street = '2045 North Conker Avenue', region = 'Vinewood Hills',
         shell = '2 Floor House', price = 1500000,
         enter = vec3(372.796, 428.327, 144.685),
         out = vec3(372.454, 432.886, 143.443),
-        garage = vec3(377.349, 429.422, 137.3),
     },
     {
         street = '2044 North Conker Avenue', region = 'Vinewood Hills',
         shell = '2 Floor House', price = 1500000,
         enter = vec3(346.964, 440.8, 146.702),
         out = vec3(350.535, 443.329, 145.764),
-        garage = vec3(337.726, 436.985, 140.77),
     },
     {
         street = '3655 Wild Oats Drive', region = 'Vinewood Hills',
         shell = '2 Floor House', price = 1500000,
         enter = vec3(-176.003, 502.696, 136.421),
         out = vec3(-177.927, 506.412, 135.0664),
-        garage = vec3(-174.725, 493.095, 129.043),
     },
     {
         street = '2862 Hillcrest Avenue', region = 'Vinewood Hills',
         shell = 'House 2', price = 1500000,
         enter = vec3(-686.554, 596.58, 142.641),
         out = vec3(-689.492, 599.019, 142.059),
-        garage = vec3(-680.46, 588.6, 136.769),
     },
     {
         street = '2868 Hillcrest Avenue', region = 'Vinewood Hills',
         shell = 'House 2', price = 1500000,
         enter = vec3(-752.82, 620.494, 141.588),
         out = vec3(-750.919, 621.281, 141.254),
-        garage = vec3(-762.504, 618.992, 135.53),
     },
     {
         street = '2874 Hillcrest Avenue', region = 'Vinewood Hills',
         shell = 'House 2', price = 1500000,
         enter = vec3(-853.346, 696.678, 147.782),
         out = vec3(-855.007, 701.628, 147.773),
-        garage = vec3(-858.543, 697.514, 144.253),
     },
     {
         street = '2113 Mad Wayne Thunder', region = 'Richman',
         shell = '2 Floor House', price = 1500000,
         enter = vec3(-1294.433, 454.955, 96.462),
         out = vec3(-1298.851, 455.453, 96.517),
-        garage = vec3(-1287.306, 455.901, 89.294),
     },
 }
 
@@ -145,7 +141,8 @@ lib.addCommand('seedhouses', {
                 length = 1.0,
                 width = 2.0,
             },
-            garage_data = { x = house.garage.x, y = house.garage.y, z = house.garage.z },
+            -- Plaatshouder: zelfde punt als de deur. Zie de kop van dit bestand.
+            garage_data = { x = house.enter.x, y = house.enter.y, z = house.enter.z },
         })
 
         if id then

@@ -159,6 +159,7 @@ Config.warnings = {
     -- Nummer waarvandaan de SMS komt.
     senderNumber = '1500',
 
+
     -- Minuten tussen twee rondes langs de online spelers.
     intervalMinutes = 15,
 
@@ -169,6 +170,39 @@ Config.warnings = {
     -- Speler moet minstens zo lang online zijn voordat hij iets krijgt, zodat
     -- iemand die net inlogt niet meteen een boodschap krijgt.
     minMinutesOnline = 10,
+}
+
+--[[
+    ── AUTODIEFSTAL EN DE CHOPSHOP ──────────────────────────────────────────
+
+    stevo_chopshop meldt hier een gesloopt voertuig. Zie server/theft.lua.
+
+    Een gestolen auto die definitief weg is, is geen roleplay maar verlies. De
+    dief houdt zijn onderdelen; de eigenaar krijgt zijn auto terug in de garage,
+    plus een uitkering als hij verzekerd was.
+]]
+Config.theft = {
+    --- Voertuig terugzetten in de garage van de eigenaar.
+    returnToGarage = true,
+
+    --- Garage waar hij belandt als er geen bekende garage is.
+    --- Moet een garage-id uit renzu_garage/conf/public_garage.lua zijn.
+    --- "A" is Legion Square.
+    fallbackGarage = 'A',
+
+    --- Waarde waarover uitgekeerd wordt. Hier staat bewust een vast bedrag en
+    --- niet de cataloguswaarde: die staat in renzu_vehicleshop en zou de
+    --- verzekering een kopie van die prijslijst maken.
+    --- Het uitgekeerde bedrag is dit maal `policies.vehicle.coverage`.
+    vehicleValue = 40000,
+
+    --- Nummer waarvandaan de SMS komt. Zelfde afzender als de waarschuwingen.
+    senderNumber = '1500',
+
+    --- Interne markering voor een uitkering die nog uitbetaald moet worden
+    --- omdat de eigenaar offline was. Wordt bij de volgende login verzilverd.
+    --- Verander dit niet terwijl er nog openstaande claims zijn.
+    pendingReason = 'Vehicle theft payout (pending)',
 }
 
 -- ox_lib require geeft de returnwaarde van dit bestand terug. Zonder deze

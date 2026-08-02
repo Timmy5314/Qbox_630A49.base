@@ -35,5 +35,9 @@
     "deduction_capped": "Afgetopt zodat het niet boven je loon uitkomt.",
     "tax_income": "Inkomstenbelasting",
     "tax_vehicle": "Motorrijtuigenbelasting (%s voertuigen)",
-    "premium_per_paycheck": "$%s per loonstrook"
+    "premium_per_paycheck": "$%s per loonstrook",
+    "theft_paid": "Je verzekeraar heeft $%s uitgekeerd voor %s. Het voertuig is teruggevonden en staat weer in je garage.",
+    "theft_uninsured": "%s is gestript bij een chopshop. Je was niet verzekerd, dus er volgt geen uitkering. Het wrak staat weer in je garage.",
+    "theft_sms_insured": "Los Santos Verzekeringen: schade afgehandeld voor %s. $%s is overgemaakt naar je rekening. Je voertuig staat weer in je garage.",
+    "theft_sms_uninsured": "Los Santos Verzekeringen: %s is als gestript gemeld. Je had geen lopende polis op dit voertuig, dus we kunnen niet uitkeren. Overweeg een verzekering."
 }
