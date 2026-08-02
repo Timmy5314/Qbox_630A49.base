@@ -27,7 +27,8 @@ client_script {
   'client/client.lua',
   'client/apartmentselect.lua',
   'client/modeler.lua',
-  'client/migrate.lua'
+  'client/migrate.lua',
+  'client/makehouse.lua'
 }
 
 server_script {
@@ -35,6 +36,8 @@ server_script {
   "server/sv_property.lua",
   "server/server.lua",
   "server/migrate.lua",
+  -- Na server.lua: gebruikt de globale RegisterProperty die daar gedefinieerd wordt.
+  "server/makehouse.lua",
 }
 
 files {

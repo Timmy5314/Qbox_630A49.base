@@ -10,30 +10,17 @@ local isServer = IsDuplicityVersion()
 --[[
     ── Waar itemafbeeldingen vandaan komen ──────────────────────────────────
 
-    `inventory:imagepath` wijst naar de carmap-repo (zie ox.cfg). Alles komt
-    daar vandaan, ook wat renzu_shops, renzu_vehicleshop en renzu_garage tonen:
-    die lezen dezelfde itemdata.
+    Alles komt uit de carmap-repo. `inventory:imagepath` wijst daarheen (zie
+    ox.cfg), en web/images hoort leeg te zijn. Dat geldt ook voor wat
+    renzu_shops, renzu_vehicleshop en renzu_garage tonen: die lezen dezelfde
+    itemdata.
 
-    Uitzondering: een paar honderd afbeeldingen staan wel in web/images maar
-    niet in carmap. Die zouden een leeg vakje geven terwijl het plaatje er
-    gewoon is. Voor die bestandsnamen valt dit terug op nui://. De lijst staat
-    in data/local_images.lua.
-
-    Een pad met een schema (https://, nui://) wordt nooit aangeraakt - dat is
-    een expliciete keuze in items.lua.
+    Een pad met een schema (https://) wordt nooit aangeraakt - dat is een
+    expliciete keuze in items.lua.
 ]]
-local localImages = lib.load('data.local_images') or {}
-
 local function setImagePath(path)
     if not path then return end
     if path:match('^[%w]+://') then return path end
-
-    -- Bewust https://cfx-nui- en niet nui://. Allebei werken binnen de NUI van
-    -- ox_inventory zelf, maar andere resources (renzu_shops) zetten deze string
-    -- rechtstreeks in een <img src> en daar werkt nui:// niet.
-    if localImages[path] then
-        return ('https://cfx-nui-ox_inventory/web/images/%s'):format(path)
-    end
 
     return ('%s/%s'):format(client.imagepath, path)
 end
@@ -133,22 +120,6 @@ end
 
 for k, v in pairs(lib.load('data.items') or {}) do
 	v.name = k
-
-	--[[
-	    Heeft een item geen eigen client.image, dan bouwt de NUI zelf
-	    `<imagepath>/<naam>.png` - en die wijst nu naar carmap. Voor items
-	    waarvan de afbeelding alleen lokaal bestaat klopt dat niet, dus die
-	    krijgen hier alsnog een expliciete verwijzing. setImagePath() maakt er
-	    dan een nui://-pad van.
-
-	    Een client-tabel met alleen een image is onschadelijk: zonder usetime
-	    valt de gebruik-callback net zo door als bij een item helemaal zonder
-	    client-tabel.
-	]]
-	if not v.client?.image and localImages[k .. '.png'] then
-		v.client = v.client or {}
-		v.client.image = k .. '.png'
-	end
 
 	local success, response = pcall(newItem, v)
 
