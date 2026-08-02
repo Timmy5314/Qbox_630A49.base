@@ -113,6 +113,34 @@ AddEventHandler("playerDropped", function()
     clearDeathTime(source)
 end)
 
+--[[
+    Een revive die BIJ DE CLIENT begint: de txAdmin heal-knop en de revive uit
+    qbx_adminmenu. Die zetten alleen de clientstaat terug; de server wist dan
+    nog steeds niet dat de speler weer overeind is.
+
+    Dat is niet cosmetisch. qbx_core hangt de statebag `canUseWeapons` aan de
+    metadata `isdead` (server/player.lua: SetMetadata -> canUseWeapons = not
+    value). Bleef `isdead` op true staan, dan bleef `canUseWeapons` op false, en
+    ox_inventory weigert dan stilletjes elk wapen:
+
+        client.lua:528
+        if EnableWeaponWheel or not client.player:get('canUseWeapons') then return end
+
+    Geen foutmelding, geen notificatie - er gebeurt gewoon niets. Wie zich als
+    admin liet revivenen kon daarna tot de volgende login geen wapen meer pakken.
+]]
+RegisterNetEvent("ND_Ambulance:clientSelfRevived", function()
+    local src = source
+    if not src or src == 0 then return end
+
+    Bridge.clearDeadMetadata(src)
+    clearDeathTime(src)
+
+    if data_death.debug then
+        print(("[ND_Ambulance] client-side revive van %s: dead-metadata gewist"):format(src))
+    end
+end)
+
 -- fired by Bridge.revivePlayer: defib, hospital treatment, EMS and /revive.
 AddEventHandler("ND_Ambulance:playerRevived", function(src)
     clearDeathTime(src)

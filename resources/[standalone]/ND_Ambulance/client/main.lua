@@ -594,6 +594,11 @@ RegisterNetEvent("txcl:heal", function()
     if not deathState and not knockedOut then return end
     dbg("txAdmin heal received while down -> reviving")
     resetDeathState()
+
+    -- resetDeathState zet alleen DEZE client terug. Zonder dit blijft de
+    -- server-metadata `isdead` op true staan, en daarmee blijft de statebag
+    -- canUseWeapons op false: ox_inventory weigert dan stilletjes elk wapen.
+    TriggerServerEvent("ND_Ambulance:clientSelfRevived")
 end)
 
 -- qbx_adminmenu's revive-knop stuurt dit (server: TriggerClientEvent, of lokaal
@@ -602,6 +607,10 @@ end)
 RegisterNetEvent("qbx_medical:client:playerRevived", function()
     dbg("qbx_medical revive-event ontvangen -> ND resetDeathState")
     resetDeathState()
+
+    -- Zelfde reden als bij txcl:heal hierboven: de server moet weten dat deze
+    -- speler weer leeft, anders blijft canUseWeapons op false hangen.
+    TriggerServerEvent("ND_Ambulance:clientSelfRevived")
 end)
 
 -- triggered by shared/bridge.lua when qbx finishes loading the character.
