@@ -1,31 +1,39 @@
-# Items zonder afbeelding
+# Itemafbeeldingen - alles uit carmap
 
-Gegenereerd op 2026-08-02. Vergelijking van de itemnamen in
-`resources/[ox]/ox_inventory/data/items.lua` met:
+`inventory:imagepath` wijst naar `carmap/items`. `ox_inventory/web/images` hoort
+leeg te zijn; er is geen terugval meer op de lokale map.
 
-- `resources/[ox]/ox_inventory/web/images/*.png` (lokaal)
-- `github.com/Timmy5314/carmap` -> `carmap/items/*.png` (carmap)
+## Wat er nog moet gebeuren
+
+De map `D:/New folder/carmap-upload/items/` bevat 271 afbeeldingen die wel op de
+server stonden maar niet in carmap. Sleep de INHOUD daarvan in de carmap-repo
+onder `carmap/items/`. Pas daarna mag `web/images` leeg.
+
+Doe je dat niet, dan verliezen die 271 items hun plaatje.
 
 ## Stand
 
 | | aantal |
 |---|---|
 | items totaal | 520 |
-| met lokale afbeelding | 151 |
-| met een carmap-afbeelding | 107 |
+| met een afbeelding in carmap | 107 |
+| te uploaden (staan klaar in carmap-upload) | 271 |
 | **zonder afbeelding, waar dan ook** | **339** |
 
-`inventory:imagepath` wijst nu naar carmap, dus alles komt daar vandaan. De 285
-afbeeldingen die alleen lokaal bestaan blijven van schijf komen; die staan in
-`ox_inventory/data/local_images.lua`.
-
-Die 339 tonen een leeg vakje in de inventory en in renzu_shops. Dat is geen
-codefout: de plaatjes bestaan simpelweg nergens. Ze moeten met exact deze naam
-in de carmap-repo onder `carmap/items/` gezet worden.
-
 Voertuigafbeeldingen komen uit `carmap/vehicle/<model>.jpg`. Van de 169 modellen
-in `renzu_vehicleshop/vehicles.lua` heeft carmap er 31. De rest valt terug op het
-standaard-plaatje tot er artwork bijkomt.
+in `renzu_vehicleshop/vehicles.lua` heeft carmap er 31.
+
+## Submappen in web/images
+
+Er staan ook submappen: `ALL` (209 bestanden), `xtc` (101), `weed` (28), `lsd`
+(23), `heroin` (17), `cocaine` (12), `pharma` (10), `whippit` (9), `crack` (8),
+`lean` (6), `wholesale` (6), `meth` (4), `mescaline` (2), `shrooms` (1).
+
+**Geen enkel item in `items.lua` verwijst ernaar.** Het zijn restanten van de
+md-drugs-installatie. De namen komen bovendien niet overeen: het item heet
+`blue_pl`, het bestand heet `PL_blue.png`. Wil je die drugsplaatjes gebruiken,
+dan moeten de bestanden hernoemd worden naar de itemnaam, of moet elk item een
+`client.image` krijgen. Dat is los werk en zit niet in de upload hierboven.
 
 ## De 339
 

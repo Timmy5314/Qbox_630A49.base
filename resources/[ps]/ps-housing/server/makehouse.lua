@@ -86,3 +86,75 @@ lib.addCommand('makehouse', {
     lib.print.info(('%s maakte pand #%s aan: %s, %s (%s, $%d)')
         :format(GetPlayerName(source), id, place.street, place.region, shell, price))
 end)
+
+--[[
+    /delhouse - haalt het dichtstbijzijnde pand binnen 15 m weg.
+
+    Hoort bij /makehouse: staat een deur een paar meter mis, dan gooi je hem weg
+    en zet je hem opnieuw neer. Zonder dit moet je in de database wroeten.
+
+    Appartementen blijven met rust; die staan in shared/config.lua en horen niet
+    in deze tabel thuis.
+]]
+lib.addCommand('delhouse', {
+    help = 'Verwijder het dichtstbijzijnde pand (admin)',
+    restricted = 'group.admin',
+}, function(source)
+    local ped = GetPlayerPed(source)
+    if not ped or ped == 0 then return end
+
+    local coords = GetEntityCoords(ped)
+    local best, bestDist
+
+    for id, property in pairs(PropertiesTable) do
+        local door = property.propertyData and property.propertyData.door_data
+
+        if door and door.x and not property.propertyData.apartment then
+            local dist = #(coords - vec3(door.x + 0.0, door.y + 0.0, door.z + 0.0))
+            if dist < 15.0 and (not bestDist or dist < bestDist) then
+                best, bestDist = id, dist
+            end
+        end
+    end
+
+    if not best then
+        return exports.qbx_core:Notify(source, 'Geen pand binnen 15 meter.', 'error')
+    end
+
+    -- DeleteProperty ruimt ook de doorlocks op en meldt het aan alle clients,
+    -- dus dit is de juiste ingang - niet zelf een DELETE op de tabel doen.
+    -- `realtorSrc` is wie het doet; dat komt in de log terecht.
+    Property.Get(best):DeleteProperty({ realtorSrc = source })
+
+    exports.qbx_core:Notify(source,
+        ('Pand #%s verwijderd (%.1f m).'):format(best, bestDist), 'success')
+
+    lib.print.info(('%s verwijderde pand #%s'):format(GetPlayerName(source), best))
+end)
+
+--[[
+    /houses - hoeveel panden staan er, en hoeveel daarvan te koop.
+    Handig om te zien of een seed geland is zonder de database open te trekken.
+]]
+lib.addCommand('houses', {
+    help = 'Toon hoeveel panden er zijn (admin)',
+    restricted = 'group.admin',
+}, function(source)
+    local total, forSale, owned = 0, 0, 0
+
+    for _, property in pairs(PropertiesTable) do
+        local data = property.propertyData
+        if data and not data.apartment then
+            total = total + 1
+            if data.owner then
+                owned = owned + 1
+            elseif data.for_sale then
+                forSale = forSale + 1
+            end
+        end
+    end
+
+    exports.qbx_core:Notify(source,
+        ('Panden: %d totaal, %d te koop, %d verkocht.'):format(total, forSale, owned),
+        'inform', 10000)
+end)
