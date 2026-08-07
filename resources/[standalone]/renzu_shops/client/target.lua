@@ -82,8 +82,7 @@ end
 		id       - explicit registry id (defaults to msg - keep ids unique per interaction point)
 		npc      - false to skip spawning a ped, or {model=,heading=,scenario=}
 		entity   - attach to an existing entity instead of coords/npc (movable shops, stalls)
-		size     - vec3 box zone size (only used without npc/entity)
-		rotation - box zone rotation (only used without npc/entity)
+		radius   - sphere zone radius (only used without npc/entity, default 1.5)
 		distance - ox_target interact distance (default 2.5)
 		icon     - fontawesome icon (default shopping basket)
 		groups   - job/group name (or list) required to see the option
@@ -127,10 +126,13 @@ ShopTargets.AddShopTarget = function(coords, msg, callback, var, opts)
 	if entity then
 		entry.target = exports.ox_target:addLocalEntity(entity, options)
 	else
-		entry.target = exports.ox_target:addBoxZone({
+		-- Sphere ipv box: shop-interieurs staan zelden axis-aligned en geen
+		-- enkele config hier levert een heading, dus een boxzone met
+		-- rotation = 0.0 stond bijna overal scheef op de winkel (R3). Een
+		-- sphere heeft geen rotatie nodig.
+		entry.target = exports.ox_target:addSphereZone({
 			coords = coords,
-			size = opts.size or vec3(1.0, 1.0, 2.0),
-			rotation = opts.rotation or 0.0,
+			radius = opts.radius or opts.distance or 1.5,
 			debug = false,
 			options = options
 		})
@@ -173,11 +175,15 @@ CreateThread(function()
 
 					if near then
 						anyNear = true
-						if not facing[id] then
-							facing[id] = true
-							ClearPedTasks(ped)
-							TaskTurnPedToFaceEntity(ped, playerPed, -1)
-						end
+						facing[id] = true
+						-- TASK_TURN_PED_TO_FACE_ENTITY is a one-shot turn toward the
+						-- target's position AT CALL TIME, not a continuous look-at.
+						-- Re-issuing it every near-tick (with a duration a bit longer
+						-- than the tick) is what actually keeps the ped facing the
+						-- player as they walk around - calling it once on the
+						-- near-transition (the old code) left it frozen facing
+						-- wherever the player first crossed FACE_DISTANCE.
+						TaskTurnPedToFaceEntity(ped, playerPed, NEAR_TICK + 250)
 					elseif facing[id] then
 						facing[id] = nil
 						-- Terug naar zijn eigen scenario zodra niemand kijkt.
