@@ -78,6 +78,14 @@ lib.callback.register('stevo_chopshop:chopPart', function(source, data, _vehicle
 
     local choppingStage = Entity(vehicle).state.choppingStage
 
+    -- 'name' bepaalt welke reward-tier je krijgt (config.rewards[name]) en
+    -- kwam voorheen rechtstreeks van de client (data.name), zonder controle
+    -- tegen de echte choppingStage. Iedereen kon dus 'stevo_chopshop:11'
+    -- (chassis, de duurste tier) op elk moment doorsturen en die 9-11 keer
+    -- per auto claimen i.p.v. de bedoelde spreiding over tiers - 3-5x de
+    -- bedoelde opbrengst. 'name' volgt nu altijd de echte server-state.
+    local name = 'stevo_chopshop:' .. tostring(choppingStage)
+
     if Entity(vehicle).state.choppingStage == 11 then
         --[[
             Laatste onderdeel: de auto verdwijnt. Als dit een voertuig van een
@@ -98,7 +106,7 @@ lib.callback.register('stevo_chopshop:chopPart', function(source, data, _vehicle
         local plate = GetVehicleNumberPlateText(vehicle)
 
         DeleteEntity(vehicle)
-        giveRewards(source, data.name)
+        giveRewards(source, name)
 
         if plate and plate ~= '' then
             pcall(function()
@@ -106,29 +114,29 @@ lib.callback.register('stevo_chopshop:chopPart', function(source, data, _vehicle
             end)
         end
 
-        return true, locale("notify."..data.name)
+        return true, locale("notify."..name)
     end
 
-    
-    if doors == 3 and choppingStage == 3 then 
-        Entity(vehicle).state:set('choppingStage', 7, true) 
-        giveRewards(source, data.name)
-        
+
+    if doors == 3 and choppingStage == 3 then
+        Entity(vehicle).state:set('choppingStage', 7, true)
+        giveRewards(source, name)
+
         return true, locale("notify.stevo_chopshop:6")
     end
 
-    if doors == 4 and choppingStage == 3 then 
-        Entity(vehicle).state:set('choppingStage', 6, true) 
-        giveRewards(source, data.name)
+    if doors == 4 and choppingStage == 3 then
+        Entity(vehicle).state:set('choppingStage', 6, true)
+        giveRewards(source, name)
 
         return true, locale("notify.stevo_chopshop:5")
     end
 
-        
-    Entity(vehicle).state:set('choppingStage', choppingStage + 1, true)
-    giveRewards(source, data.name)
 
-    return true, locale("notify."..data.name)
+    Entity(vehicle).state:set('choppingStage', choppingStage + 1, true)
+    giveRewards(source, name)
+
+    return true, locale("notify."..name)
 end)
 
 ---@return boolean
