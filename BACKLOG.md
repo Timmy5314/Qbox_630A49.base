@@ -33,6 +33,71 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
+## SESSIE 7 augustus 2026 — vervolg-controlepas (renzu + AI ambulance/taxi)
+
+Tim was een week weg en meldde: renzu-scripts en AI-ambulance/AI-taxi werkten
+niet goed. **Server nog steeds niet vanaf deze machine te draaien** (geen
+FXServer-artifact, geen MySQL hier) — dit is wéér een statische pas, geen
+runtime-bevestiging. Zes parallelle deelaudits (renzu_shops/clothes,
+renzu_garage/vehicleshop, renzu_jobs/customs, de 7 kleine renzu tuning-
+scripts, ND_Ambulance+los_aidoctor, los_aitaxi) tegen de bekende faalpatronen
+uit HANDOVER.md §4, plus verificatie of de 5 commits van de vorige sessie
+(taxi-spawn, garage-crash, ps-housing SQL, ambulance-revive, anticheat/
+taxi-carjacking) echt compleet waren. Alles gefixt is `luac`-schoon en
+gecommit (9 commits, één per logische fix — zie `git log`).
+
+### Gefixt
+
+| Sev | Resource | Wat | Fix |
+|---|---|---|---|
+| HIGH | renzu_shops | Shop-ped draaide niet mee met de speler (R8). `TASK_TURN_PED_TO_FACE_ENTITY` is een one-shot turn, geen continue look-at — werd maar één keer aangeroepen bij binnenkomst | herroepen elke near-tick (500ms) |
+| HIGH | renzu_shops | Elk kassa/koop/stash-punt zonder ped was een 1×1m ox_target **boxzone met rotation=0.0**, terwijl geen enkele shop-config een heading meegeeft — stond bijna overal scheef (R3) | vervangen door sphere-zone (geen rotatie nodig) |
+| HIGH | renzu_garage | `client/keys.lua:828` crashte op een undefined variabele (`vehicle` i.p.v. loopvariabele `v`) → scripterror bij elke wijziging van iemands `keys`-itemcount | typefout gefixt |
+| HIGH | renzu_garage | Boot-thread kon crashen als `impound_garage` ontbreekt (`for k,v in pairs(impoundget)` had als enige van 6 queries geen `or {}`) | fallback toegevoegd |
+| HIGH | renzu_customs | Society-payout (tuning betalen vanuit/naar de shopkas) riep `GetAccount`/`AddMoney`/`RemoveMoney` op resource `qb-management` — bestaat niet. Renewed-Banking heet zelf zo en exporteert lowercase `getAccountMoney`/`addAccountMoney`/`removeAccountMoney`. Klant betaalde, shop-kas kreeg nooit iets | juiste resource/exportnamen; job-account wordt nu ook automatisch aangemaakt bij eerste gebruik (`CreateJobAccount`) |
+| MED | renzu_customs | `societyTransfer` gaf altijd `true` terug zolang de pcall niet crashte, ook als `removeAccountMoney` `false` gaf wegens te weinig saldo | echte returnwaarde doorgegeven |
+| MED | renzu_jobs | `vehicle_interaction`-menu (impound, hijack, repair, ...) had 11 dode knoppen zonder `unimplemented = true`, in tegenstelling tot `citizen_interaction` ernaast | zelfde vlag erbij |
+| LOW | renzu_jobs | Kitchen-recept `burger` vroeg om item `meat`, dat niet bestaat — permanent oncraftbaar | → `burgerpatty` (bestaat al, betere match) |
+| MED | los_aitaxi | `SetPedFleeAttributes(driver, 0, false)` — clear-flag stond op `false`, dus het wiste niks. De anti-vlucht-fix van vorige sessie leunde alleen op de andere 4 calls | clear=true |
+| LOW | los_aitaxi | Geen timeout op de wachtlus na `CreateVehicle`; bij een geweigerde spawn (entity-cap, of ooit `los_anticheat` block-unregistered-vehicles) hing dit voor altijd | 5s timeout → `rideFailed` |
+| MED | ND_Ambulance | `canUseWeapons` is overal gefixt, maar `los_anticheat`'s `ExpectHeal` en `los_aidoctor`'s ride-cancel liepen alleen via EMS-treat/AI-dokter, niet via txAdmin-heal/admin-menu-revive/self-respawn | die twee paden triggeren nu ook `ND_Ambulance:playerRevived` |
+| **HIGH (security)** | renzu_bag | `buybag` vertrouwde een door de client meegestuurde tabel inclusief **prijs en slots** — iedereen kon zelf het event aanroepen met `price = 0` en een willekeurig grote bag krijgen | client stuurt alleen een index, server zoekt de entry zelf op in `Config.item` |
+| MED | items.lua | `fakeplate` (renzu_garage) en `cloth` (renzu_jobs bandage-recept) werden gebruikt maar stonden niet geregistreerd → stille no-op | beide toegevoegd |
+| LOW | items.lua | `stancerkit`/`enginegago`/turbo-items stonden dubbel gedefinieerd (kalere kopie zonder image, overschreven door een rijkere verderop) | dode kopie verwijderd |
+| LOW | economie | `turboultimate` + 6 nitro-items bestonden als item maar waren nergens te koop | toegevoegd aan renzu_shops MechanicSupply |
+
+### Bevestigd al goed (geen actie), inclusief verificatie vorige-sessie-fixes
+
+- renzu_clothes kassa/pasgoed-fix (vorige sessie) — correct.
+- los_aitaxi spawn-logica, pathfinding (geen herhaalde `TaskVehicleDriveToCoordLongrange`), modelnamen, geen verzonnen coördinaten, on-duty check, npwd-contactregistratie — allemaal correct.
+- renzu_garage `00_migrate.lua` (impound-kolom), doorslockstate-check, proefrit-timing, sleutel-items via `los_vehiclekeys` — correct.
+- ND_Ambulance `canUseWeapons`-fix dekt nu echt alle 5 revive-paden; `stop qbx_medical` staat er; `signalSent` is server-naar-server; `los_aidoctor` config heeft `return Config`; prijzen kloppen met Tims besluit.
+- De 7 kleine renzu tuning-scripts (motels/stancer/turbo/nitro/itemback/bag/engine): geen crash-bugs, `CreateUseableItem`-signatuur overal correct.
+- renzu_jobs restraints staan niet in het menu (blijven items); geen statebag-botsing met ND_Police (renzu_jobs raakt `handsUp`/`cuffed` nergens aan).
+
+### Nog open — needs Tim of vergt in-game verificatie
+
+| # | Wat |
+|---|---|
+| 53 | **renzu_shops-peds spawnen nog steeds pas laat / op een onduidelijke plek** (het andere deel van R8 — alleen de "draait niet mee"-helft is deze sessie gefixt). Niet aangepakt: vergt weten wélke shops te laat spawnen, en dat is alleen in-game te zien. |
+| 54 | **`cloth`-item (nieuw, voor het bandage-recept) staat nog nergens te koop.** Zelfde categorie als de al bekende ontbrekende-verkooppunten. |
+| 55 | **`los_anticheat` staat nog op dry-run** (zie #19) — de ND_Ambulance revive-pipeline-fix van deze sessie is dus nu nog onzichtbaar in de praktijk; wordt pas relevant als dry-run uit gaat. |
+| 56 | **De renzu_bag-fix is alleen tegen de huidige `buybag`-payload getest via codelezen, niet in-game.** Testplan hieronder. |
+
+### Testplan voor Tim
+
+1. **renzu_shops ped-tracking:** loop bij een shop-ped heen en weer terwijl je binnen ~12m blijft. Verwacht: hij blijft je aankijken, niet bevroren in één richting.
+2. **renzu_shops target-zones:** loop naar een kassa/koop-punt vanuit een andere hoek dan pal ervoor. Verwacht: de ox_target-optie verschijnt zodra je binnen bereik bent, ongeacht vanuit welke kant je nadert.
+3. **renzu_garage:** laat je `keys`-itemcount wijzigen (oppakken/laten vallen) terwijl je bij een voertuig staat dat niet van jou is. Verwacht: geen script error in F8.
+4. **renzu_customs:** laat een monteur *on duty* gratis (van de zaak) tunen bij zijn eigen shop. Check daarna het shop-saldo (ps-mdt of admin) — moet gedaald zijn met de kosten. Doe ook een normale klant-betaling en check dat het shop-saldo daarna gestegen is.
+5. **renzu_jobs:** open het interactiemenu bij een voertuig als politie/monteur/EMS — de oude 11 knoppen (impound, hijack, repair...) mogen niet meer verschijnen. Probeer het `bandage`-recept bij het Police Workbench (vergt `cloth`, nog niet te koop — geef jezelf er admin een paar om te testen).
+6. **los_aitaxi:** bel 4747, stap in. Verwacht: de chauffeur rijdt weg zonder te schrikken/vluchten (dit was eerder de carjacking-false-positive; nu getest of de fix ook echt klopt).
+7. **AI-ambulance:** ga dood, laat een **txAdmin-heal** of **admin-menu revive** doen (niet EMS). Verwacht: je kan meteen weer een wapen pakken (canUseWeapons), en als er toevallig een AI-ambulance onderweg was, keert die om.
+8. **renzu_bag:** koop een bag normaal via de winkel bij `421.69, -809.66, 29.49`. Verwacht: werkt zoals voorheen, prijs/slots kloppen met het menu.
+9. **Economie:** check `turboultimate` en de nitro-items in de MechanicSupply-shop — moeten nu gewoon in de lijst staan.
+
+---
+
 ## 🔴 RUNTIME-BEVINDINGEN — eerste echte boot (Tim, aug 2026)
 
 **De server draait nu echt.** SQL-tabellen staan erin (bevestigd door Tim), dus de
@@ -44,12 +109,12 @@ te vinden. Prioriteit: eerst schoon booten, dan functionele breuk, dan ontwerp.
 |---|---|---|---|
 | R1 | **BLOCKER** | **Inventory laadt niet / is leeg / werkt niet.** SQL staat er wel in → startup-error of ox_inventory-config. Console-log nodig. | breuk |
 | R2 | **BLOCKER** | **Down/revive kapot.** Speler blijft op de grond liggen, glitcht/"oud", admin- én txadmin-heal werken niet. ND_Ambulance death-flow. | breuk |
-| R3 | **HIGH** | **renzu_shops werkt bijna niet; ox_target staat verkeerd / te ver.** Zones misplaatst of resource start niet goed. | breuk |
+| R3 | ~~HIGH~~ | ~~renzu_shops werkt bijna niet; ox_target staat verkeerd / te ver.~~ **Root cause gevonden (sessie 7 aug):** ongeroteerde boxzones zonder heading-data. **GEFIXT** → sphere-zones, zie sessie 7 augustus bovenaan dit bestand. | breuk |
 | R4 | **HIGH** | **ps-housing werkt niet.** Ziet álle appartementen, kan met de lift naar appartementen die hij niet bezit. | breuk |
 | R5 | **HIGH** | **AI-dokter (los_aidoctor) komt niet opdagen** als je down bent. Hangt deels aan R2 (death-flow). | breuk |
 | R6 | **HIGH** | **AI-taxi (los_aitaxi) werkt niet + staat niet in npwd-contacten.** | breuk |
 | R7 | MED | **Black market moet via de NPWD DarkChat/IRC-app** (Tim: "dit is de black market app van npwd"), NIET via SMS 4040. Nu: md-drugs TravellingMerchant gebruikt `npwd:onMessage`/`emitMessage` op een nummer. NPWD heeft een **DarkChat**-app (anonieme IRC-chat) — daar moet de black market naartoe. Te doen: onderzoek NPWD DarkChat server-API en herbedraad md-drugs erheen. Taxi blijft een **contact** (AI taxi, nr 4747) — dat is los van de black market. | ontwerp |
-| R8 | MED | **Shop-peds spawnen te laat en op onbekende plek** (clothes, vehicleshop). **renzu_shops-ped draait niet mee** met de speler. Wens: pre-spawn in de winkel + meedraaien zoals clothes. | breuk |
+| R8 | MED | **Shop-peds spawnen te laat en op onbekende plek** (clothes, vehicleshop) — **nog open, zie #53**. ~~renzu_shops-ped draait niet mee met de speler~~ **GEFIXT (sessie 7 aug)**: turn-task werd maar één keer gegeven, nu elke near-tick. | breuk |
 | R9 | **HIGH** | **renzu_clothes: kopen kan nog op verschillende ox_target-plekken** (per kledingrek). Moet: **alles alleen bij de kassa** afrekenen. Kassa-menu "doet raar". | ontwerp/breuk |
 | R10 | MED | **Housing-herbouw (wens).** Geen ps-realtor meer. Huizen op de map zien → kopen → na aankoop ziet **alleen de eigenaar** het huis op de map. | ontwerp |
 
