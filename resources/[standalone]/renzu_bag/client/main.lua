@@ -223,7 +223,10 @@ BagShop = function()
 			arrow = true,
 			description = 'Buy '..v.label..' | Slots: '..v.slots,
 			onSelect = function(args)
-				TriggerServerEvent('buybag',v)
+				-- Stuur alleen de index, niet de hele tabel: de server moet zelf
+				-- Config.item opzoeken (zie server/main.lua) i.p.v. een
+				-- client-bepaalde prijs/slots te vertrouwen.
+				TriggerServerEvent('buybag', k)
 			end,
 		})
 	end

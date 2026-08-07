@@ -43,7 +43,15 @@ exports('CreateBag', function(data)
 	CreateBag(data)
 end)
   
-RegisterNetEvent('buybag', function(data)
+RegisterNetEvent('buybag', function(index)
+	-- Vroeger stuurde de client de hele Config.item-entry mee (prijs, slots,
+	-- model, alles) en werd die klakkeloos vertrouwd - een speler kon zelf
+	-- TriggerServerEvent('buybag', {price = 0, slots = 999999, ...}) aanroepen
+	-- en een gratis bag met willekeurige capaciteit krijgen. De server zoekt
+	-- de entry nu zelf op via de index; alleen `index` komt van de client.
+	local data = Config.item[tonumber(index)]
+	if not data then return end
+
 	local money = exports.ox_inventory:GetItem(source, 'money', nil, false)
 	if money.count >= data.price then
 		data.src = source
