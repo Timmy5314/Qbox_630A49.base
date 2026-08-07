@@ -859,10 +859,10 @@ return {
         weight = 100,
     },
 
-    ['cokebaggy'] = {
-        label = 'Bag of Coke',
-        weight = 100,
-    },
+    -- 'cokebaggy' stond hier dubbel gedefinieerd (kalere kopie zonder
+    -- image/stack/close, overschreven door de rijkere versie verderop met
+    -- client.image = 'cocaine_baggy.png') - zelfde patroon als de eerder
+    -- opgeruimde stancerkit/turbo-dupes, weg.
 
     ['coke_brick'] = {
         label = 'Coke Brick',

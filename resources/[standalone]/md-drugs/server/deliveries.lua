@@ -64,7 +64,10 @@ RegisterNetEvent('md-drugs:server:buyItemDealer', function(item, dealerId)
     if Bridge.Framework.RemoveAccountBalance(src, 'cash', itemExists.price) then
        Bridge.Inventory.AddItem(src, itemExists.name, 1)
     else
-        Bridge.Notify.Error(src, Bridge.Language.Locale('Deliveries.purchase_fail_funds'))
+        -- Bridge.Notify.Error bestaat niet in community_bridge (alleen
+        -- SendNotify/SendNotification) - deze aanroep gooide een nil-value
+        -- error en de speler kreeg dus stil geen melding bij te weinig geld.
+        Bridge.Notify.SendNotify(src, Bridge.Language.Locale('Deliveries.purchase_fail_funds'), 'error')
     end
 end)
 
@@ -132,7 +135,7 @@ RegisterNetEvent('md-drugs:server:giveDeliveryItems', function(pedID)
     end
 
     if not Bridge.Inventory.RemoveItem(src, active[id].item, active[id].amount) then
-        Bridge.Notify.Error(src, Bridge.Language.Locale('Deliveries.deliveryFailed'))
+        Bridge.Notify.SendNotify(src, Bridge.Language.Locale('Deliveries.deliveryFailed'), 'error')
         return
     end
 

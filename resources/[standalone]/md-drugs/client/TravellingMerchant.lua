@@ -1,5 +1,30 @@
 if not Config.Drugs['TravellingMerchant'] then return end
+
+-- De server verhuist `loc` intern op een interval (zie server/TravellingMerchant.lua)
+-- maar zei dat nooit tegen al ingelogde clients. spawn() liep hier maar één
+-- keer, bij resource-start, en bevroor de ped voorgoed op die eerste plek -
+-- na de eerste rotatie stond de ped dus nog op de oude locatie terwijl
+-- purchaseGoods server-side al tegen de NIEUWE loc een afstandscheck deed.
+local merchantPed = nil
+
+local function despawn()
+    if not merchantPed then return end
+    Bridge.Target.RemoveLocalEntity(merchantPed)
+    if DoesEntityExist(merchantPed) then
+        DeleteEntity(merchantPed)
+    end
+    for i = 1, #targets do
+        if targets[i] == merchantPed then
+            table.remove(targets, i)
+            break
+        end
+    end
+    merchantPed = nil
+end
+
 local function spawn()
+    despawn()
+
     local data = Bridge.Callback.Trigger('md-drugs:server:GetMerchant')
     local model = 's_m_m_trucker_01'
     requestModel(model)
@@ -30,6 +55,9 @@ local function spawn()
             end
         }
     })
+    merchantPed = ped
     targets[#targets+1] = ped
 end
 spawn()
+
+RegisterNetEvent('md-drugs:client:merchantMoved', spawn)

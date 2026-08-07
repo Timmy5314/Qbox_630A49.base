@@ -60,6 +60,12 @@ if (market.rotateMinutes or 0) > 0 and #locations > 1 then
 
             index = nextIndex
             loc = locations[index]
+
+            -- Zonder dit bleef de ped bij al ingelogde spelers op de oude
+            -- plek staan (bevroren door client/TravellingMerchant.lua's
+            -- eenmalige spawn()), terwijl purchaseGoods hierboven al tegen
+            -- de nieuwe `loc` controleert.
+            TriggerClientEvent('md-drugs:client:merchantMoved', -1)
         end
     end)
 end
