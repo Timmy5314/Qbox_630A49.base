@@ -514,8 +514,8 @@ Config.Jobs = {
                 ['burger'] = {
                     label = 'Burger', seconds = 8, amount = 1,
                     requirements = {
-                        { name = 'bread',  amount = 1 },
-                        { name = 'meat',   amount = 1 },
+                        { name = 'bread',       amount = 1 },
+                        { name = 'burgerpatty', amount = 1 }, -- 'meat' bestaat niet in items.lua, dit wel
                     },
                 },
             },
@@ -624,17 +624,22 @@ Config.Interactions = {
         [13] = { label = 'Check Vitals',        event = 'ems:checkvitals',       icon = 'heart-pulse',             description = 'Check vital signs', unimplemented = true },
         [18] = { label = 'Search Area',         event = 'ems:searchdeadinarea',  icon = 'magnifying-glass',        description = 'Scan the area for casualties', unimplemented = true },
     },
+    -- Zelfde reden als citizen_interaction hierboven: geen enkele van deze 11
+    -- events heeft ergens een handler (ND_Police/ND_Ambulance doen impound,
+    -- repair etc. zelf via hun eigen items/targets). Stonden hier zonder
+    -- unimplemented = true, dus client/interaction.lua toonde ze gewoon als
+    -- klikbare knoppen die niets deden.
     vehicle_interaction = {
-        [1]  = { label = 'Vehicle Information', event = 'police:vehicle_infos',  icon = 'file-invoice',      description = 'Look up the vehicle' },
-        [2]  = { label = 'Hijack',              event = 'police:hijack',         icon = 'car-burst',         description = 'Force the vehicle open' },
-        [3]  = { label = 'Impound',             event = 'police:impound',        icon = 'car-tunnel',        description = 'Impound the vehicle' },
-        [4]  = { label = 'Search Plate',        event = 'police:searchdatabase', icon = 'magnifying-glass',  description = 'Search the plate in the database' },
-        [5]  = { label = 'Hijack',              event = 'mechanic:hijack',       icon = 'car-burst',         description = 'Force the vehicle open' },
-        [6]  = { label = 'Clean',               event = 'mechanic:clean',        icon = 'soap',              description = 'Clean the vehicle' },
-        [7]  = { label = 'Scan ECU',            event = 'mechanic:scanecu',      icon = 'microchip',         description = 'Scan the vehicle computer' },
-        [8]  = { label = 'Repair Engine',       event = 'mechanic:repair',       icon = 'screwdriver-wrench',description = 'Repair up to 50%' },
-        [9]  = { label = 'Full Repair',         event = 'mechanic:repair2',      icon = 'wrench',            description = 'Repair up to 100%' },
-        [10] = { label = 'Put in Vehicle',      event = 'ems:putinvehicle',      icon = 'car-side',          description = 'Put a person in the vehicle' },
-        [11] = { label = 'Pull from Vehicle',   event = 'ems:dragoutvehicle',    icon = 'car-burst',         description = 'Pull a person from the vehicle' },
+        [1]  = { label = 'Vehicle Information', event = 'police:vehicle_infos',  icon = 'file-invoice',      description = 'Look up the vehicle', unimplemented = true },
+        [2]  = { label = 'Hijack',              event = 'police:hijack',         icon = 'car-burst',         description = 'Force the vehicle open', unimplemented = true },
+        [3]  = { label = 'Impound',             event = 'police:impound',        icon = 'car-tunnel',        description = 'Impound the vehicle', unimplemented = true },
+        [4]  = { label = 'Search Plate',        event = 'police:searchdatabase', icon = 'magnifying-glass',  description = 'Search the plate in the database', unimplemented = true },
+        [5]  = { label = 'Hijack',              event = 'mechanic:hijack',       icon = 'car-burst',         description = 'Force the vehicle open', unimplemented = true },
+        [6]  = { label = 'Clean',               event = 'mechanic:clean',        icon = 'soap',              description = 'Clean the vehicle', unimplemented = true },
+        [7]  = { label = 'Scan ECU',            event = 'mechanic:scanecu',      icon = 'microchip',         description = 'Scan the vehicle computer', unimplemented = true },
+        [8]  = { label = 'Repair Engine',       event = 'mechanic:repair',       icon = 'screwdriver-wrench',description = 'Repair up to 50%', unimplemented = true },
+        [9]  = { label = 'Full Repair',         event = 'mechanic:repair2',      icon = 'wrench',            description = 'Repair up to 100%', unimplemented = true },
+        [10] = { label = 'Put in Vehicle',      event = 'ems:putinvehicle',      icon = 'car-side',          description = 'Put a person in the vehicle', unimplemented = true },
+        [11] = { label = 'Pull from Vehicle',   event = 'ems:dragoutvehicle',    icon = 'car-burst',         description = 'Pull a person from the vehicle', unimplemented = true },
     },
 }
