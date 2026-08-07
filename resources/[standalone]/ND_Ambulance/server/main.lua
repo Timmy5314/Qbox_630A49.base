@@ -136,6 +136,14 @@ RegisterNetEvent("ND_Ambulance:clientSelfRevived", function()
     Bridge.clearDeadMetadata(src)
     clearDeathTime(src)
 
+    -- NIET Bridge.revivePlayer(): die stuurt ook TriggerClientEvent
+    -- ND_Ambulance:revivePlayer, en de client heeft zichzelf hier al
+    -- gerevived (dat is het hele punt van dit event). Wel de
+    -- playerRevived-hook zelf triggeren, anders missen txAdmin-heal en
+    -- admin-menu revive ExpectHeal (los_anticheat) en de ride-cancel van
+    -- los_aidoctor - precies zoals respawnPlayer hieronder.
+    TriggerEvent("ND_Ambulance:playerRevived", src)
+
     if data_death.debug then
         print(("[ND_Ambulance] client-side revive van %s: dead-metadata gewist"):format(src))
     end
@@ -202,6 +210,11 @@ lib.callback.register("ND_Ambulance:respawnPlayer", function(src)
     -- returns true, and doing both resurrected the ped twice.
     Bridge.clearDeadMetadata(src)
     clearDeathTime(src)
+
+    -- Same reasoning as ND_Ambulance:clientSelfRevived above: fire the shared
+    -- playerRevived hook (minus the client-revive event) so los_anticheat's
+    -- ExpectHeal and los_aidoctor's ride-cancel also cover self-respawn.
+    TriggerEvent("ND_Ambulance:playerRevived", src)
 
     if data_death.debug then
         print(("[ND_Ambulance] %s (%s) respawned at hospital, billed $%s"):format(src, GetPlayerName(src), price or 0))
