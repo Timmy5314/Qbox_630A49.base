@@ -33,6 +33,71 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
+## SESSIE 8 augustus 2026 — volledige server-audit (op verzoek van Tim: "alle scripten")
+
+Tim was niet tevreden met alleen renzu/AI-ambulance/taxi ("ik denk dat er veel
+meer is dan alleen dat, het klopt allemaal niet") en vroeg om de hele server
+te controleren. Deze sessie: 8 parallelle deelaudits over vrijwel de rest van
+`resources/` (ps-housing, ps-realtor, ps-dispatch, ps-mdt, npwd + beide
+npwd-apps, md-drugs, community_bridge, los_billing, los_insurance, los_wipe,
+los_discord, los_hygiene, los_wanted, los_anticheat, los_vehiclekeys,
+los_gangpeds, los_policebridge, ND_Police, ND_GunAnims, murderface-pets, en
+een aparte pas over s4t4n667_*/xt-*/stevo_*/safecracker/mhacking/
+ultra-voltlab/vehiclehandler). **Nog niet gedaan:** de vanilla qbx_*
+job-/robbery-/UI-resources (busjob, garbagejob, qbx_hud, qbx_storerobbery
+e.d.) — dat is de volgende golf.
+
+**Server nog steeds niet vanaf deze machine te draaien.** Alles hieronder is
+weer statisch geverifieerd (code gelezen, cross-checks tussen bestanden), niet
+in-game getest.
+
+### Gefixt
+
+| Sev | Resource | Wat | Fix |
+|---|---|---|---|
+| **KRITIEK (security)** | ps-housing | `server:enterProperty` riep in de else-tak altijd `PlayerEnter` aan, **vóór** de doorbell-bevestiging ooit werd afgewacht. Iedereen die "Enter"/"Ring Doorbell" op andermans huis of appartement klikte werd meteen naar binnen geteleporteerd, ongeacht toegang. Trof alles behalve echte mlo-gebouwen — dus ook de IPL-shell startappartementen. De eerdere diagnose ("gedeelde lobby, unit zelf op slot") klopte niet: er was helemaal geen toegangscontrole | else-tak belt nu alleen nog de doorbell-flow; `PlayerEnter` loopt via `doorbellAnswer` (eigenaar laat je binnen) of directe toegang |
+| **HIGH (security)** | ps-housing | `addAccess`/`removeAccess`: `not owner == citizenid` — `not` bindt sterker dan `==` in Lua, dus altijd `false`. De eigenaarscheck vuurde nooit; iedereen kon zichzelf/anderen toegang tot willekeurig welk pand geven of afnemen | `owner ~= citizenid` |
+| **BLOCKER** | npwd_qbx_garages + npwd_qbx_mail | Beide apps bevatten alleen TS/TSX-broncode, `web/dist` bestond niet op schijf. npwd fetcht `web/dist/remoteEntry.js` via module federation **elke keer dat een speler zijn telefoon opent**, niet eenmalig bij boot — dus 404 voor iedereen, altijd, geen Garage- en geen Mail-app. De oude aanname dat de boot-warning "niet-fataal" was klopte niet | gebouwd met `npm install --legacy-peer-deps && npm run build` (pnpm niet beschikbaar), `web/dist` gecommit (`.gitignore`'s kale `dist`-regel matchte op elke diepte, expliciet uitgezonderd) |
+| HIGH | md-drugs | Dealer-ped verhuisde nooit mee met de server-side rotatie (elke `rotateMinutes`) — bevroor voorgoed op zijn eerste plek. Na de eerste rotatie stond de zichtbare ped dus op de oude plek terwijl `purchaseGoods` al tegen de nieuwe locatie de afstandscheck deed | server broadcast `md-drugs:client:merchantMoved`; client despawnt/respawnt de ped |
+| HIGH | md-drugs | `deliveries.lua` riep 2x `Bridge.Notify.Error` aan — bestaat niet in community_bridge (alleen SendNotify/SendNotification). Speler zonder geld of zonder het delivery-item kreeg dus geen melding, handler crashte er stil op af | → `Bridge.Notify.SendNotify(src, msg, 'error')` |
+| HIGH | los_aitaxi | Registreerde zijn voertuig-spawn nooit bij `los_anticheat:RegisterSpawn` — stond niet op de lijst (BACKLOG #20) van resources die dat moeten doen voordat `blockUnregisteredVehicles` aan mag. Nu nog dormant (flag staat uit) maar zou de taxi stil hebben stukgemaakt zodra iemand die flag omzet | server registreert het taximodel vlak voor de client 'm laat spawnen |
+| MED | los_anticheat | Event-whitelist was gegenereerd vóór de 6 renzu-tuningscript-rewrites van de vorige sessie — hun events stonden niet onder spam-monitoring (whitelist is geen block/allow-list, dus geen false-kick risico, wel een blinde vlek) | `tools/generate_events.ps1` opnieuw gedraaid, 321 events uit 486 bestanden |
+| HIGH | ps-mdt | Voertuigverzekering-check wees naar resource `m-Insurance` (bestaat hier niet) met een callback-export. De echte resource is `los_insurance`, met een directe (non-callback) export `hasVehicleInsurance(plate)`. Stond bovendien op `enabled = false` — dit was de "kentekencheck via ps-mdt" uit SERVER-OVERHAUL fase 5.5, die als afgerond stond maar nooit gebouwd bleek | doorverwezen naar los_insurance + aangezet. Registratie-check blijft uit: geen equivalent resource in dit project |
+| LOW | ps-mdt | Traffic-stop alert (Wolfknight-integratie, nu inert want die resource draait hier niet) zette `dispatchCode` maar niet `code` → viel terug op "10-80" i.p.v. "10-11". Klassieke dispatchCode/code-valkuil | `code = '10-11'` toegevoegd, dode `description`/`firstStreet`-velden weg |
+| MED | los_wipe | JSON-"vangnet"-snapshot legde bij inventories/properties alleen een **rijentelling** vast, nooit de inhoud — terwijl `config.wipe.inventories` zowel `players.inventory` als de volledige `ox_inventory`-tabel wipet. Bij een betwist verloren item was er dus niets om op terug te vallen | snapshot bevat nu ook `players.inventory`, de volledige `ox_inventory`-tabel en de `properties`-tabel |
+| LOW/MED | los_wipe | De echte wipe-DELETE/UPDATE-statements waren als enige in deze codebase niet pcall-wrapped — één ontbrekende tabel (properties heeft hier al een DDL-geschiedenis) liet `performWipe` midden in de reeks sterven | elke stap los pcall-wrapped, logt expliciet MISLUKT + foutmelding i.p.v. de rest mee te slepen |
+| LOW | ps-housing | `Config.RaidItem = 'police_stormram'` stond nergens geregistreerd of te koop — de raid-actie was sowieso nooit bruikbaar | item toegevoegd + in de politie-supply (renzu_jobs) |
+| LOW | items.lua | `cokebaggy` stond dubbel gedefinieerd (zelfde patroon als de eerder opgeruimde stancerkit-dupe) | dode kopie weg |
+
+### Bevestigd al goed (geen actie)
+
+- los_billing (claimVehicle-plate-check bestaat al), los_insurance (alle drie eerder-gevonden bugs nog steeds gefixt), los_discord (geen dode listeners), los_hygiene (rates + model-disclaimer kloppen) — stuk voor stuk geverifieerd tegen de actuele code, niet alleen tegen de docs.
+- ND_Police/ND_GunAnims/murderface-pets: alle fase-4-fixes nog intact na hercontrole; ps-dispatch/ps-policebridge-wiring klopt end-to-end voor alle 6 origin-events gecheckt.
+- los_wanted/los_vehiclekeys/los_gangpeds/los_policebridge: alle vijf schoon.
+- npwd_qbx_garages ↔ renzu_garage-koppeling, qbx_npwd-registratie, geen enkele npwd `getPlayerData`-aanroep met de oude raw-id-bug.
+- md-drugs gang-gating (cocaine→mafia, crack→ballas, weed→families, heroin→**vagos**, niet aztecas) blijkt al volledig geïmplementeerd — BACKLOG #23 was stale, dit stond niet meer als "voorstel".
+- ps-dispatch `isJobValid` matcht op zowel jobtype als jobnaam — de CLAUDE.md-valkuil "type vs naam" grijpt hier niet, alle geverifieerde callers zijn toch al correct.
+
+### Nog open
+
+| # | Sev | Wat |
+|---|---|---|
+| 57 | MED | **ND_GunAnims leest `inventory:weaponanims` mogelijk verkeerd** (`GetConvarInt` op een `"true"`-string-convar i.p.v. `GetConvarBool`). Bewust NIET blind gefixt: welke van de twee code-paden (event-gedreven via ox_inventory, of eigen polling) daadwerkelijk correct is kan alleen in-game bepaald worden, en de verkeerde kant op "fixen" had een werkende situatie zomaar kunnen breken. **Testplan:** trek een wapen, kijk of je een dubbele animatie ziet. |
+| 58 | MED | **bcso/sasp zijn geregistreerde leo-jobs zonder bevoorradingsketen.** `renzu_jobs` heeft alleen een `police`-supply/kluis/kleedkamer; ND_Police's locker_rooms staat hardcoded op `groups = {"police"}`. Een agent op bcso/sasp passeert alle jobchecks maar kan nergens cuffs/zipties/shield/uniform krijgen. Waarschijnlijk bewust (alleen LSPD bemand) — navragen bij Tim. |
+| 59 | LOW | **xt-robnpcs leest zijn eigen live cop-count** (`qbx_core:GetDutyCountJob`) i.p.v. `xt-prison`'s `GlobalState.copCount`, terwijl beide dezelfde soort telling bijhouden. Dormant (`requiredCops = 0`), maar zodra dat omhoog gaat kan de client-UI (die wél `xt-prison`'s telling leest) een ander getal tonen dan wat de server afdwingt. |
+| 60 | — | **Vanilla qbx_*-resources nog niet gecontroleerd deze sessie** (busjob, garbagejob, recyclejob, scrapyard, towjob, truckerjob, newsjob, carwash, weed, vineyard, fireworks, lapraces, streetraces, diving, divegear, binoculars, qbx_hud, qbx_visuals, qbx_radialmenu, qbx_management, qbx_smallresources, qbx_pawnshop, qbx_storerobbery, qbx_houserobbery, qbx_bankrobbery, qbx_truckrobbery, qbx_customs, qbx_vehicles, qbx_vehiclesales, qbx_scoreboard, qbx_adminmenu, qbx_cityhall, qbx_spawn, qbx_seatbelt, qbx_idcard, qbx_chat_theme). Volgende golf. |
+
+### Testplan voor Tim (aanvulling op sessie 7 aug)
+
+1. **ps-housing toegang:** loop als speler B naar een huis/appartement van speler A (geen toegang) en klik "Enter". Verwacht: je wordt NIET naar binnen geteleporteerd, alleen een doorbell-melding. Laat speler A vervolgens de deurbel beantwoorden — nu moet B wel binnenkomen.
+2. **ps-housing access-menu:** probeer als niet-eigenaar `addAccess`/`removeAccess` op andermans pand te forceren (zou hiervoor altijd doorgaan). Verwacht: geweigerd met "You are not the owner".
+3. **NPWD telefoon:** open het telefoonmenu, tik op Garages en Mail. Verwacht: beide apps laden nu daadwerkelijk (voorheen: permanent leeg/error).
+4. **md-drugs dealer:** wacht een rotatie uit (of verlaag `rotateMinutes` tijdelijk) en ga naar de NIEUWE locatie. Verwacht: de ped staat er ook echt, niet nog op de oude plek.
+5. **ps-mdt verzekering:** trek een voertuigprofiel op van een auto met en zonder polis. Verwacht: toont nu echt Insured/Uninsured i.p.v. altijd "Valid".
+6. **los_wipe:** niet in productie testen. Bij de eerstvolgende geplande wipe: controleer dat het snapshot-JSON-bestand nu ook inventory- en property-inhoud bevat, niet alleen tellingen.
+
+---
+
 ## SESSIE 7 augustus 2026 — vervolg-controlepas (renzu + AI ambulance/taxi)
 
 Tim was een week weg en meldde: renzu-scripts en AI-ambulance/AI-taxi werkten
