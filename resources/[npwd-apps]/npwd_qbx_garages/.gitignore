@@ -1,7 +1,15 @@
 yarn-error.log
 node_modules
 dist
-web
 release
 .vscode
 .idea
+
+# web/dist IS de gebouwde NUI die fxmanifest.lua serveert (ui_page,
+# files{'web/dist/**/*'}) - npwd fetcht 'm elke keer een speler zijn telefoon
+# opent. Zonder dit gecommit te hebben werkt de app nergens, alleen hier waar
+# 'npm run build' toevallig is gedraaid. De kale 'dist' hierboven matcht op
+# elke diepte, dus expliciet uitzonderen:
+!web/
+!web/dist/
+!web/dist/**
