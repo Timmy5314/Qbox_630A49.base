@@ -313,6 +313,12 @@ return {
         weight = 115,
     },
 
+    ['cloth'] = {
+        label = 'Cloth',
+        weight = 50,
+        description = 'Grondstof voor het Police Workbench bandage-recept.',
+    },
+
 -- General store: prepared food
 ['hotdogsandwich'] = {
     label = 'Hot Dog Sandwich',
@@ -433,12 +439,12 @@ return {
 ['drag_tires'] = { label = 'Drag Tires', weight = 8000 },
 ['drift_tires'] = { label = 'Drift Tires', weight = 8000 },
 ['fixkit'] = { label = 'Repair Kit (Tuning)', weight = 2000 },
-['stancerkit'] = { label = 'Stance Kit', weight = 3000 },
-['enginegago'] = { label = 'Engine Swap Kit', weight = 8000 },
-['turbostreet'] = { label = 'Street Turbo', weight = 4000 },
-['turbosports'] = { label = 'Sports Turbo', weight = 4000 },
-['turboracing'] = { label = 'Racing Turbo', weight = 4000 },
+-- stancerkit/enginegago/turbostreet/turbosports/turboracing stonden hier
+-- dubbel gedefinieerd (nogmaals verderop, met description/client.image). Lua
+-- table-literals laten de latere key winnen, dus dit blok deed niets - weg
+-- om te voorkomen dat iemand ooit de verkeerde (kalere) kopie bewerkt.
 ['vehiclecontroller'] = { label = 'Vehicle Controller Module', weight = 500 },
+['fakeplate'] = { label = 'Fake Plate', weight = 220, client = { export = 'renzu_garage.Fakeplate' } },
 
 -- Wapen-attachments/skins (Ammunation/BlackMarketArms)
 ['at_flashlight'] = { label = 'Tactical Flashlight', weight = 200 },
