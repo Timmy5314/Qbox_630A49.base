@@ -116,6 +116,7 @@ Config.Jobs = {
                     { name = 'tools',                 label = 'Cutting Tools',  price = 0 },
                     { name = 'spikestrip',            label = 'Spikestrip',     price = 0 },
                     { name = 'shield',                label = 'Riot Shield',    price = 0 },
+                    { name = 'police_stormram',       label = 'Battering Ram',  price = 0 }, -- ps-housing Config.RaidItem, stond nergens te koop
 
                     -- De politiehond (murderface-pets). Bewust hier en niet in
                     -- de dierenwinkel: dit is uitrusting, geen huisdier. Het

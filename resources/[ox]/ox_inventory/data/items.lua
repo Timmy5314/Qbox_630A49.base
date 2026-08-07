@@ -445,6 +445,7 @@ return {
 -- om te voorkomen dat iemand ooit de verkeerde (kalere) kopie bewerkt.
 ['vehiclecontroller'] = { label = 'Vehicle Controller Module', weight = 500 },
 ['fakeplate'] = { label = 'Fake Plate', weight = 220, client = { export = 'renzu_garage.Fakeplate' } },
+['police_stormram'] = { label = 'Battering Ram', weight = 4000, description = 'ps-housing raid-item.' },
 
 -- Wapen-attachments/skins (Ammunation/BlackMarketArms)
 ['at_flashlight'] = { label = 'Tactical Flashlight', weight = 200 },

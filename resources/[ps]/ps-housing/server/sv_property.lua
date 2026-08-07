@@ -589,7 +589,7 @@ RegisterNetEvent('ps-housing:server:enterProperty', function (property_id, spawn
 
     local citizenid = GetCitizenid(src)
 
-    if property:CheckForAccess(citizenid) and not isanmlo then
+    if property:CheckForAccess(citizenid) then
         Debug("Player has access to property")
         if spawn == 'spawn' then
             TriggerClientEvent("ps-housing:client:enterProperty", src, property_id, spawn)
@@ -598,17 +598,30 @@ RegisterNetEvent('ps-housing:server:enterProperty', function (property_id, spawn
         end
         Debug("Player entered property")
         return
-    else
-        property:PlayerEnter(src)
     end
 
-    if not isanmlo then
-        local ringDoorbellConfirmation = lib.callback.await('ps-housing:cb:ringDoorbell', src)
-        if ringDoorbellConfirmation == "confirm" then
-            property:AddToDoorbellPoolTemp(src)
-            Debug("Ringing doorbell")
-            return
-        end
+    -- Was: de else-tak riep hier altijd property:PlayerEnter(src) aan, VOOR
+    -- de doorbell-bevestiging hieronder ooit werd afgewacht. Iedereen die op
+    -- "Enter"/"Ring Doorbell" klikte werd dus meteen naar binnen
+    -- geteleporteerd, ongeacht toegang - de doorbell-prompt kwam pas daarna
+    -- en deed dus niets. Dit trof elk shell behalve echte mlo-gebouwen (die
+    -- via ox_doorlock lopen); startappartementen gebruiken het IPL-shell,
+    -- dus ook die waren volledig open voor iedereen.
+    --
+    -- isanmlo=true komt alleen van de auto-walk-in poly-zone die
+    -- cl_property.lua alleen aanmaakt voor de eigenaar/access-holder
+    -- (RegisterMlo, regel ~143: "if self.owner or self.has_access").
+    -- Zonder toegang hier belanden kan dus alleen door dat event direct te
+    -- spoofen - geen reden om dan alsnog binnen te laten of een doorbell te
+    -- laten rinkelen.
+    if isanmlo then
+        return
+    end
+
+    local ringDoorbellConfirmation = lib.callback.await('ps-housing:cb:ringDoorbell', src)
+    if ringDoorbellConfirmation == "confirm" then
+        property:AddToDoorbellPoolTemp(src)
+        Debug("Ringing doorbell")
     end
 end)
 
@@ -890,7 +903,7 @@ RegisterNetEvent("ps-housing:server:addAccess", function(property_id, srcToAdd)
     local property = Property.Get(property_id)
     if not property then return end
 
-    if not property.propertyData.owner == citizenid then
+    if property.propertyData.owner ~= citizenid then
         -- hacker ban or something
         Framework.Notify(src, "You are not the owner of this property!", "error")
         return
@@ -960,7 +973,7 @@ RegisterNetEvent("ps-housing:server:removeAccess", function(property_id, citizen
     local property = Property.Get(property_id)
     if not property then return end
 
-    if not property.propertyData.owner == citizenid then
+    if property.propertyData.owner ~= citizenid then
         -- hacker ban or something
         Framework.Notify(src, "You are not the owner of this property!", "error")
         return
