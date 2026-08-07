@@ -2,6 +2,35 @@ local config = require 'config.server'
 local sharedConfig = require 'config.shared'
 local Bail = {}
 
+-- Server-side aftel, in plaats van het aantal drops dat de client meestuurt
+-- bij het afrekenen (zie qb-tow:server:11101110 hieronder). qbx_garbagejob/
+-- qbx_truckerjob houden dit al zo bij; deze deed het niet, dus
+-- TriggerServerEvent("qb-tow:server:11101110", 20) rechtstreeks aanroepen in
+-- een lus was een herhaalbare uitbetaling zonder ooit te towen.
+local Drops = {}
+local lastDrop = {}
+
+RegisterNetEvent('qb-tow:server:dropDelivered', function()
+    local src = source
+    local Player = exports.qbx_core:GetPlayer(src)
+    if not Player or Player.PlayerData.job.name ~= 'tow' then return end
+
+    -- Eén levering rijden (voertuig ophalen + naar de towspot brengen) duurt
+    -- in de praktijk minstens tientallen seconden; 15s is ruim genoeg om
+    -- legitiem spelen niet te hinderen maar sluit "spam dit event" uit.
+    local now = GetGameTimer()
+    if lastDrop[src] and now - lastDrop[src] < 15000 then return end
+    lastDrop[src] = now
+
+    Drops[src] = (Drops[src] or 0) + 1
+end)
+
+AddEventHandler('playerDropped', function()
+    local src = source
+    Drops[src] = nil
+    lastDrop[src] = nil
+end)
+
 RegisterNetEvent('qb-tow:server:DoBail', function(bool, vehInfo)
     local Player = exports.qbx_core:GetPlayer(source)
     local paymentMethod
@@ -55,7 +84,7 @@ RegisterNetEvent('qb-tow:server:DoBail', function(bool, vehInfo)
     TriggerClientEvent('qb-tow:client:SpawnVehicle', source, vehInfo)
 end)
 
-RegisterNetEvent('qb-tow:server:11101110', function(drops)
+RegisterNetEvent('qb-tow:server:11101110', function()
     local Player = exports.qbx_core:GetPlayer(source)
     if not Player then return end
 
@@ -65,7 +94,10 @@ RegisterNetEvent('qb-tow:server:11101110', function(drops)
         return DropPlayer(source, locale("info.skick"))
     end
 
-    drops = tonumber(drops)
+    local drops = Drops[source] or 0
+    Drops[source] = 0
+    if drops == 0 then return end
+
     local bonus = 0
     local DropPrice = math.random(150, 170)
     if drops > 5 then

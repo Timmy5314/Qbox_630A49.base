@@ -854,6 +854,14 @@ return {
         weight = 1500,
     },
 
+    -- qbx_jewelery en qbx_houserobbery rollen dit item in hun loot-tabellen,
+    -- maar het stond nergens geregistreerd - die rollen leverden dus stil
+    -- niets op (zelfde patroon als de al eerder gefixte 'markedbills'-bug).
+    ['10kgoldchain'] = {
+        label = '10K Golden Chain',
+        weight = 1800,
+    },
+
     ['crack_baggy'] = {
         label = 'Crack Baggy',
         weight = 100,

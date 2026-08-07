@@ -151,6 +151,7 @@ local function deliverVehicle(vehicle)
     DeleteVehicle(vehicle)
     RemoveBlip(CurrentBlip2)
     JobsDone += 1
+    TriggerServerEvent('qb-tow:server:dropDelivered')
     VehicleSpawned = false
     exports.qbx_core:Notify(locale("mission.delivered_vehicle"), "success")
     exports.qbx_core:Notify(locale("mission.get_new_vehicle"))
@@ -385,7 +386,7 @@ end)
 RegisterNetEvent('qb-tow:client:PaySlip', function()
     if JobsDone > 0 then
         RemoveBlip(CurrentBlip)
-        TriggerServerEvent("qb-tow:server:11101110", JobsDone)
+        TriggerServerEvent("qb-tow:server:11101110")
         JobsDone = 0
         NpcOn = false
     else
