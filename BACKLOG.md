@@ -33,6 +33,48 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
+## SESSIE 8 augustus 2026, vervolg — qbx_*-golf + tweede externals-pas
+
+Zelfde sessie, derde en vierde controle-golf: de laatste nog niet
+gecontroleerde resources (qbx_* vehicle/economy, qbx_* UI/admin, qbx_*
+jobscripts) plus een herkansing van de s4t4n667/xt/stevo-pas die eerder op
+een sessielimiet liep. **Hiermee is vrijwel de hele `resources/`-boom deze
+sessie doorgelicht.**
+
+### Gefixt — twee onbeperkte geldmachines, drie client-vertrouwt-zichzelf-exploits
+
+| Sev | Resource | Wat | Fix |
+|---|---|---|---|
+| **KRITIEK (security)** | stevo_chopshop | `giveRewards(source, data.name)` gebruikte de reward-tier-naam RECHTSTREEKS van de client, zonder te checken of die overeenkwam met de echte `choppingStage` van het voertuig. Iedereen kon `stevo_chopshop:chopPart` rechtstreeks aanroepen met de duurste tier (chassis, 1500-2800 black_money) en die 9-11 keer per auto claimen — 3-5x de bedoelde opbrengst | `name` wordt nu altijd afgeleid van `Entity(vehicle).state.choppingStage`, nooit meer van client-data |
+| **KRITIEK (security)** | stevo_cayocrates | `createCrateDrop` stond als `RegisterNetEvent` — bedoeld als server-intern event, maar daardoor ook gewoon aanroepbaar vanaf de client via `TriggerServerEvent`. Zo kon een speler zelf een crate op zijn eigen positie "spawnen" en de USB-kosten, de 60s-timer en de cooldown volledig omzeilen: gegarandeerd 8500-11500 black_money + wapen per ~6,4s, onbeperkt herhaalbaar | → `AddEventHandler` (reageert nog op de server-interne aanroep, niet meer op de client) |
+| **KRITIEK (security)** | qbx_streetraces | `RaceWon` betaalde de pot uit aan wie dan ook die het event aanriep — geen check op race-bestaan/gestart/deelname, en de race werd niet afgesloten na uitbetaling (dus herhaalbaar op dezelfde RaceId) | alleen een ingeschreven deelnemer van een gestarte race, en maar één uitkering per race. **Blijft beperkt:** dit script houdt geen server-side race-voortgang (laps/checkpoints) bij, dus een deelnemer kan in theorie nog steeds vroegtijdig "winnen" zonder echt te finishen — een volledige fix vergt de minigame herbouwen |
+| **KRITIEK (security)** | qbx_weed | `harvestPlant` kreeg het item-type ÉN de hoeveelheid zaden rechtstreeks van de client — elk ox_inventory-item met elke hoeveelheid was te claimen als "oogst" van om het even welke plant | `sort`/`gender` komen nu uit de `weed_plants`-rij zelf, niet van de client |
+| **KRITIEK (security)** | qbx_vehiclesales | `sellVehicle` verwijderde ELK voertuig met de opgegeven plate/model uit `player_vehicles`, ongeacht eigenaarschap, en zette het te koop onder de naam van de aanroeper — vergelijk `sellVehicleBack` ernaast, die wél op citizenid filtert | citizenid toegevoegd aan de DELETE; listing wordt alleen aangemaakt als er echt een rij van déze speler verwijderd is |
+| HIGH | qbx_towjob | Uitbetaling was gebaseerd op een 'drops'-getal dat de client zelf meestuurde bij het afrekenen (bovengrens 20, verder niets) — repeatable ~$3400 zonder te towen | server telt nu zelf mee via een nieuw `dropDelivered`-event per aflevering (met 15s-ratelimit), afrekenen negeert het client-argument volledig |
+| HIGH | xt-robnpcs | Straatberoving betaalde schone `money` i.p.v. `black_money` — stond niet op de "al consistent"-lijst, nooit gefixt | → black_money |
+| MED | xt-prison | `config.policeJobs` (lowercase, bestaat niet — de config heeft `PoliceJobs`) hield `GlobalState.copCount` altijd op 0. Dormant zolang `MinimumPolice = 0`, maar zou de prison-break-cop-eis permanent onhaalbaar hebben gemaakt zodra die omhoog gaat | juiste veldnaam; `PoliceJobs`-lijst had ook `lspd` (bestaat niet) i.p.v. bcso/sasp — gecorrigeerd |
+| MED | qbx_radialmenu | Noodknop voor een neergeschoten solo-agent riep een event aan waar nergens een handler voor bestond — deed niets | → `ND_Police:requestBackup(true)`, dezelfde 10-99 als `/distress` |
+| LOW | items.lua | `10kgoldchain` gebruikt door qbx_jewelery/qbx_houserobbery loot-tabellen, nergens geregistreerd — die loot-rollen leverden stil niets op | item toegevoegd |
+
+### Bevestigd al goed (geen actie)
+
+s4t4n667_moneywash/elevators/lawmenu (volledig server-authoritative, geen dode refs); xt-prison's framework-bridge-bestanden (correct zelf-gegate per framework); qbx_vehiclekeys' eerder-gefixte plate-exploit (nog intact op alle 7 ingangen); qbx_taxijob (juiste jobnaam/dutystatus); dispatch-eventvorm van alle 4 qbx-robbery-resources + qbx_jewelery klopt end-to-end met los_policebridge; qbx_customs prijzen server-side berekend; qbx_hud showconstant-fix nog intact; qbx_management (geen society-money-rol, dus ook geen kandidaat voor renzu_customs — dat was al correct naar Renewed-Banking gefixt); qbx_radialmenu's dood-statebag-handler crasht niet nu qbx_medical uit staat.
+
+### Nog open — vergt Tims oordeel, geen eenduidige codefix
+
+| # | Sev | Wat |
+|---|---|---|
+| 61 | HIGH | **Dubbele voertuighandel-stack.** `qbx_customs`/`qbx_vehiclesales` (vanilla) draaien gewoon mee náást `renzu_customs`/`renzu_vehicleshop` (de aangewezen stack) — geen van beide wordt gestopt in server.cfg. Andere locaties, dus geen letterlijke botsing, maar wel dubbel onderhoud, twee losse (nooit samen gebalanceerde) prijsmodellen, en de nu-gefixte kritieke bug zat specifiek in de vanilla kant. **Advies:** `qbx_customs`/`qbx_vehiclesales` stoppen in server.cfg, zelfde precedent als `qbx_medical`. Niet zelf doorgevoerd — dit verwijdert een speler-zichtbare feature (occasion-listings) en is Tims beslissing. |
+| 62 | HIGH | **qbx_weed en md-drugs botsen op itemnamen.** `weed_skunk`/`weed_amnesia`/`weed_ak47` (+ hun `_seed`-varianten) staan dubbel gedefinieerd in items.lua — qbx_weed (vrij, geen gang-eis) én md-drugs (Families-exclusief, verwerkt product). Een speler kan die drie soorten gewoon via qbx_weed kweken en rechtstreeks in md-drugs' cornerselling verkopen, buiten de gang-gate om. **Vergt een naamswijziging in óf qbx_weed óf md-drugs** — niet zelf doorgevoerd, dat raakt bestaande spelerinventories/database-rijen. |
+| 63 | MED | **qbx_garbagejob-uitbetaling ver boven het economiemodel.** Een korte route kan $2.500-$10.000+ opleveren tegen het gedocumenteerde model (~$600-750/uur voor instap/hulpdiensten). Zelfde categorie als de eerdere renzu_shops-prijspas: vergt Tims goedkeuring, niet zelf doorgevoerd. |
+| 64 | LOW | **qbx_spawn verwijst naar het dode `qbx_properties`** (`GetResourceState('qbx_properties')`, event `qbx_properties:server:enterProperty`). Nu onschadelijk (niets vult ooit `metadata.currentPropertyId`, dus de check geeft altijd een lege lijst — "spawn bij mijn huis" toont nooit iets, geen crash). Zou "spawn bij mijn huis" moeten koppelen aan ps-housing in plaats van het dode qbx_properties, maar dat vergt eerst uitzoeken welke ps-housing-API daarvoor bedoeld is — niet blind gegokt. |
+| 65 | LOW | **qbx_vineyard-baan wordt nergens afgedwongen.** De job `vineyard` bestaat in `qbx_core/shared/jobs.lua` (Picker, $300/strook) maar de minigame zelf checkt geen enkele job — druiven/wijn plukken is voor iedereen gratis toegankelijk, ook niet-werknemers. |
+| 66 | LOW | **qbx_storerobbery's safe-cracking genereert geen dispatch-melding.** Alleen de kassa-lockpick-route (laagste waarde) triggert `alertPolice()`; de kluisroute (hoogste waarde: black_money + rolex/goldbar) niet. |
+| 67 | LOW | **qbx_visuals — concrete kandidaat voor de "overdreven lichtreflectie".** `Config.ContextStrength` demt elke context (0.70-0.95) behalve `night`/`rain_night`, die op `1.00` staan. Niet blind aangepast (audit kon dit niet in-game verifiëren) — **testplan:** zet die twee tijdelijk op ~0.85 en vergelijk. |
+| 68 | LOW | **Diverse dode events/aanroepen zonder gevolgen voor de economie**, gevonden maar niet gefixt (geen failure behalve "doet niets"): `qbx_bankrobbery` → `qb-banking:server:SetBankClosed` (geen listener); `qbx_lapraces` → `qb-phone:client:RaceNotify` (qb-phone bestaat hier niet, NPWD is de telefoon); `qbx_newsjob` → `camera:Activate` (nergens afgevuurd, live pad is `qbx_newsjob:client:toggleCam`); `safecracker` gebruikt nog het onvertaalde `exports['qb-core']:GetCoreObject()`/`QBCore.Functions.Notify` (werkt via de qb-core-bridge, maar niet volgens conventie); `vehiclehandler` doet een GitHub-versiecheck bij elke boot (niet-fataal, wel een externe afhankelijkheid die elders al gestript is). |
+
+---
+
 ## SESSIE 8 augustus 2026 — volledige server-audit (op verzoek van Tim: "alle scripten")
 
 Tim was niet tevreden met alleen renzu/AI-ambulance/taxi ("ik denk dat er veel
