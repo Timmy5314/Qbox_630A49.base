@@ -339,6 +339,13 @@ return {
 		{ category = 'Turbo',  name = 'turbostreet', price = 15000, },
 		{ category = 'Turbo',  name = 'turbosports', price = 30000, },
 		{ category = 'Turbo',  name = 'turboracing', price = 50000, },
+		{ category = 'Turbo',  name = 'turboultimate', price = 75000, },
+		{ category = 'Nitro',  name = 'nitro50shot', price = 8000, },
+		{ category = 'Nitro',  name = 'nitro100shot', price = 15000, },
+		{ category = 'Nitro',  name = 'nitro200shot', price = 25000, },
+		{ category = 'Nitro',  name = 'nitro_bottle', price = 3000, },
+		{ category = 'Nitro',  name = 'nitro_bottle2', price = 5000, },
+		{ category = 'Nitro',  name = 'nitro_bottle3', price = 7000, },
 		{ category = 'Gadget',  name = 'vehiclecontroller', price = 150000, },
 
 
