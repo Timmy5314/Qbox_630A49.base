@@ -188,10 +188,16 @@ RegisterNetEvent('radialmenu:client:deadradial', function(isDead)
             label = locale('options.emergency_button'),
             icon = 'circle-exclamation',
             onSelect = function()
+                -- Was: TriggerEvent('police:client:SendPoliceEmergencyAlert'),
+                -- een event waar nergens een handler voor bestond - de knop
+                -- deed dus niets. ND_Police's echte 10-99-noodoproep (dezelfde
+                -- die /distress afvuurt) is ND_Police:requestBackup(true);
+                -- die controleert zelf of de aanroeper politie is en heeft
+                -- geen "in dienst"-eis, dus werkt ook voor een neergeschoten
+                -- agent. De elseif isems-tak hierboven was al dode code: op
+                -- regel 182 is al gecontroleerd dat isems hier nooit waar is.
                 if ispolice then
-                    TriggerEvent('police:client:SendPoliceEmergencyAlert')
-                elseif isems then
-                    TriggerServerEvent('hospital:server:emergencyAlert')
+                    TriggerServerEvent('ND_Police:requestBackup', true)
                 end
                 lib.hideRadial()
             end
