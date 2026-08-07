@@ -71,7 +71,22 @@ end)
 RegisterNetEvent('qb-occasions:server:sellVehicle', function(vehiclePrice, vehicleData)
     local src = source
     local player = exports.qbx_core:GetPlayer(src)
-    MySQL.query('DELETE FROM player_vehicles WHERE plate = ? AND vehicle = ?',{vehicleData.plate, vehicleData.model})
+
+    -- Was: verwijderde ELK voertuig met de opgegeven plate/model, ongeacht
+    -- wie het bezit, en zette het daarna te koop onder de naam van de
+    -- aanroeper. Iedereen kon dus TriggerServerEvent('qb-occasions:server:
+    -- sellVehicle', prijs, {plate = <plate van een ander>, model = ...})
+    -- aanroepen om andermans voertuig uit player_vehicles te wissen en het
+    -- als eigen listing te koop te zetten - vergelijk sellVehicleBack
+    -- hieronder, die WEL op citizenid filtert. citizenid nu ook hier
+    -- toegevoegd, en de listing wordt alleen aangemaakt als er echt een
+    -- rij van deze speler verwijderd is.
+    local deleted = MySQL.query.await('DELETE FROM player_vehicles WHERE plate = ? AND vehicle = ? AND citizenid = ?', {vehicleData.plate, vehicleData.model, player.PlayerData.citizenid})
+    if not deleted or deleted.affectedRows == 0 then
+        exports.qbx_core:Notify(src, locale('error.not_your_vehicle'), 'error', 3500)
+        return
+    end
+
     MySQL.insert('INSERT INTO occasion_vehicles (seller, price, description, plate, model, mods, occasionid) VALUES (?, ?, ?, ?, ?, ?, ?)',{player.PlayerData.citizenid, vehiclePrice, vehicleData.desc, vehicleData.plate, vehicleData.model,json.encode(vehicleData.mods), generateOID()})
     TriggerEvent('qb-log:server:CreateLog', 'vehicleshop', 'Vehicle for Sale', 'red','**' .. GetPlayerName(src) .. '** has a ' .. vehicleData.model .. ' priced at ' .. vehiclePrice)
     TriggerClientEvent('qb-occasion:client:refreshVehicles', -1)

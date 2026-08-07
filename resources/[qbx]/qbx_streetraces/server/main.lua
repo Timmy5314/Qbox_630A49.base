@@ -78,9 +78,37 @@ end)
 
 RegisterNetEvent('qb-streetraces:RaceWon', function(RaceId)
     local src = source
+
+    -- Was: betaalde de pot uit aan WIE DAN OOK die dit event aanriep, zonder
+    -- te checken of Races[RaceId] echt bestond/gestart was of dat de speler
+    -- er zelfs maar aan meedeed - en zonder de race daarna af te sluiten, dus
+    -- hetzelfde RaceId nogmaals aanroepen betaalde nogmaals uit. Een gemaakte
+    -- race-ID afluisteren (of gokken, math.random(1000,9999)) en dit event
+    -- herhaaldelijk direct aanroepen was een onbeperkte geldmachine.
+    --
+    -- Dit script houdt geen server-side race-voortgang bij (geen laps/
+    -- checkpoints), dus "ben je écht als eerste gefinisht" kan hier niet
+    -- geverifieerd worden zonder de hele minigame te herbouwen. Wat wel kan:
+    -- alleen een ingeschreven deelnemer van een GESTARTE race kan de pot
+    -- claimen, en dat kan maar één keer per race.
+    local race = Races[RaceId]
+    if not race or not race.started then return end
+
+    local identifier = GetPlayerIdentifierByType(src, 'license')
+    local isParticipant = false
+    for _, iden in pairs(race.joined) do
+        if iden == identifier then
+            isParticipant = true
+            break
+        end
+    end
+    if not isParticipant then return end
+
     local xPlayer = exports.qbx_core:GetPlayer(src)
-    xPlayer.Functions.AddMoney('cash', Races[RaceId].pot, "race-won")
-    exports.qbx_core:Notify(src, "You won the race and €"..Races[RaceId].pot..",- recieved", 'success')
+    xPlayer.Functions.AddMoney('cash', race.pot, "race-won")
+    exports.qbx_core:Notify(src, "You won the race and €"..race.pot..",- recieved", 'success')
+
+    Races[RaceId] = nil
     TriggerClientEvent('qb-streetraces:SetRace', -1, Races)
     TriggerClientEvent('qb-streetraces:RaceDone', -1, RaceId, GetPlayerName(src))
 end)

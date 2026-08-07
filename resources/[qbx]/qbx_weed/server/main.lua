@@ -129,10 +129,21 @@ RegisterNetEvent('qbx_weed:server:harvestPlant', function(property, seedAmount, 
     local player = exports.qbx_core:GetPlayer(source)
     if not player or player.PlayerData.metadata.currentPropertyId ~= property or #(GetEntityCoords(GetPlayerPed(player.PlayerData.source)) - plantCoords) > 2 then return end
 
-    if not MySQL.prepare.await('SELECT 1 FROM weed_plants WHERE id = ?', { plantId }) then
+    -- plantItemName en seedAmount kwamen voorheen RECHTSTREEKS van de client
+    -- (TriggerServerEvent-argumenten) en werden hieronder klakkeloos aan
+    -- AddItem doorgegeven - een speler kon dus zelf het event aanroepen met
+    -- plantItemName = '<willekeurig ox_inventory-item>' en een eigen
+    -- seedAmount, en zo elk item met elke hoeveelheid claimen als "oogst"
+    -- van om het even welke plant. sort/gender komen nu uit de weed_plants-
+    -- rij zelf; harvestAmount was al server-random en dus nooit het probleem.
+    local plantRow = MySQL.single.await('SELECT sort, gender FROM weed_plants WHERE id = ?', { plantId })
+    if not plantRow or not sharedConfig.plants[plantRow.sort] then
         exports.qbx_core:Notify(player.PlayerData.source, locale('error.this_plant_no_longer_exists'), 'error')
         return
     end
+
+    plantItemName = sharedConfig.plants[plantRow.sort].item
+    seedAmount = plantRow.gender == 'female' and math.random(1, 6) or math.random(1, 2)
 
     local weedBag = exports.ox_inventory:Search(player.PlayerData.source, 'count', sharedConfig.items.emptyBag)
     local harvestAmount = math.random(config.randomHarvestAmount.min, config.randomHarvestAmount.max)
