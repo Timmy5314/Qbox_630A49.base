@@ -275,15 +275,20 @@ Config.VehiclePoints = {
 -- NOTE: lookups always FAIL OPEN — a missing resource/export, an error, or a
 -- timeout is treated as "insured", so a broken insurance script can never wrongly
 -- flag every vehicle as uninsured.
+-- m-Insurance was never wired to this server - los_insurance is the real
+-- vehicle-insurance resource here, and its `hasVehicleInsurance(plate)`
+-- export is a direct-return boolean, not a callback. Enabling this without
+-- pointing it there would silently no-op (missing resource -> fail open,
+-- so it just always showed "Valid").
 Config.VehicleInsurance = {
-    enabled  = false,
-    resource = 'm-Insurance',     -- resource that exposes the export
-    export   = 'HasCarInsurance', -- export name to call
+    enabled  = true,
+    resource = 'los_insurance',
+    export   = 'hasVehicleInsurance',
 
     -- How the export delivers its answer:
     --   callback = true  -> exports[resource]:export(plate, function(hasInsurance) end)
     --   callback = false -> local hasInsurance = exports[resource]:export(plate)
-    callback = true,
+    callback = false,
 
     timeout  = 2000, -- ms to wait for a callback answer before failing open (treated as insured)
 
@@ -314,6 +319,9 @@ Config.VehicleInsurance = {
 -- NOTE: lookups always FAIL OPEN — a missing resource/export, an error, or a
 -- timeout is treated as "registered", so a broken script can never wrongly flag
 -- every vehicle as unregistered.
+-- Geen resource in dit project levert een los "registratie"-concept
+-- (los_insurance doet alleen verzekering). Blijft uit en op het
+-- voorbeeld-target staan tenzij Tim hier zelf iets aan koppelt.
 Config.VehicleRegistration = {
     enabled  = false,
     resource = 'm-Insurance',        -- resource that exposes the export

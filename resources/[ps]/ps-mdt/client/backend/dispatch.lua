@@ -167,9 +167,8 @@ if Config.UseWolfknightRadar then
             exports['ps-dispatch']:CustomAlert({
                 coords = { x = currentPos.x, y = currentPos.y, z = currentPos.z },
                 message = 'Ongoing Traffic Stop',
-                dispatchCode = '10-11',
-                description = 'Ongoing Traffic Stop',
-                firstStreet = locationInfo,
+                dispatchCode = '10-11', -- interne naam
+                code = '10-11',         -- weergegeven code; zonder dit viel dit terug op '10-80'
                 model = vehicleName,
                 plate = plate,
                 name = gradeName .. ', ' .. (charinfo.firstname or '') .. ' ' .. (charinfo.lastname or ''),
