@@ -82,6 +82,20 @@ local function snapshot()
         if config.wipe.vehicles then
             data.vehicles = MySQL.query.await('SELECT plate, citizenid FROM player_vehicles') or {}
         end
+
+        -- Was: config.wipe.inventories = true wipete zowel players.inventory
+        -- als de hele ox_inventory-tabel (stashes/kofferbakken/dashboardkastjes),
+        -- maar de snapshot legde alleen een RIJENTELLING vast (survey()), geen
+        -- inhoud. Bij een betwist verloren item was er dus letterlijk niets om
+        -- op terug te vallen - het "vangnet" beloofde meer dan het vastlegde.
+        if config.wipe.inventories then
+            data.playerInventories = MySQL.query.await('SELECT citizenid, inventory FROM players') or {}
+            data.stashes = MySQL.query.await('SELECT * FROM ox_inventory') or {}
+        end
+
+        if config.wipe.properties then
+            data.properties = MySQL.query.await('SELECT * FROM properties') or {}
+        end
     end)
 
     if not ok then
@@ -118,26 +132,36 @@ local function performWipe(live)
         return counts
     end
 
+    -- pcall per stap: oxmysql gooit een exception bij een ontbrekende tabel,
+    -- geen nil (zelfde valkuil als overal elders in deze codebase). Zonder
+    -- dit stierf performWipe midden in de reeks - eerdere stappen al
+    -- uitgevoerd, latere stappen (bv. properties, dat hier al eens een hele
+    -- DDL-geschiedenis van toegevoegde/weggegooide kolommen had) stil
+    -- overgeslagen zonder duidelijke melding.
     if config.wipe.money then
         local money = json.encode(config.startingMoney)
-        MySQL.update.await('UPDATE players SET money = ?', { money })
-        log('geld teruggezet')
+        local ok, err = pcall(MySQL.update.await, 'UPDATE players SET money = ?', { money })
+        log(ok and 'geld teruggezet' or ('geld teruggezet MISLUKT: %s'):format(err))
     end
 
     if config.wipe.vehicles then
-        MySQL.update.await('DELETE FROM player_vehicles')
-        log('voertuigen verwijderd')
+        local ok, err = pcall(MySQL.update.await, 'DELETE FROM player_vehicles')
+        log(ok and 'voertuigen verwijderd' or ('voertuigen verwijderd MISLUKT: %s'):format(err))
     end
 
     if config.wipe.inventories then
-        MySQL.update.await('UPDATE players SET inventory = ?', { '[]' })
-        MySQL.update.await('DELETE FROM ox_inventory')
-        log('inventories geleegd')
+        local ok1, err1 = pcall(MySQL.update.await, 'UPDATE players SET inventory = ?', { '[]' })
+        local ok2, err2 = pcall(MySQL.update.await, 'DELETE FROM ox_inventory')
+        if ok1 and ok2 then
+            log('inventories geleegd')
+        else
+            log(('inventories geleegd MISLUKT: %s'):format(err1 or err2))
+        end
     end
 
     if config.wipe.properties then
-        MySQL.update.await('DELETE FROM properties')
-        log('eigendommen verwijderd')
+        local ok, err = pcall(MySQL.update.await, 'DELETE FROM properties')
+        log(ok and 'eigendommen verwijderd' or ('eigendommen verwijderd MISLUKT: %s'):format(err))
     end
 
     -- Characters, identiteiten en accounts blijven staan. Bewust geen optie.
