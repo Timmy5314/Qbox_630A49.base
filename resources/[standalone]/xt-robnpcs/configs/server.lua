@@ -55,8 +55,11 @@ return {
 
     ---@param src number
     ---@param amount number
+    -- Muggen is illegaal inkomen; hoorde net als chopshop/cayocrates/turfs
+    -- black_money te zijn, niet schone cash (SERVER-OVERHAUL 6.7). Stond niet
+    -- op de "al consistent"-lijst in BACKLOG - nooit gefixt.
     addCash = function(src, amount)
-        return exports.ox_inventory:AddItem(src, 'money', amount)
+        return exports.ox_inventory:AddItem(src, 'black_money', amount)
     end,
 
     ---@param src number

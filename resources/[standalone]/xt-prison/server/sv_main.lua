@@ -217,7 +217,10 @@ AddEventHandler('onResourceStart', function(resource)
             src = src and tonumber(src) or false
             local player = src and getPlayer(src) or false
             if player then
-                if charHasJob(src, config.policeJobs) then
+                -- Was config.policeJobs (lowercase) - bestaat niet, de config
+                -- definieert PoliceJobs. charHasJob(src, nil) matcht nooit,
+                -- dus copCount bleef altijd op 0 staan.
+                if charHasJob(src, config.PoliceJobs) then
                     count += 1
                 end
             end
