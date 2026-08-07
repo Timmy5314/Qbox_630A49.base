@@ -3,7 +3,7 @@
 ---
 ---Elk server-side RegisterNetEvent dat een client kan triggeren, met de
 ---resource waar het vandaan komt. Dit is de aanvalsoppervlakte van de server.
----Gegenereerd op 2026-08-01 uit 467 server-side bestanden.
+---Gegenereerd op 2026-08-08 uit 486 server-side bestanden.
 
 KnownServerEvents = {
     ['baseevents:enteredVehicle'] = 'ps_lib',
@@ -14,6 +14,8 @@ KnownServerEvents = {
     ['bl-realtor:server:addTenantToApartment'] = 'ps-realtor',
     ['bl-realtor:server:registerProperty'] = 'ps-realtor',
     ['bl-realtor:server:updateProperty'] = 'ps-realtor',
+    ['buybag'] = 'renzu_bag',
+    ['buyengine'] = 'renzu_engine',
     ['community_bridge:Server:_OnPlayerInside'] = 'community_bridge',
     ['community_bridge:Server:completeCheckout'] = 'community_bridge',
     ['community_bridge:server:dispatch:sendAlert'] = 'community_bridge',
@@ -26,6 +28,7 @@ KnownServerEvents = {
     ['consumables:server:addThirst'] = 'qbx_smallresources',
     ['consumables:server:setHunger'] = 'qbx_smallresources',
     ['consumables:server:setThirst'] = 'qbx_smallresources',
+    ['deleteentity'] = 'renzu_itemback',
     ['esx:onPlayerDeath'] = 'Renewed-Banking',
     ['esx:onPlayerSpawn'] = 'Renewed-Banking',
     ['esx:playerLoaded'] = 'community_bridge',
@@ -96,6 +99,7 @@ KnownServerEvents = {
     ['murderface-pets:server:syncLeash'] = 'murderface-pets',
     ['murderface-pets:server:updatePetStats'] = 'murderface-pets',
     ['ND_Ambulance:attachStretcher'] = 'ND_Ambulance',
+    ['ND_Ambulance:clientSelfRevived'] = 'ND_Ambulance',
     ['ND_Ambulance:detachStretcher'] = 'ND_Ambulance',
     ['ND_Ambulance:pickupBag'] = 'ND_Ambulance',
     ['ND_Ambulance:pickupDefib'] = 'ND_Ambulance',
@@ -282,16 +286,24 @@ KnownServerEvents = {
     ['Renewed-Banking:server:removeAccountMember'] = 'Renewed-Banking',
     ['Renewed-Banking:server:viewMemberManagement'] = 'Renewed-Banking',
     ['Renewed-Weather:server:removeWeatherEvent'] = 'Renewed-Weathersync',
+    ['renzu_bag:placeobject'] = 'renzu_bag',
+    ['renzu_bag:removeplacement'] = 'renzu_bag',
     ['renzu_clothes:died'] = 'renzu_clothes',
     ['renzu_customs:server:closeSession'] = 'renzu_customs',
     ['renzu_customs:server:storePart'] = 'renzu_customs',
     ['renzu_customs:server:turboSound'] = 'renzu_customs',
+    ['renzu_engine:EngineSwap'] = 'renzu_engine',
     ['renzu_garage:giveqbxkeys'] = 'renzu_garage',
     ['renzu_garage:SetVehicleOwner'] = 'renzu_garage',
     ['renzu_garage:updategaragekeys'] = 'renzu_garage',
     ['renzu_garage:vehiclekeyhandler'] = 'renzu_garage',
+    ['renzu_nitro:AddNitro'] = 'renzu_nitro',
     ['renzu_shops:giveDeliveryVehicleKeys'] = 'renzu_shops',
     ['renzu_shops:removeDeliveryVehicleKeys'] = 'renzu_shops',
+    ['renzu_stancer:addstancer'] = 'renzu_stancer',
+    ['renzu_stancer:save'] = 'renzu_stancer',
+    ['renzu_stancer:servercallback'] = 'renzu_stancer',
+    ['renzu_turbo:AddTurbo'] = 'renzu_turbo',
     ['safecoords'] = 'renzu_garage',
     ['scully_emotemenu:requestGroupEmote'] = 'scully_emotemenu',
     ['scully_emotemenu:requestSynchronizedEmote'] = 'scully_emotemenu',

@@ -91,6 +91,15 @@ local function dispatch(src)
             return finish(src)
         end
 
+        -- los_anticheat blokkeert client-gespawnde voertuigen zonder
+        -- server-side RegisterSpawn zodra Config.entities.blockUnregisteredVehicles
+        -- aan staat (nu nog false, maar dit script stond niet op de lijst van
+        -- resources die daarvoor eerst moesten registreren - zonder dit zou
+        -- de taxi de dag dat die vlag omgaat stil nooit meer spawnen).
+        if GetResourceState('los_anticheat') == 'started' then
+            pcall(function() exports.los_anticheat:RegisterSpawn(config.models.vehicle) end)
+        end
+
         TriggerClientEvent('los_aitaxi:startRide', src, {
             depots = config.depots,
         })
