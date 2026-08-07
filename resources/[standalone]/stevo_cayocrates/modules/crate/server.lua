@@ -116,7 +116,15 @@ local function cleanupCrate()
     config.utils.log(locale('crate.crate_cleaned_up_server'), 'INFO')
 end
 
-RegisterNetEvent('stevo_cayocrates:createCrateDrop', function(crate_data)
+-- AddEventHandler, NIET RegisterNetEvent: dit event stelt CrateState.current_crate
+-- rechtstreeks in (coords, owned-vlag, alles) zonder enige validatie. De
+-- enige bedoelde aanroeper is modules/computer/server.lua's eigen
+-- TriggerEvent (server-intern), maar RegisterNetEvent maakt een event ook
+-- vanaf de client aanroepbaar via TriggerServerEvent. Zonder deze fix kon
+-- elke speler zelf een crate op zijn eigen positie "spawnen"
+-- (owned=false, coords=eigen positie) en zo de USB-kosten, de 60s-timer en
+-- de distance-check omzeilen - een onbeperkte geldmachine.
+AddEventHandler('stevo_cayocrates:createCrateDrop', function(crate_data)
     CrateState.current_crate = crate_data
     config.utils.log(locale('crate.crate_drop_created_server'), 'INFO')
 end)
