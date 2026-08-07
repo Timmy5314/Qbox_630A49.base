@@ -152,7 +152,7 @@ function Initialized()
 		print("^2 Checking impound_garage table ^7")
 		impoundget = MysqlGarage(Config.Mysql,'fetchAll','SELECT * FROM impound_garage', {})
 		print("^2 impound_garage table ok ^7")
-		for k,v in pairs(impoundget) do
+		for k,v in pairs(impoundget or {}) do
 			impound_G[v.garage] = json.decode(v.data) or {}
 		end
 		print("^2 Auto Import impound_garage table default data ^7")

@@ -825,7 +825,7 @@ CheckKeysOnItemRemove = function(item,count)
                 if owned_vehicles[plate] and not DoesPlayerHaveKey(v,plate) then
                     local ent = Entity(v).state
                     ent:set('havekeys', false, true)
-                    local networked = NetworkGetEntityIsNetworked(vehicle)
+                    local networked = NetworkGetEntityIsNetworked(v)
                     TriggerServerEvent('statebugupdate','havekeys',false, networked and VehToNet(v))
                 end
             end
