@@ -197,7 +197,18 @@ RegisterNetEvent('los_aitaxi:startRide', function(data)
     end
 
     vehicle = CreateVehicle(config.models.vehicle, spawn.x, spawn.y, spawn.z, spawn.w, true, false)
-    while not DoesEntityExist(vehicle) do Wait(0) end
+    -- Als CreateVehicle ooit geweigerd/geannuleerd wordt (entity-cap, netwerk,
+    -- of los_anticheat's blockUnregisteredVehicles zodra dat aan komt te
+    -- staan) hing dit voorheen voor altijd - active bleef true en niemand kon
+    -- nog een taxi bellen zonder te reloggen.
+    local spawnDeadline = GetGameTimer() + 5000
+    while not DoesEntityExist(vehicle) do
+        if GetGameTimer() > spawnDeadline then
+            active = false
+            return TriggerServerEvent('los_aitaxi:rideFailed')
+        end
+        Wait(0)
+    end
 
     driver = CreatePedInsideVehicle(vehicle, 4, config.models.driver, -1, true, false)
 
@@ -225,7 +236,7 @@ RegisterNetEvent('los_aitaxi:startRide', function(data)
           RelationshipGroup op PLAYER: hij ziet je als vriend, niet als bedreiging
     ]]
     SetPedCanBeDraggedOut(driver, false)
-    SetPedFleeAttributes(driver, 0, false)
+    SetPedFleeAttributes(driver, 0, true) -- clear=true: wist bestaande flee-flags i.p.v. flags=0 erover-oren
     SetPedCombatAttributes(driver, 17, true)
     SetPedConfigFlag(driver, 251, true)
     SetPedConfigFlag(driver, 281, true)
