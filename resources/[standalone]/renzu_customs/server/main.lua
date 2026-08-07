@@ -97,18 +97,36 @@ local function isAtShop(src, shop)
     return #(GetEntityCoords(ped) - center) <= (shopCfg.radius or 30.0) + 20.0
 end
 
----Society account name for a shop (qbx_management).
+---Society account name for a shop (Renewed-Banking job account).
 ---@param job string
 local function societyAccount(job)
     return Config.SocietyPrefix ~= '' and (Config.SocietyPrefix .. job) or job
+end
+
+---Renewed-Banking only auto-creates job accounts that go through
+---CreateJobAccount; a shop whose job never called that has no row in
+---cachedAccounts and getAccountMoney/addAccountMoney/removeAccountMoney all
+---fail. Create it on first use instead of paying into a black hole.
+---@param account string
+local function ensureSocietyAccount(account)
+    local ok, existing = pcall(function()
+        return exports[Config.SocietyResource]:GetJobAccount(account)
+    end)
+    if ok and not existing then
+        pcall(function()
+            exports[Config.SocietyResource]:CreateJobAccount({ name = account, label = 'Customs - ' .. account })
+        end)
+    end
 end
 
 ---@param job string
 ---@return number
 local function getSocietyMoney(job)
     if not Config.UseSociety then return 0 end
+    local account = societyAccount(job)
+    ensureSocietyAccount(account)
     local ok, money = pcall(function()
-        return exports[Config.SocietyResource]:GetAccount(societyAccount(job))
+        return exports[Config.SocietyResource]:getAccountMoney(account)
     end)
     return ok and tonumber(money) or 0
 end
@@ -116,16 +134,19 @@ end
 ---@param job string
 ---@param amount number
 ---@param add boolean
+---@return boolean
 local function societyTransfer(job, amount, add)
     if not Config.UseSociety or amount <= 0 then return false end
-    local ok = pcall(function()
+    local account = societyAccount(job)
+    ensureSocietyAccount(account)
+    local ok, result = pcall(function()
         if add then
-            exports[Config.SocietyResource]:AddMoney(societyAccount(job), amount)
+            return exports[Config.SocietyResource]:addAccountMoney(account, amount)
         else
-            exports[Config.SocietyResource]:RemoveMoney(societyAccount(job), amount)
+            return exports[Config.SocietyResource]:removeAccountMoney(account, amount)
         end
     end)
-    return ok
+    return ok and result == true
 end
 
 ---Trim a GTA plate the same way the client does so lookups match.

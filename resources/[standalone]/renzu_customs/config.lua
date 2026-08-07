@@ -54,8 +54,8 @@ Config.InteractiveFeature = { -- turn the extra (roleplay) features on/off globa
 -- ─────────────────────────────────────────────────────────────────────────────
 --  SOCIETY / PAYOUT
 -- ─────────────────────────────────────────────────────────────────────────────
-Config.UseSociety = true -- pay the shop's society account (via Renewed-Banking's qb-management exports)
-Config.SocietyResource = 'qb-management' -- Renewed-Banking exposes society accounts onder deze exportnaam (GetAccount / AddMoney / RemoveMoney)
+Config.UseSociety = true -- pay the shop's society account (via Renewed-Banking)
+Config.SocietyResource = 'Renewed-Banking' -- Renewed-Banking's echte exports zijn getAccountMoney/addAccountMoney/removeAccountMoney (qb-management bestaat hier niet)
 Config.SocietyPrefix = '' -- some setups use 'mechanic', others 'society_mechanic'
 
 -- ─────────────────────────────────────────────────────────────────────────────
