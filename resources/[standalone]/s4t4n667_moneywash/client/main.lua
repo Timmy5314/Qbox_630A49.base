@@ -146,7 +146,7 @@ CreateThread(function()
             {
                 label = locale('target_enter'),
                 icon = 'fa-solid fa-soap',
-                distance = 1.5,
+                distance = 2.5,
                 onSelect = enterLaundry,
                 canInteract = function()
                     return not inside
@@ -193,7 +193,7 @@ CreateThread(function()
             {
                 label = locale('target_dry'),
                 icon = 'fa-solid fa-wind',
-                distance = 1.5,
+                distance = 2.5,
                 onSelect = dryMoney,
                 canInteract = function() return inside end,
             },

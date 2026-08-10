@@ -22,7 +22,7 @@ return {
             ped = false,
             label = "Charges & Legal Assistance",
             icon = "fa-solid fa-book",
-            distance = 1.5,
+            distance = 2.5,
             coords = vector4(435.5480, -976.9981, 30.7173, 178.2915),
         },
         {
@@ -31,7 +31,7 @@ return {
             scenario = "WORLD_HUMAN_CLIPBOARD",
             label = "Charges & Legal Assistance",
             icon = "fa-solid fa-book",
-            distance = 1.5,
+            distance = 2.5,
             coords = vector4(435.8683, -974.1058, 30.7159, 103.2693),
         },
         {

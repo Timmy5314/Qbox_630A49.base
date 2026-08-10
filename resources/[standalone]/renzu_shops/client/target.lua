@@ -132,7 +132,7 @@ ShopTargets.AddShopTarget = function(coords, msg, callback, var, opts)
 		-- sphere heeft geen rotatie nodig.
 		entry.target = exports.ox_target:addSphereZone({
 			coords = coords,
-			radius = opts.radius or opts.distance or 1.5,
+			radius = opts.radius or opts.distance or 2.0,
 			debug = false,
 			options = options
 		})

@@ -109,7 +109,7 @@ CreateThread(function()
             name = 'los_hygiene:pee',
             icon = 'fa-solid fa-toilet',
             label = locale('use_toilet_pee'),
-            distance = 1.5,
+            distance = 2.5,
             onSelect = function()
                 perform('pee', locale('doing_pee'), {
                     dict = 'misscarsteal2peeing',
@@ -121,7 +121,7 @@ CreateThread(function()
             name = 'los_hygiene:poo',
             icon = 'fa-solid fa-toilet',
             label = locale('use_toilet_poo'),
-            distance = 1.5,
+            distance = 2.5,
             onSelect = function()
                 perform('poo', locale('doing_poo'), {
                     dict = 'timetable@ron@ig_5_p3',
@@ -136,7 +136,7 @@ CreateThread(function()
             name = 'los_hygiene:shower',
             icon = 'fa-solid fa-shower',
             label = locale('use_shower'),
-            distance = 2.0,
+            distance = 2.5,
             onSelect = function()
                 perform('shower', locale('doing_shower'), {
                     dict = 'mp_safehouseshower@male@',
@@ -151,7 +151,7 @@ CreateThread(function()
             name = 'los_hygiene:washhands',
             icon = 'fa-solid fa-hands-bubbles',
             label = locale('wash_hands'),
-            distance = 1.5,
+            distance = 2.5,
             onSelect = function()
                 perform('washHands', locale('doing_wash'), {
                     dict = 'mp_arresting',

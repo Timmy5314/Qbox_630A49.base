@@ -55,14 +55,14 @@ function Bridge.Client.AddZone(coords, icon, label, func, id)
   if (config.target == "auto" and GetResourceState("ox_target") == 'started') or config.target == "ox_target" then
     zone = exports.ox_target:addSphereZone({
       coords = vec3(coords.x, coords.y, coords.z+1.0),
-      radius = 1.3,
+      radius = 2.0,
       debug = false,
       options = {
           {
-            icon = icon, 
+            icon = icon,
             label = label,
               onSelect = func,
-              distance = 1.5,
+              distance = 2.5,
           },
           
       }
