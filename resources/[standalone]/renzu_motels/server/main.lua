@@ -6,6 +6,32 @@ local rental_period = {
 	['day'] = 86400,
 	['month'] = 2592000
 }
+
+-- KRITIEK: de client stuurt rate/businessprice/payment/rental_period mee in `data`,
+-- maar die mogen NOOIT vertrouwd worden. Het origineel rekende ermee -> gratis
+-- motels (businessprice=0), gratis/negatieve huur (rate<=0 voegde zelfs geld toe)
+-- en een geldprinter via sellmotel (client koos zijn eigen verkoopprijs).
+-- config.motels is de autoriteit; hour_rate in de state is de eigenaar-override.
+local motelConfigByName = {}
+for _, m in pairs(config.motels) do
+	if m.motel then motelConfigByName[m.motel] = m end
+end
+
+---@param motelName string
+---@return {rate:number, businessprice:number, payment:string, rental_period:string}?
+local function getMotelPricing(motelName)
+	local cfg = motelConfigByName[motelName]
+	if not cfg then return nil end
+	local motels = GlobalState.Motels
+	local state = motels and motels[motelName]
+	local rate = (state and state.hour_rate) or cfg.rate
+	return {
+		rate = tonumber(rate) or cfg.rate,
+		businessprice = cfg.businessprice,
+		payment = cfg.payment,
+		rental_period = cfg.rental_period,
+	}
+end
 CreateInventoryHooks = function(motel,Type)
 	if GetResourceState('ox_inventory') ~= 'started' then return end
 	local inventory = '^'..Type..'_'..motel..'_%w+'
@@ -72,14 +98,17 @@ lib.callback.register('renzu_motels:rentaroom', function(src,data)
 	local xPlayer = GetPlayerFromId(src)
 	local motels = GlobalState.Motels
 	local identifier = xPlayer.identifier
-	if not motels[data.motel].rooms[data.index].players[identifier] and data.duration > 0 then
-		local money = xPlayer.getAccount(data.payment).money
-		local amount = (data.duration * data.rate)
-		if money <= amount then return end
-		xPlayer.removeAccountMoney(data.payment,amount)
+	local pricing = getMotelPricing(data.motel)
+	if not pricing then return false end
+	local duration = math.floor(tonumber(data.duration) or 0)
+	if not motels[data.motel].rooms[data.index].players[identifier] and duration > 0 then
+		local money = xPlayer.getAccount(pricing.payment).money
+		local amount = (duration * pricing.rate)
+		if amount <= 0 or money < amount then return end
+		xPlayer.removeAccountMoney(pricing.payment,amount)
 		if not motels[data.motel].rooms[data.index].players[identifier] then motels[data.motel].rooms[data.index].players[identifier] = {} end
 		motels[data.motel].rooms[data.index].players[identifier].name = xPlayer.name
-		motels[data.motel].rooms[data.index].players[identifier].duration = (os.time() + ( data.duration * rental_period[data.rental_period]))
+		motels[data.motel].rooms[data.index].players[identifier].duration = (os.time() + ( duration * rental_period[pricing.rental_period]))
 		motels[data.motel].revenue += amount
 		GlobalState.Motels = motels
 		db.updateall('rooms = ?, revenue = ?', '`motel`', data.motel, json.encode(motels[data.motel].rooms),motels[data.motel].revenue)
@@ -96,16 +125,20 @@ end)
 lib.callback.register('renzu_motels:payrent', function(src,data)
 	local xPlayer = GetPlayerFromId(src)
 	local motels = GlobalState.Motels
-	local duration = data.amount / data.rate
+	local pricing = getMotelPricing(data.motel)
+	if not pricing then return false end
+	local amount = tonumber(data.amount)
+	if not amount or amount <= 0 then return false end
+	local duration = amount / pricing.rate
 	if duration < 1.0 then return false end
-	local money = xPlayer.getAccount(data.payment).money
-	if money < data.amount then
+	local money = xPlayer.getAccount(pricing.payment).money
+	if money < amount then
 		return false
 	end
 	if motels[data.motel].rooms[data.index].players[xPlayer.identifier] then
-		xPlayer.removeAccountMoney(data.payment,data.amount)
-		motels[data.motel].revenue += data.amount
-		motels[data.motel].rooms[data.index].players[xPlayer.identifier].duration += ( duration * rental_period[data.rental_period])
+		xPlayer.removeAccountMoney(pricing.payment,amount)
+		motels[data.motel].revenue += amount
+		motels[data.motel].rooms[data.index].players[xPlayer.identifier].duration += ( duration * rental_period[pricing.rental_period])
 		GlobalState.Motels = motels
 		db.updateall('rooms = ?, revenue = ?', '`motel`', data.motel, json.encode(motels[data.motel].rooms),motels[data.motel].revenue)
 		return true
@@ -134,9 +167,11 @@ end)
 lib.callback.register('renzu_motels:buymotel', function(src,data)
 	local xPlayer = GetPlayerFromId(src)
 	local motels = GlobalState.Motels
-	local money = xPlayer.getAccount(data.payment).money
-	if not motels[data.motel].owned and money >= data.businessprice then
-		xPlayer.removeAccountMoney(data.payment,data.businessprice)
+	local pricing = getMotelPricing(data.motel)
+	if not pricing then return false end
+	local money = xPlayer.getAccount(pricing.payment).money
+	if not motels[data.motel].owned and money >= pricing.businessprice then
+		xPlayer.removeAccountMoney(pricing.payment,pricing.businessprice)
 		motels[data.motel].owned = xPlayer.identifier
 		GlobalState.Motels = motels
 		db.updateall('owned = ?', '`motel`', data.motel, motels[data.motel].owned)
@@ -148,7 +183,10 @@ end)
 lib.callback.register('renzu_motels:removeoccupant', function(src,data,index,player)
 	local xPlayer = GetPlayerFromId(src)
 	local motels = GlobalState.Motels
-	if motels[data.motel].owned == xPlayer.identifier or motels[data.motel].rooms[index].players[player] then
+	-- Was `owned == id or rooms[index].players[player]` -> die tweede tak is waar
+	-- zodra de doelspeler bestaat, ongeacht wie het aanroept: iedereen kon elke
+	-- huurder uitzetten. Nu: alleen de eigenaar, of de speler die zichzelf uitzet.
+	if motels[data.motel].owned == xPlayer.identifier or player == xPlayer.identifier then
 		motels[data.motel].rooms[index].players[player] = nil
 		GlobalState.Motels = motels
 		db.updateall('rooms = ?', '`motel`', data.motel, json.encode(motels[data.motel].rooms))
@@ -231,11 +269,13 @@ end)
 lib.callback.register('renzu_motels:sellmotel', function(src,data)
 	local xPlayer = GetPlayerFromId(src)
 	local motels = GlobalState.Motels
+	local pricing = getMotelPricing(data.motel)
+	if not pricing then return false end
 	if motels[data.motel].owned == xPlayer.identifier then
 		motels[data.motel].owned = nil
 		motels[data.motel].employees = {}
 		GlobalState.Motels = motels
-		xPlayer.addMoney(data.businessprice / 2)
+		xPlayer.addMoney(math.floor(pricing.businessprice / 2))
 		db.updateall('owned = ?, employees = ?', '`motel`', data.motel, motels[data.motel].owned,'[]')
 		return true
 	end
@@ -324,11 +364,23 @@ end)
 
 RegisterServerEvent("renzu_motels:Door")
 AddEventHandler('renzu_motels:Door', function(data)
-	local source = source
+	local src = source
+	local xPlayer = GetPlayerFromId(src)
+	local motels = GlobalState.Motels
+	-- Iedereen kon elk slot van elke kamer togglen (geen enkele check). Nu:
+	-- alleen een huurder van die kamer, de eigenaar of een medewerker van het motel.
+	local motel = data.motel and motels[data.motel]
+	if not xPlayer or not motel then return end
+	local room = motel.rooms and data.index and motel.rooms[data.index]
+	local id = xPlayer.identifier
+	local allowed = motel.owned == id
+		or (motel.employees and motel.employees[id])
+		or (room and room.players and room.players[id])
+	if not allowed then return end
+
 	TriggerClientEvent('renzu_motels:Door', -1, data)
-	if not data.Mlo then
-		local motels = GlobalState.Motels
-		motels[data.motel].rooms[data.index].lock = not motels[data.motel].rooms[data.index].lock
+	if not data.Mlo and room then
+		room.lock = not room.lock
 		--db.updateall('rooms = ?', '`motel`', data.motel, json.encode(motels[data.motel].rooms))
 		GlobalState.Motels = motels
 	end
