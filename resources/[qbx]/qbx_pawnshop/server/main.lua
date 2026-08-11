@@ -125,14 +125,15 @@ RegisterNetEvent('qb-pawnshop:server:pickupMelted', function()
         return
     end
 
-    local meltingItem = getMeltingItemFromName(playersMelting[src].itemName)
-    if not meltingItem then
+    -- Nil-check MOET vóór de dereferentie hieronder: een speler die pickupMelted
+    -- aanriep zonder actieve smelt liet de handler crashen op playersMelting[src].itemName.
+    if not playersMelting[src] or playersMelting[src].endTime > os.time() then
         exploitBan(src, 'pickupMelted Exploiting')
         return
     end
 
-
-    if not playersMelting[src] or playersMelting[src].endTime > os.time() then
+    local meltingItem = getMeltingItemFromName(playersMelting[src].itemName)
+    if not meltingItem then
         exploitBan(src, 'pickupMelted Exploiting')
         return
     end
