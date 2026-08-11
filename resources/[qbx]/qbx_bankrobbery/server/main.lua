@@ -187,6 +187,12 @@ RegisterNetEvent('qbx_bankrobbery:server:recieveItem', function(type, bankId, lo
         if #(GetEntityCoords(GetPlayerPed(src)) - sharedConfig.smallBanks[bankId].lockers[lockerId].coords) > 2.5 then
             return error(locale('error.event_trigger_wrong', {event = 'qbx_bankrobbery:server:receiveItem', extraInfo = ' (smallbank '..bankId..') ', source = source}))
         end
+        -- Server-side "al geleegd"-vlag: recieveItem checkte alleen de afstand, dus
+        -- een speler bij een kluisje kon dit event spammen voor oneindig black_money.
+        -- Wordt gereset zodra de bank-timeout de kluisjes vrijgeeft.
+        local locker = sharedConfig.smallBanks[bankId].lockers[lockerId]
+        if locker.looted then return end
+        locker.looted = true
         local itemType = math.random(#config.rewardTypes)
         local weaponChance = math.random(1, 50)
         local odd1 = math.random(1, 50)
@@ -212,6 +218,9 @@ RegisterNetEvent('qbx_bankrobbery:server:recieveItem', function(type, bankId, lo
         if #(GetEntityCoords(GetPlayerPed(source)) - sharedConfig.bigBanks.paleto.lockers[lockerId].coords) > 2.5 then
             return error(locale('error.event_trigger_wrong', {event = 'qbx_bankrobbery:server:receiveItem', extraInfo = ' (paleto) ', source = source}))
         end
+        local locker = sharedConfig.bigBanks.paleto.lockers[lockerId]
+        if locker.looted then return end
+        locker.looted = true
         local itemType = math.random(#config.rewardTypes)
         local tierChance = math.random(1, 100)
         local weaponChance = math.random(1, 10)
@@ -237,6 +246,9 @@ RegisterNetEvent('qbx_bankrobbery:server:recieveItem', function(type, bankId, lo
         if #(GetEntityCoords(GetPlayerPed(source)) - sharedConfig.bigBanks.pacific.lockers[lockerId].coords) > 2.5 then
             return error(locale('error.event_trigger_wrong', {event = 'qbx_bankrobbery:server:receiveItem', extraInfo = ' (pacific) ', source = source}))
         end
+        local locker = sharedConfig.bigBanks.pacific.lockers[lockerId]
+        if locker.looted then return end
+        locker.looted = true
         local itemType = math.random(#config.rewardTypes)
         local weaponChance = math.random(1, 100)
         local odd1 = math.random(1, 100)
@@ -278,10 +290,12 @@ AddEventHandler('qbx_bankrobbery:server:setTimeout', function()
             for k in pairs(sharedConfig.bigBanks.pacific.lockers) do
                 sharedConfig.bigBanks.pacific.lockers[k].isBusy = false
                 sharedConfig.bigBanks.pacific.lockers[k].isOpened = false
+                sharedConfig.bigBanks.pacific.lockers[k].looted = false
             end
             for k in pairs(sharedConfig.bigBanks.paleto.lockers) do
                 sharedConfig.bigBanks.paleto.lockers[k].isBusy = false
                 sharedConfig.bigBanks.paleto.lockers[k].isOpened = false
+                sharedConfig.bigBanks.paleto.lockers[k].looted = false
             end
             TriggerClientEvent('qbx_bankrobbery:client:ClearTimeoutDoors', -1)
             sharedConfig.bigBanks.paleto.isOpened = false
@@ -302,6 +316,7 @@ AddEventHandler('qbx_bankrobbery:server:SetSmallBankTimeout', function(bankId)
             for k in pairs(sharedConfig.smallBanks[bankId].lockers) do
                 sharedConfig.smallBanks[bankId].lockers[k].isOpened = false
                 sharedConfig.smallBanks[bankId].lockers[k].isBusy = false
+                sharedConfig.smallBanks[bankId].lockers[k].looted = false
             end
             TriggerClientEvent('qbx_bankrobbery:client:ResetFleecaLockers', -1, bankId)
             timeOut = false
