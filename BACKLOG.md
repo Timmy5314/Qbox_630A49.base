@@ -33,6 +33,55 @@ Severity: **BLOCKER** (server stuk) · **HIGH** · **MED** · **LOW**
 
 ---
 
+## SESSIE 12 augustus 2026 — verse pas qbx_* jobs/robbery + md-drugs
+
+Op verzoek van Tim ("kijk of je alle bugs op kan lossen", nadruk op de
+standalone-map). Fresh code-lezing van de vanilla qbx_* job/robbery-handlers
+en een diepe pas over md-drugs' geld/item-flows. Server nog steeds niet vanaf
+deze machine te draaien — statisch geverifieerd, `luac`-schoon (CfxLua `+=`/`?.`
+false-positives uitgesloten). **9 bugs over 6 resources.**
+
+### Gefixt
+
+| Sev | Resource | Wat | Fix |
+|---|---|---|---|
+| **KRITIEK (security)** | qbx_bankrobbery | `recieveItem` checkte alléén de afstand tot het kluisje — geen "al geleegd"-vlag. Wie bij een kluisje stond kon het event spammen voor ~20-30k black_money + wapens/items per call, oneindig. Grootste geldmachine van deze pas. | Server-side `looted`-vlag per kluisje (small/paleto/pacific), gereset in de drie bank-timeout-loops. Legitieme flow claimt precies één keer (client zet vlak ervoor `isOpened=true`), dus die blijft werken. |
+| **HIGH (functioneel)** | md-drugs (functions.lua) | `AddRep` las bij cornerselling-level-up `Config.CornerSellLevel` — bestaat niet (juiste pad: `Config.Cornerselling.CornerSellLevel`). Promoveren crashte de handler ná RemoveItem, vóór de uitbetaling → drugs kwijt, geen geld, promotie werkte nooit. | Juiste pad + guard tegen het hoogste level (geen volgende entry). |
+| **HIGH (security)** | qbx_recyclejob | `qbx_recycle:server:getItem` deelde items uit met nul validatie — spam-baar vanaf overal voor oneindig gratis scrap. | Locatiecheck tegen de recyclehal (`dropLocation`, 12m) + cooldown per pakket-cyclus, opschoning bij disconnect. |
+| **MED (security/crash)** | qbx_diving | `takeCoral(coralIndex)` vertrouwde de client-index blind: geen afstandscheck (gratis koraal vanaf overal) + out-of-range index crashte op `.corals[coralIndex].coords`. | Server valideert dat het een echt koraal in het huidige gebied is + afstandscheck (10m). |
+| **MED (security)** | qbx_storerobbery | `checkStatus` markeerde de kassa als "started/robbed" óók zonder lockpick → zonder gereedschap `registerOpened(true)` aanroepbaar voor gratis black_money. | `return` in de "geen item"-tak; started/robbed alleen mét lockpick. |
+| LOW | qbx_storerobbery | "Te weinig politie"-melding las `config.minimumCops` (nil — staat in `sharedConfig`) → toonde "Required = nil". Dormant (`minimumCops = 0`), stuk zodra die omhoog gaat. | `sharedConfig.minimumCops`. |
+| LOW (crash) | qbx_pawnshop | `pickupMelted` dereferentieerde `playersMelting[src].itemName` vóór de nil-check → Lua-error bij aanroep zonder actieve smelt. | Nil-check verplaatst naar vóór de dereferentie. |
+| LOW | qbx_diving | "Geen koraal"-melding riep `Notify(msg,'error')` zonder `src` → melding bereikte de speler nooit. | `src` toegevoegd. |
+| LOW (correctheid) | md-drugs (meth.lua) | Voertuig-modelcheck `not exists AND wrong model` kan nooit waar zijn → guard vuurde nooit (overige checks vingen het op). | `or` / `~=`. |
+
+### Gecontroleerd, bevestigd goed (geen actie)
+
+qbx_houserobbery, qbx_jewelery, qbx_fireworks, qbx_carwash, qbx_busjob,
+qbx_truckerjob, qbx_truckrobbery, qbx_scrapyard — server-authoritative, goede
+started/afstand-guards. md-drugs cornerselling/deliveries/junkies/heroin/lean/
+whippit/weed/xtc/oxyruns — server-side prijzen, `craft` verbruikt items,
+afstandschecks. s4t4n667_moneywash (volledig herschreven), renzu_engine
+(buyengine server-geprijsd).
+
+### Nog open — laag risico, niet gefixt
+
+| # | Sev | Wat |
+|---|---|---|
+| 69 | LOW | **Client-`num` nil-index in ~15 md-drugs-handlers** (dryplant/cutheroin/fillneedle/getmeth/geteph/getace/stamp e.d.): een ongeldige locatie-index van een exploit-client crasht de handler (script-error, geen buit). Systematisch afvangen = veel churn; niet gedaan. |
+| 70 | LOW | **renzu_engine `buyengine`** crasht op een ongeldige client-index en heeft geen locatiecheck (geen geldwinst, wel losjes). |
+| 71 | LOW | **qbx_diving `takeCoral`** en diverse md-drugs-handlers blijven client-trust op de minigame-uitkomst (inherent: server kan de minigame niet verifiëren). Afstand/validatie nu wel afgedekt. |
+
+### Testplan voor Tim
+
+1. **bankrobbery:** overval een Fleeca-kluisje normaal (werkt). Probeer daarna `TriggerServerEvent('qbx_bankrobbery:server:recieveItem','small',bankId,lockerId)` te herhalen bij hetzelfde kluisje → mag maar één keer uitbetalen tot de heist-timeout de kluisjes vrijgeeft.
+2. **md-drugs cornerselling:** verkoop drugs tot je een level omhoog gaat (Rookie → Corner Boy bij 240 rep). Verwacht: promotie + uitbetaling werken, geen script-error, geen drugverlies meer.
+3. **recyclejob:** doe de baan normaal (werkt); spam het get-item-event vanaf elders → niets.
+4. **diving:** verkoop met lege inventory → je ziet nu de "geen koraal"-melding.
+5. **storerobbery:** probeer een kassa te openen zonder lockpick → geweigerd, geen gratis geld.
+
+---
+
 ## SESSIE 8 augustus 2026, vervolg — qbx_*-golf + tweede externals-pas
 
 Zelfde sessie, derde en vierde controle-golf: de laatste nog niet

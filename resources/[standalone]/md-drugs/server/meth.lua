@@ -21,7 +21,7 @@ RegisterServerEvent('md-drugs:server:givemethingridients', function(veh)
 		return
 	end
 
-	if not DoesEntityExist(vehicle) and GetEntityModel(vehicle) == GetHashKey('journey') then
+	if not DoesEntityExist(vehicle) or GetEntityModel(vehicle) ~= GetHashKey('journey') then
 		Bridge.Prints.Warn(Bridge.Language.Locale('meth.wrongVehModel', Bridge.Framework.GetPlayerIdentifier(src), GetEntityModel(vehicle), 'journey'))
 		return
 	end

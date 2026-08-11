@@ -176,10 +176,17 @@ function AddRep(source, type, amount)
     if type == 'cornerselling' then
         local rep = playerRep[id].cornerselling
         local cornerData = Config.Cornerselling.CornerSellLevel[rep.level]
-        if rep.rep + amount >= cornerData.maxrep then
-            rep.level = rep.level + 1
-            rep.label = Config.CornerSellLevel[rep.level].label
-            rep.price = Config.CornerSellLevel[rep.level].price
+        -- Was Config.CornerSellLevel (bestaat niet) -> indexeren van nil crashte de
+        -- hele uitbetaling zodra een cornerseller een level omhoog ging (na RemoveItem,
+        -- vóór AddAccountBalance -> drugs kwijt, geen geld). Juiste pad + guard tegen
+        -- het hoogste level (geen volgende entry).
+        if cornerData and rep.rep + amount >= cornerData.maxrep then
+            local nextLevel = Config.Cornerselling.CornerSellLevel[rep.level + 1]
+            if nextLevel then
+                rep.level = rep.level + 1
+                rep.label = nextLevel.label
+                rep.price = nextLevel.price
+            end
         end
         rep.rep = rep.rep + amount
     else
