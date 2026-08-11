@@ -48,7 +48,7 @@ RegisterNetEvent('qbx_diving:server:sellCoral', function()
             message = locale('logs.tried_sell'),
             webhook = config.discordWebhook,
         })
-        return exports.qbx_core:Notify(locale('error.no_coral'), 'error')
+        return exports.qbx_core:Notify(src, locale('error.no_coral'), 'error')
     end
 
     logger.log({
@@ -69,8 +69,18 @@ local function getNewLocation()
 end
 
 RegisterNetEvent('qbx_diving:server:takeCoral', function(coralIndex)
-    if pickedUpCoralIndexes[coralIndex] then return end
     local src = source
+    -- Client stuurt alleen een coralIndex; valideer server-side dat het een echt
+    -- koraal in het huidige gebied is en dat de speler er daadwerkelijk bij staat.
+    -- Zonder deze checks kon iedereen dit event spammen met willekeurige indexen
+    -- (gratis koraal vanaf overal, en een out-of-range index crashte de handler).
+    local area = sharedConfig.coralLocations[currentAreaIndex]
+    local coral = area and area.corals[coralIndex]
+    if not coral then return end
+    if pickedUpCoralIndexes[coralIndex] then return end
+
+    if #(GetEntityCoords(GetPlayerPed(src)) - coral.coords) > 10.0 then return end
+
     local coralType = config.coralTypes[math.random(1, #config.coralTypes)]
     local amount = math.random(1, coralType.maxAmount)
 
