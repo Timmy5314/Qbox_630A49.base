@@ -43,7 +43,11 @@ RegisterNetEvent('qbx_storerobbery:server:checkStatus', function()
     elseif hasAdvanced then
         TriggerClientEvent('qbx_storerobbery:client:initRegisterAttempt', source, true)
     else
+        -- Geen lockpick -> niet als "gestart" markeren. Anders kon een speler zonder
+        -- enig gereedschap de attempt starten en daarna rechtstreeks registerOpened(true)
+        -- aanroepen voor gratis black_money (registerOpened checkt alleen startedRegister).
         exports.qbx_core:Notify(source, 'You don\'t have the appropriate items', 'error')
+        return
     end
 
     startedRegister[source] = true
@@ -124,7 +128,7 @@ RegisterNetEvent('qbx_storerobbery:server:trySafe', function()
 
     if not closestSafeIndex then return end
     if leoCount < sharedConfig.minimumCops and sharedConfig.notEnoughCopsNotify then
-        exports.qbx_core:Notify(source, locale('error.no_police', {Required = config.minimumCops}), 'error')
+        exports.qbx_core:Notify(source, locale('error.no_police', {Required = sharedConfig.minimumCops}), 'error')
         return
     end
 
