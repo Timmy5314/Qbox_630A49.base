@@ -1,7 +1,18 @@
 local config = require 'config.server'
 
+---@type table<number, number> src -> laatste uitbetaling (GetGameTimer ms)
+local lastPayout = {}
+
 RegisterNetEvent('qbx_recycle:server:getItem', function()
     local src = source
+
+    -- Dit event deelde items uit zonder énige server-side check: elke speler kon
+    -- 'qbx_recycle:server:getItem' rechtstreeks spammen vanaf elke locatie en zo
+    -- eindeloos gratis scrap-items claimen. Nu: moet in de recyclehal staan +
+    -- cooldown per pakket-cyclus.
+    if #(GetEntityCoords(GetPlayerPed(src)) - config.dropLocation) > config.maxDropDistance then return end
+    if lastPayout[src] and (GetGameTimer() - lastPayout[src]) < config.payoutCooldown then return end
+    lastPayout[src] = GetGameTimer()
 
     for _ = 1, math.random(1, config.maxItemsReceived), 1 do
         local randItem = config.itemTable[math.random(1, #config.itemTable)]
@@ -33,4 +44,8 @@ RegisterNetEvent('qbx_recycle:server:getItem', function()
             exports.qbx_core:Notify(src, locale('error.overweight_check'), 'error')
         end
     end
+end)
+
+AddEventHandler('playerDropped', function()
+    lastPayout[source] = nil
 end)
