@@ -72,8 +72,19 @@ afstandschecks. s4t4n667_moneywash (volledig herschreven), renzu_engine
 | 70 | LOW | **renzu_engine `buyengine`** crasht op een ongeldige client-index en heeft geen locatiecheck (geen geldwinst, wel losjes). |
 | 71 | LOW | **qbx_diving `takeCoral`** en diverse md-drugs-handlers blijven client-trust op de minigame-uitkomst (inherent: server kan de minigame niet verifiëren). Afstand/validatie nu wel afgedekt. |
 
+### Vervolg — standalone-golf (renzu_motels + verificaties)
+
+| Sev | Resource | Wat | Fix |
+|---|---|---|---|
+| **KRITIEK (security)** | renzu_motels | De server rekende met `rate`/`businessprice`/`payment` die de **client** meestuurde. `buymotel` met `businessprice=0` = gratis motel; `sellmotel` keerde de door de client gekozen prijs/2 uit = **geldprinter** (koop 0, verkoop miljoenen); `rentaroom` met `rate<=0` huurde gratis of vóégde geld toe (negatieve rate); `payrent` met een client-rate gaf enorme huurverlenging voor $1. | `config.motels` is nu de autoriteit (met `hour_rate`-state als eigenaar-override) via server-side `getMotelPricing()`; client-waarden genegeerd. |
+| MED (griefing) | renzu_motels | `removeoccupant`'s `or`-tak was waar zodra het doel bestond → **iedereen** kon elke huurder uitzetten. | Alleen eigenaar of de speler zelf. |
+| MED (griefing) | renzu_motels | Het `Door`-event liet **iedereen** elk kamerslot togglen (geen enkele check). | Alleen huurder/eigenaar/medewerker van dat motel. |
+
+**Gecontroleerd, bevestigd goed / eerdere fix intact (geen actie):** renzu_nitro/turbo/stancer/itemback (cosmetisch, verbruiken items, geen geld), xt-prison (PoliceJobs-fix intact, netjes), safecracker + ultra-voltlab + mhacking (client-only minigames, geen geld/item-server), stevo_chopshop (`name` uit server-state — kritieke fix intact), stevo_cayocrates (`createCrateDrop` = AddEventHandler — kritieke fix intact).
+
 ### Testplan voor Tim
 
+0. **renzu_motels:** huur/koop/verkoop een motel normaal (moet werken met de config-prijzen). Probeer via een exploit-client `buymotel`/`sellmotel`/`rentaroom` met een eigen `businessprice`/`rate` → server moet de config-prijs gebruiken, niet die van de client. Probeer als niet-eigenaar iemand uit een kamer te zetten of een slot te togglen → geweigerd.
 1. **bankrobbery:** overval een Fleeca-kluisje normaal (werkt). Probeer daarna `TriggerServerEvent('qbx_bankrobbery:server:recieveItem','small',bankId,lockerId)` te herhalen bij hetzelfde kluisje → mag maar één keer uitbetalen tot de heist-timeout de kluisjes vrijgeeft.
 2. **md-drugs cornerselling:** verkoop drugs tot je een level omhoog gaat (Rookie → Corner Boy bij 240 rep). Verwacht: promotie + uitbetaling werken, geen script-error, geen drugverlies meer.
 3. **recyclejob:** doe de baan normaal (werkt); spam het get-item-event vanaf elders → niets.
