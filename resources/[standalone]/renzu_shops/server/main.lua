@@ -928,9 +928,49 @@ lib.callback.register("renzu_shops:createitem", function(source,data)
 	end
 end)
 
+-- Server-side receptvalidatie voor work/proccessed. Beide callbacks kregen
+-- reward/required/value RECHTSTREEKS van de client, zonder enige check -> een
+-- speler kon 'renzu_shops:proccessed' aanroepen met {required=false,
+-- reward='goldbar', value=999} voor oneindige willekeurige items. We indexeren
+-- alle ECHTE recepten uit de config en accepteren alleen die combinaties.
+local validRecipes = {}
+local function normRequired(required)
+	if type(required) == 'table' then
+		local parts = {}
+		for _, v in pairs(required) do
+			parts[#parts+1] = tostring(v.item)..':'..tostring(v.amount)
+		end
+		table.sort(parts)
+		return table.concat(parts, ',')
+	end
+	return tostring(required)
+end
+local function recipeKey(reward, required, value)
+	return tostring(reward)..'|'..normRequired(required)..'|'..tostring(value)
+end
+local function indexRecipes(tbl, seen)
+	if type(tbl) ~= 'table' then return end
+	seen = seen or {}
+	if seen[tbl] then return end
+	seen[tbl] = true
+	if tbl.reward ~= nil then
+		validRecipes[recipeKey(tbl.reward, tbl.required, tbl.value)] = true
+	end
+	for _, v in pairs(tbl) do
+		indexRecipes(v, seen)
+	end
+end
+CreateThread(function()
+	Wait(2500) -- na config-load
+	indexRecipes(shared.OwnedShops)
+	indexRecipes(shared.MovableShops)
+	indexRecipes(shared.Storeitems)
+end)
+
 lib.callback.register("renzu_shops:work", function(source,data)
 	local source = source
 	local xPlayer = GetPlayerFromId(source)
+	if not validRecipes[recipeKey(data.reward, data.required, data.value)] then return false end
 	if GetJobFromData(data.groups,xPlayer) == xPlayer.job.name then
 		Inventory.AddItem(source, data.reward, 1)
 	end
@@ -939,6 +979,7 @@ end)
 lib.callback.register("renzu_shops:proccessed", function(source,data)
 	local source = source
 	local xPlayer = GetPlayerFromId(source)
+	if not validRecipes[recipeKey(data.reward, data.required, data.value)] then return false end
 	local amount = 1
 	if type(data.required) == 'string' or data.required == false then
 		amount = data.required and GetItemCountSingle(data.required,source)
@@ -1198,7 +1239,10 @@ exports('CraftItems', CraftItems)
 
 lib.callback.register("renzu_shops:craftitem", function(source,data)
 	local source = source
-	local items = not data.items and shared.MovableShops[data.type].menu[data.menu] or data.items
+	-- Recept ALTIJD server-side uit de config halen; nooit data.items van de client
+	-- vertrouwen (dat liet een speler zijn eigen ingredienten/output opgeven).
+	local items = shared.MovableShops[data.type] and shared.MovableShops[data.type].menu and shared.MovableShops[data.type].menu[data.menu]
+	if not items then return false end
 	local xPlayer = GetPlayerFromId(source)
 	local identifier = not data.items and data.type..':'..xPlayer.identifier or data.identifier
 	data.inv = data.stash and identifier or source -- declare where the inventory will be used for removing and adding items
