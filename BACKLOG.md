@@ -82,8 +82,19 @@ afstandschecks. s4t4n667_moneywash (volledig herschreven), renzu_engine
 
 **Gecontroleerd, bevestigd goed / eerdere fix intact (geen actie):** renzu_nitro/turbo/stancer/itemback (cosmetisch, verbruiken items, geen geld), xt-prison (PoliceJobs-fix intact, netjes), safecracker + ultra-voltlab + mhacking (client-only minigames, geen geld/item-server), stevo_chopshop (`name` uit server-state — kritieke fix intact), stevo_cayocrates (`createCrateDrop` = AddEventHandler — kritieke fix intact).
 
+### Vervolg — standalone-golf 3 (renzu hoofdresources)
+
+| Sev | Resource | Wat | Fix |
+|---|---|---|---|
+| **KRITIEK (security)** | renzu_vehicleshop | De showroom-koopflow (displaycars) routeert via de `notregister`-tak, waar de prijs uit `notregister.value` kwam — een **client-argument**. Een cheater kon `buyvehicle` rechtstreeks aanroepen met `notregister={value=0}` en een willekeurig model, en zo **elk voertuig gratis** op zijn naam registreren. | Prijs wordt nu server-side opgezocht via `getServerPrice()` (displaycars.value / shop-lijst.price / Config.Vehicles). Onbekend model → koop geweigerd. |
+| **HIGH (security)** | renzu_shops | `work` en `proccessed` kregen `reward`/`required`/`value` rechtstreeks van de client zonder énige check → `proccessed` aanroepen met `{required=false, reward='goldbar', value=999}` gaf **oneindige willekeurige items**. `craftitem` gebruikte `data.items` van de client als recept. | Alle echte recepten worden bij boot uit de config geïndexeerd; `work`/`proccessed` accepteren alleen een combinatie die écht in de config staat. `craftitem` haalt het recept altijd uit `shared.MovableShops`. |
+
+**Gecontroleerd, bevestigd goed (geen actie):** renzu_jobs (schone rewrite — server-side prijzen, rank-/treasury-checks, refunds), renzu_customs (schone rewrite — `pay` herberekent kosten server-side via de diff, betaalt naar Renewed-Banking). renzu_garage/renzu_clothes zijn in eerdere sessies al grondig gefixt.
+
 ### Testplan voor Tim
 
+-1. **renzu_vehicleshop:** koop een showroom-auto normaal (moet werken met config-prijs). Probeer via een exploit-client `buyvehicle` met `notregister={value=0}` → moet geweigerd of tegen de echte prijs.
+-1b. **renzu_shops:** doe een process/work-actie bij een winkel normaal (moet werken). Probeer `renzu_shops:proccessed` met een verzonnen reward/value → mag niets opleveren.
 0. **renzu_motels:** huur/koop/verkoop een motel normaal (moet werken met de config-prijzen). Probeer via een exploit-client `buymotel`/`sellmotel`/`rentaroom` met een eigen `businessprice`/`rate` → server moet de config-prijs gebruiken, niet die van de client. Probeer als niet-eigenaar iemand uit een kamer te zetten of een slot te togglen → geweigerd.
 1. **bankrobbery:** overval een Fleeca-kluisje normaal (werkt). Probeer daarna `TriggerServerEvent('qbx_bankrobbery:server:recieveItem','small',bankId,lockerId)` te herhalen bij hetzelfde kluisje → mag maar één keer uitbetalen tot de heist-timeout de kluisjes vrijgeeft.
 2. **md-drugs cornerselling:** verkoop drugs tot je een level omhoog gaat (Rookie → Corner Boy bij 240 rep). Verwacht: promotie + uitbetaling werken, geen script-error, geen drugverlies meer.
