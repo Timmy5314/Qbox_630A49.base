@@ -134,6 +134,35 @@ end)
 
 local temp = {}
 
+-- Zoekt de autoriteitsprijs voor een model server-side op. De showroom-displaycars
+-- gebruiken `value`, de shop-lijsten `price`, Config.Vehicles is op model gekeyed.
+-- Nodig omdat de notregister-koopflow anders de client-meegestuurde prijs vertrouwde.
+function getServerPrice(model)
+    if not model then return nil end
+    local m = tostring(model):lower()
+    for _, shop in pairs(VehicleShop) do
+        if type(shop) == 'table' then
+            if shop.displaycars then
+                for _, dc in pairs(shop.displaycars) do
+                    if dc.model and tostring(dc.model):lower() == m then
+                        return dc.value or dc.price
+                    end
+                end
+            end
+            if shop.shop then
+                for _, sv in pairs(shop.shop) do
+                    if sv.model and tostring(sv.model):lower() == m then
+                        return sv.price or sv.value
+                    end
+                end
+            end
+        end
+    end
+    local cfg = Config.Vehicles and Config.Vehicles[model]
+    if cfg then return cfg.price or cfg.value end
+    return nil
+end
+
 function Buy(result,xPlayer,model, props, payment, job, type, garage, notregister)
     fetchdone = false
     bool = false
@@ -146,14 +175,24 @@ function Buy(result,xPlayer,model, props, payment, job, type, garage, notregiste
             price = result[1].price
         else
             model = model
-            price = notregister.value
+            -- NOOIT notregister.value vertrouwen: dat is een client-argument. Een
+            -- cheater riep buyvehicle rechtstreeks aan met notregister={value=0} en
+            -- een willekeurig model -> gratis auto van elk model. Prijs komt nu
+            -- server-side uit de config (showroom displaycars / shop-lijsten).
+            price = getServerPrice(model)
+        end
+        price = tonumber(price)
+        if not price or price < 0 then
+            xPlayer.showNotification('Vehicle does not Exist',1,0,110)
+            fetchdone = true
+            return false
         end
         local payment = payment
         local money = false
         if payment == 'cash' then
-            money = xPlayer.getMoney() >= tonumber(price)
+            money = xPlayer.getMoney() >= price
         else
-            money = xPlayer.getAccount('bank').money >= tonumber(price)
+            money = xPlayer.getAccount('bank').money >= price
         end
         stock = 999      
         if money then
